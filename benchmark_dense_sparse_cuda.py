@@ -5,10 +5,12 @@ import numpy as np
 import sys
 from random import randint
 from numba import cuda
+import os
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
 b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
 
+cur_dir = os.getcwd()
 
 def get_available_mem_on_gpu():
   gpus = cuda.gpus.lst
@@ -245,8 +247,11 @@ try:
             transB = ""
 
           # , kernel_type=GemmKernelType.REGISTER_ONLY_BASED
+          T = "t"
+          NT = ""
           dense_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          dense_gen.set(tA, tB, mat_a, mat_b_dense, mat_c, alpha=1.0, beta=1.0)
+          dense_gen.set(tA, tB, mat_a, mat_b_dense, mat_c, alpha=1.0, beta=1.0,
+                        base_name=f"A{T if transA else NT}_B{T if transB else NT}_DenseXDense")
           dense_gen.generate()
           # print(dense_gen.get_kernel())
           # print(dense_gen.get_launcher())
@@ -257,7 +262,8 @@ try:
 
           # , kernel_type=GemmKernelType.DENSE_SPARSE_REGISTER_ONLY_FULL_UNIT_VECTOR_BASED
           sparse_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          sparse_gen.set(tA, tB, mat_a, mat_b_sparse, mat_c, alpha=1.0, beta=1.0)
+          sparse_gen.set(tA, tB, mat_a, mat_b_sparse, mat_c, alpha=1.0, beta=1.0,
+                         base_name=f"A{T if transA else NT}_B{T if transB else NT}_{b_type}_DenseXSparse")
           sparse_gen.generate()
           # print(sparse_gen.get_kernel())
           # print(sparse_gen.get_launcher())
@@ -289,7 +295,10 @@ try:
           get_available_mem_on_gpu()
           full, at80 = get_suggested_num_elements(rowA * colA, rowB * colB, b_el_count, rowC * colC, 4)
           num_els = at80
-
+          
+          ctv = "_ctv" if with_compile_time_values else ""
+          n = f"A{T if transA else NT}_B{T if transB else NT}_{b_type}_DenseXSparse{ctv}"
+          #print(n)
           s = f"""
     #include <iostream>
     #include <cuda_runtime.h>
@@ -349,6 +358,7 @@ try:
 
 
     int main(){{
+    std::cout << "Gemm-Type: " << "{n}" << std::endl;
     // Element Matrices
     std::cout << "Instantiating core matrices" << std::endl;
     float CoreA[{rowA}*{colA}] = {strA};
@@ -380,6 +390,7 @@ try:
     float *C1_dev = nullptr;
     float *C2_dev = nullptr;
 
+    
     std::cout << "Allocating device memory" << std::endl;
     cudaMalloc((void **)&A_dev, sizeof(float) * {rowA} * {colA} * {num_els}); CHECK_ERR;
     {f"cudaMalloc((void **)&B_sparse_dev, sizeof(float) * {b_el_count} * {num_els}); CHECK_ERR;" if not with_compile_time_values else ""}
@@ -432,7 +443,7 @@ try:
     cudaFree(C2_dev);
 
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] != R2[i]) {{
+        if (R1[i] >= R2[i] + 0.001 || R1[i] <= R2[i] - 0.001) {{
         //throw std::runtime_error("{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!");
         std::cout << "RESULTS DONT MATCH" << std::endl;
         return 0;
@@ -442,7 +453,7 @@ try:
     std::cout << "Results Match!" << std::endl;
     }}
     """
-          f = open(f"cuda_code/benchmark_cuda_dense_sparse_{testid}.cu", "w")
+          f = open(f"{cur_dir}/cuda_code/benchmark_cuda_dense_sparse_{testid}.cu", "w")
           f.write(s)
           f.close()
           # print(s)

@@ -1,6 +1,5 @@
 #Copy to local:
-#scp -r -o ProxyCommand="ssh -W %h:%p budanaz@lxhalle.in.tum.de" ge69xij@sccs-gpu-login.sccs.in.tum.de:/u/home/ge69xij/material  /home/primrose/Work/gemmforge_remote
-
+#scp -r -o ProxyCommand="ssh -W %h:%p budanaz@lxhalle.in.tum.de" ge69xij@sccs-gpu-login.sccs.in.tum.de:/u/home/ge69xij/gemmforge /home/primrose/Work/MasterThesisMaterial/gemmforge_remote
 #Copy to remote:
 #scp -r -o ProxyCommand="ssh -W %h:%p budanaz@lxhalle.in.tum.de" /home/primrose/Work/gemmforge_remote ge69xij@sccs-gpu-login.sccs.in.tum.de:/u/home/ge69xij/gemmfore
 

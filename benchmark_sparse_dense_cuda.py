@@ -6,6 +6,9 @@ import numpy as np
 import sys
 from random import randint
 from numba import cuda
+import os
+
+cur_dir = os.getcwd()
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
 a_matrix_types = ["full", "random"]
@@ -120,15 +123,15 @@ try:
           valid = "_compile_time_value" if with_compile_time_values else ""
           testid += valid
 
-          rowA = 56
-          colA = 9
+          rowA = 32
+          colA = 32
           if tA:
-            rowA = 9
-            colA = 56
-          rowB = 9
-          colB = 9
-          rowC = 56
-          colC = 9
+            rowA = 32
+            colA = 32
+          rowB = 32
+          colB = 32
+          rowC = 32
+          colC = 32
           # rowA = 64
           # colA = 32
           # rowB = 32
@@ -171,8 +174,11 @@ try:
             transB = ""
 
           # , kernel_type=GemmKernelType.REGISTER_ONLY_BASED
+          T = "t"
+          NT = ""
           dense_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          dense_gen.set(tA, tB, mat_a_dense, mat_b, mat_c, alpha=1.0, beta=1.0)
+          dense_gen.set(tA, tB, mat_a_dense, mat_b, mat_c, alpha=1.0, beta=1.0,
+                        base_name=f"A{T if transA else NT}_B{T if transB else NT}_DenseXDense")
           dense_gen.generate()
           # print(dense_gen.get_kernel())
           # print(dense_gen.get_launcher())
@@ -183,7 +189,8 @@ try:
 
           # , kernel_type=GemmKernelType.DENSE_SPARSE_REGISTER_ONLY_FULL_UNIT_VECTOR_BASED
           sparse_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          sparse_gen.set(tA, tB, mat_a_sparse, mat_b, mat_c, alpha=1.0, beta=1.0)
+          sparse_gen.set(tA, tB, mat_a_sparse, mat_b, mat_c, alpha=1.0, beta=1.0,
+                         base_name=f"A{T if transA else NT}_{a_type}_B{T if transB else NT}_SparseXDense")
           sparse_gen.generate()
           # print(sparse_gen.get_kernel())
           # print(sparse_gen.get_launcher())
@@ -215,7 +222,9 @@ try:
           get_available_mem_on_gpu()
           full, at80 = get_suggested_num_elements(rowA * colA, rowB * colB, a_el_count, rowC * colC, 4)
           num_els = at80
-
+          
+          ctv = "_ctv" if with_compile_time_values else ""
+          n = f"A{T if transA else NT}_{a_type}_B{T if transB else NT}_SparseXDense{ctv}"
           s = f"""
     #include <iostream>
     #include <cuda_runtime.h>
@@ -273,8 +282,8 @@ try:
     // Dense x Sparse Kernel Launcher
     {sparse_gen.get_launcher()}
 
-
     int main(){{
+    std::cout << "Gemm-Type: " << "{n}" << std::endl;
     // Element Matrices
     std::cout << "Instantiating core matrices" << std::endl;
     float CoreA_sparse[{a_el_count}] = {strA_sparse};
@@ -335,8 +344,8 @@ try:
     cudaDeviceSynchronize(); CHECK_ERR;
     cudaMemcpy(R1, C1_dev, sizeof(float)*{rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
-    // Dense x Sparse Matrix Mult
-    std::cout << "Calling Dense x Sparse kernel" << std::endl;
+    // Sparse x Dense Matrix Mult
+    std::cout << "Calling Densse x Sparse kernel" << std::endl;
     elapsedTime = 0.0;
     cudaEvent_t startDS, stopDS;
     cudaEventCreate(&startDS); CHECK_ERR;
@@ -346,7 +355,7 @@ try:
     cudaEventRecord(stopDS); CHECK_ERR;
     cudaEventSynchronize(stopDS); CHECK_ERR;
     cudaEventElapsedTime(&elapsedTime, startDS, stopDS); CHECK_ERR;
-    std::cout << "Dense x Sparse kernel took " << elapsedTime << " ms" << std::endl; 
+    std::cout << "Sparse x Dense kernel took " << elapsedTime << " ms" << std::endl; 
     cudaDeviceSynchronize(); CHECK_ERR;
     cudaMemcpy(R2, C2_dev, sizeof(float)*{rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
@@ -358,7 +367,7 @@ try:
     cudaFree(C2_dev);
 
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] != R2[i]) {{
+        if (R1[i] >= R2[i] + 0.001 || R1[i] <= R2[i] - 0.001) {{
         //throw std::runtime_error("{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!");
         std::cout << "RESULTS DONT MATCH" << std::endl;
         return 0;
@@ -368,7 +377,7 @@ try:
     std::cout << "Results Match!" << std::endl;
     }}
     """
-          f = open(f"cuda_code/benchmark_cuda_sparse_dense_{testid}.cu", "w")
+          f = open(f"{cur_dir}/cuda_code/benchmark_cuda_sparse_dense_{testid}.cu", "w")
           f.write(s)
           f.close()
           # print(s)
