@@ -3,6 +3,7 @@ import subprocess
 from subprocess import Popen
 import signal
 import sys
+import shutil
 
 # benchmark_x_y_cuda.py put them in folder ./cuda_code/*.py
 cur_dir = os.getcwd()
@@ -12,12 +13,22 @@ report_path = f"{cur_dir}/reports"
 out_path = f"{cur_dir}/stdout.txt"
 err_path = f"{cur_dir}/stderr.txt"
 
-#mode = "Profile"
-mode = "Run"
+mode = "Profile"
+#mode = "Run"
 
 for path in [code_path, exec_path, report_path]:
     if not os.path.exists(path):
         os.mkdir(path)
+
+for path in [code_path, exec_path]:
+    if os.path.exists(path):
+        shutil.rmtree(path)
+        os.mkdir(path)
+        
+if mode == "Profile":
+    if os.path.exists(report_path):
+        shutil.rmtree(report_path)
+        os.mkdir(report_path)
 
 out_file = open(out_path, "w")
 err_file = open(err_path, "w")
@@ -35,10 +46,12 @@ def handler(signum, frame):
 
 signal.signal(signal.SIGINT, handler)
 
+
 # Compile CUDA Kernels
 for generator in [f'{cur_dir}/benchmark_dense_sparse_cuda.py', f'{cur_dir}/benchmark_sparse_dense_cuda.py']:
     proc = subprocess.run(['python3', generator], stdout=subprocess.PIPE)
     stdout_as_str += proc.stdout.decode('utf-8')
+    print("Call: ", generator)
 
 for file in os.listdir(code_path):
     filename = os.fsdecode(file)
@@ -46,12 +59,10 @@ for file in os.listdir(code_path):
     benchmark_identifier = filename.split(".cu")[0].split("benchmark_cuda_")[1]
 
     compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
---ptxas-options=-v {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+--ptxas-options=-v --source-in-ptx {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
-    profile_command = f"ncu --export {report_path}/{benchmark_identifier}_rep --force-overwrite  --replay-mode kernel \
---kernel-name-base function --launch-skip-before-match 0  --sampling-interval auto --sampling-max-passes 5 \
---sampling-buffer-size 33554432 --profile-from-start 1 --cache-control all --clock-control base --set full \
---import-source no --check-exit-code yes --target-processes all {exec_path}/{benchmark_identifier}"
+    profile_command = f'sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
+--import-source yes {exec_path}/{benchmark_identifier}'
 
     run_command = f"{exec_path}/{benchmark_identifier}"
 
