@@ -8,8 +8,6 @@ from random import randint
 from numba import cuda
 import os
 
-from params import *
-
 cur_dir = os.getcwd()
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
@@ -125,18 +123,21 @@ try:
           valid = "_compile_time_value" if with_compile_time_values else ""
           testid += valid
 
-          rowA = row_a
-          colA = col_a
+          rowA = 32
+          colA = 32
           if tA:
-            rowA = col_a
-            colA = row_a
-          rowB = row_b
-          colB = col_b
-          if tB:
-            rowB = col_b
-            colB = row_b
-          rowC = row_a
-          colC = col_b
+            rowA = 32
+            colA = 32
+          rowB = 32
+          colB = 32
+          rowC = 32
+          colC = 32
+          # rowA = 64
+          # colA = 32
+          # rowB = 32
+          # colB = 32
+          # rowC = 64
+          # colC = 32
 
           coo, matrix_a, matrix_a_non_zeros_flat, a_el_count = gen_matrix_a(rowA, colA, tA, a_type)
 
@@ -176,7 +177,7 @@ try:
           T = "t"
           NT = ""
           dense_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          dense_gen.set(tA, tB, mat_a_dense, mat_b, mat_c, alpha=Alpha, beta=Beta,
+          dense_gen.set(tA, tB, mat_a_dense, mat_b, mat_c, alpha=1.0, beta=1.0,
                         base_name=f"A{T if transA else NT}_B{T if transB else NT}_DenseXDense")
           dense_gen.generate()
           # print(dense_gen.get_kernel())
@@ -188,7 +189,7 @@ try:
 
           # , kernel_type=GemmKernelType.DENSE_SPARSE_REGISTER_ONLY_FULL_UNIT_VECTOR_BASED
           sparse_gen = GemmGenerator(vm=vm, kernel_type=GemmKernelType.AUTO)
-          sparse_gen.set(tA, tB, mat_a_sparse, mat_b, mat_c, alpha=Alpha, beta=Beta,
+          sparse_gen.set(tA, tB, mat_a_sparse, mat_b, mat_c, alpha=1.0, beta=1.0,
                          base_name=f"A{T if transA else NT}_{a_type}_B{T if transB else NT}_SparseXDense")
           sparse_gen.generate()
           # print(sparse_gen.get_kernel())
@@ -341,8 +342,8 @@ try:
     cudaEventRecord(stopDD); CHECK_ERR;
     cudaEventSynchronize(stopDD); CHECK_ERR;
     cudaEventElapsedTime(&elapsedTime, startDD, stopDD); CHECK_ERR;
-    cudaDeviceSynchronize(); CHECK_ERR;
     std::cout << "Dense x Dense kernel took " << elapsedTime << " ms" << std::endl; 
+    cudaDeviceSynchronize(); CHECK_ERR;
     cudaMemcpy(R1, C1_dev, sizeof(float)*{rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     // Sparse x Dense Matrix Mult
@@ -356,8 +357,8 @@ try:
     cudaEventRecord(stopDS); CHECK_ERR;
     cudaEventSynchronize(stopDS); CHECK_ERR;
     cudaEventElapsedTime(&elapsedTime, startDS, stopDS); CHECK_ERR;
-    cudaDeviceSynchronize(); CHECK_ERR;
     std::cout << "Sparse x Dense kernel took " << elapsedTime << " ms" << std::endl; 
+    cudaDeviceSynchronize(); CHECK_ERR;
     cudaMemcpy(R2, C2_dev, sizeof(float)*{rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     std::cout << "Freeing device memory" << std::endl;

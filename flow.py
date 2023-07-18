@@ -13,8 +13,8 @@ report_path = f"{cur_dir}/reports"
 out_path = f"{cur_dir}/stdout.txt"
 err_path = f"{cur_dir}/stderr.txt"
 
-mode = "Profile"
-#mode = "Run"
+#mode = "Profile"
+mode = "Run"
 
 for path in [code_path, exec_path, report_path]:
     if not os.path.exists(path):

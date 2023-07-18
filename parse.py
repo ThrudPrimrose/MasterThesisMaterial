@@ -39,10 +39,16 @@ report_sparse_dense = []
 FLOAT_SIZE = 4
 
 def get_load_store_size(b_el_count):
-    load_store = b_el_count +(row_a * col_a) + (row_c * col_c)
+    load_store = 0
+    load_store += b_el_count
+    load_store += (row_a * col_a)
+    # Nsight compute says to remvoe this
+    # load_store + ((row_c * col_c) * 1)
+    #1 thread loads 1 row of a, 1 roww of b and 1 row of c
 
+    # Adding C to end result, row_c = row_a, col_c = col_b
     if Beta != 0.0:
-        load_store += row_c * col_c
+        Flops += row_a * col_b;
 
     load_store *= FLOAT_SIZE
     return load_store
@@ -52,6 +58,7 @@ def calculate_ops_dense():
   #FMA of 1 row = (2 * col_a * col_b)
   #Done for every row (row_a) *
   ops = (row_a) * (2 * col_a * col_b)
+  ops += row_c * col_c
   Flops = ops 
 
   if Alpha != 1.0:
@@ -64,10 +71,6 @@ def calculate_ops_dense():
   load_store =  get_load_store_size(row_b * col_b)
 
   return Flops, load_store
-
-flops, load_store = calculate_ops_dense()
-print("FLOPS: ", flops, "LS: ", load_store)
-#raise Exception("FLOPS: ", flops, "LS: ", load_store)
 
 """
 def calculate_ops_dense():
@@ -220,41 +223,35 @@ with open(path, "r") as file:
             continue
         elif state == "write-ds" and "Freeing device memory" in line: 
             speed_up =  dense_time / sparse_time
-
             dd_ops, dd_load_store = calculate_ops_dense()
+            print(dense_sparse_type)
             ds_ops, ds_load_store = calculate_ops_dense_sparse(dense_sparse_type)
-
             op_diff = dd_ops / ds_ops
             load_store_diff = dd_load_store / ds_load_store
-
             flops_per_byte_dd = float(dd_ops) / float(dd_load_store)
-            #flops_per_byte_dd = 8
             flops_per_byte_ds = float(ds_ops) / float(ds_load_store)
-
-            #speed_up_per = 100*(dense_time - sparse_time) / dense_time
-
-            #dd_flops = float(num_items) * float(dd_ops) * 1e-9 / (float(dense_time)*1e-3)
-            # 1e-9 to make Flop to GFlop and 1e-3 to make ms to s
-            dd_flops = (float(dd_ops) * float(num_items) * 1e-9) / (float(dense_time) * 1e-3)
-            gemmforge_dd_flops = (float(num_items) * float(gemmforge_flops_per_el) * 1e-9) / (float(dense_time) * 1e-3)
-
+            speed_up_per = 100*(dense_time - sparse_time) / dense_time
+            dd_flops = float(num_items) * float(dd_ops) * 1e-9 / (float(dense_time)*1e-3)
+            dd_flops = 1e-6 * (float(dd_ops) / (float(dense_time) / float(num_items)))
+            gemmforge_dd_flops = float(num_items) * float(gemmforge_flops_per_el) * 1e-9 / (float(dense_time)*1e-3)
+            total_bytes = dd_load_store
+            print(num_items, " * ", dd_ops, " * 1e3 / (", dense_time, " * 1e9) = ", dd_flops)
+            print(gemmforge_flops_per_el, " =? ", dd_ops)
             if num_items == 0.0:
                 raise Exception("Number items should have been found")
-
-            ds_flops = (float(num_items) * float(ds_ops) * 1e-9) / (float(sparse_time) * 1e-3)
-
+            ds_flops = float(num_items) * float(ds_ops) * 1e-9 / (float(sparse_time)*1e-3)
             report_dense_sparse.append([identifier, 
-                                        round(dense_time, 6), 
-                                        round(sparse_time, 6), 
-                                        round(speed_up, 6),
+                                        round(dense_time, 4), 
+                                        round(sparse_time, 4), 
+                                        round(speed_up, 4),
                                         #round(speed_up_per, 2),
-                                        round(op_diff, 6),
-                                        round(load_store_diff, 6),
-                                        round(flops_per_byte_dd, 6),
-                                        round(flops_per_byte_ds, 6),
-                                        round(dd_flops, 6),
-                                        round(ds_flops, 6),
-                                        round(gemmforge_dd_flops, 6),
+                                        round(op_diff, 4),
+                                        round(load_store_diff, 4),
+                                        round(flops_per_byte_dd, 4),
+                                        round(flops_per_byte_ds, 4),
+                                        round(dd_flops, 4),
+                                        round(ds_flops, 4),
+                                        round(gemmforge_dd_flops, 4),
                                         ])
             state = "return"
             i += 1
@@ -342,14 +339,14 @@ p_ds = pd.DataFrame(data=report_dense_sparse, columns=[
                       "DD Time", 
                       "DS Time",
                       "Speed-up",
-                       #"%",
+                      #"%",
                       "Flop. Ceil",
                       "LS Ceil",
                       "DD Flop/b",
                       "DS Flop/b",
                       "DD GFlop/s",
                       "DS GFlop/s",
-                      "Ge. DD GFlop/s"
+                      "Gemmforge DD GFlop/s"
                       ])
 
 p_sd = pd.DataFrame(data=report_sparse_dense, columns=[
@@ -442,8 +439,8 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title):
     roof = lambda val: min(peak_floating_point_perf, (peak_memory_bandwidth * val))
     xpts = np.linspace(0, 40, 250)
     plt.plot(xpts, [roof(x) for x in xpts])
-    plt.scatter(x=dd_points["DD Flop/b"],y=dd_points["DD GFlop/s"])
-    #plt.scatter(x=ds_points["DS Flop/b"],y=ds_points["DS GFlop/s"])
+    plt.scatter(x=dd_points["DD Flop/b"],y=dd_points["DD GFlop/s"], c="blue")
+    #plt.scatter(x=ds_points["DS Flop/b"],y=ds_points["DS GFlop/s"], c="red")
     plt.title(title)
     # Show the plot
     plt.show()
