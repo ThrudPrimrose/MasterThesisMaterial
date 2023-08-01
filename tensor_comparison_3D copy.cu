@@ -1,5 +1,5 @@
 // Example Tensor Contraction
-// Number 1, Matrix Multiplication as a Tensor:
+// Number 1, tensor Multiplication as a Tensor:
 // C[ij] = A[ik] * B[kj]
 // Number 2, 3D to 3D Tensors
 // C[nko] = A[mko] * B[nmo]
@@ -53,37 +53,21 @@ void checkErr(const std::string &File, int Line)
 #endif
 }
 
-void transposeMatrix(float *inputMatrix, float *outputMatrix, int numRows, int numCols)
+bool compareMatrices(const float *tensorA, const float *tensorB, size_t numElements, float tolerance)
 {
-    cublasHandle_t handle;
-    cublasCreate(&handle);
-
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
-
-    // Transpose matrix using cuBLAS geam function
-    cublasSgeam(handle, CUBLAS_OP_T, CUBLAS_OP_N, numCols, numRows, &alpha, inputMatrix, numRows, &beta, NULL, numCols, outputMatrix, numCols);
-
-    cublasDestroy(handle);
-}
-
-bool compareMatrices(const float *matrixA, const float *matrixB, int numRows, int numCols, float tolerance)
-{
-    for (int row = 0; row < numRows; row++)
+    for (int i = 0; i < numElements; i++)
     {
-        for (int col = 0; col < numCols; col++)
+        float diff = std::fabs(tensorA[i] - tensorB[i]);
+        if (diff > tolerance)
         {
-            float diff = std::fabs(matrixA[col * numRows + row] - matrixB[col * numRows + row]);
-            if (diff > tolerance)
-            {
-                return false;
-            }
+            return false;
         }
     }
+
     return true;
 }
 
-void matrixMultiplyCPU(const float *matrixA, const float *matrixB, float *matrixC, int numRows, int numCols, int sharedDim)
+void tensorMultiplyCPU(const float *tensorA, const float *tensorB, float *tensorC, int numRows, int numCols, int sharedDim)
 {
     for (int col = 0; col < numCols; col++)
     {
@@ -92,22 +76,26 @@ void matrixMultiplyCPU(const float *matrixA, const float *matrixB, float *matrix
             float sum = 0.0f;
             for (int k = 0; k < sharedDim; k++)
             {
-                sum += matrixA[k * numRows + row] * matrixB[k + numRows * col];
+                sum += tensorA[k * numRows + row] * tensorB[k + numRows * col];
             }
-            matrixC[col * numRows + row] = sum;
+            tensorC[col * numRows + row] = sum;
         }
     }
 }
 
-// Print a matrix
-void printMatrix(const float *matrix, int numRows, int numCols)
+// Print a tensor
+void printTensor(const float *tensor, int numRows, int numCols, int numZ)
 {
     std::cout << std::setprecision(4);
-    for (int row = 0; row < numRows; row++)
+    for (int z = 0; z < numZ; z++)
     {
-        for (int col = 0; col < numCols; col++)
+        for (int row = 0; row < numRows; row++)
         {
-            std::cout << matrix[col * numRows + row] << "\t";
+            for (int col = 0; col < numCols; col++)
+            {
+                std::cout << tensor[col * numRows + row] << "\t";
+            }
+            std::cout << std::endl;
         }
         std::cout << std::endl;
     }
@@ -179,35 +167,54 @@ __global__ void
 void gemm_launcher(const float *A, const int offsetBetweenElementsAx, const int offsetBetweenElementsAy,
                    const float *B, const int offsetBetweenElementsBx, const int offsetBetweenElementsBy,
                    float *C, const int offsetBetweenElementsCx, const int offsetBetweenElementsCy,
+                   const int64_t *dims, const int64_t iterDimOffset, const int64_t numDims,
                    unsigned numElements, unsigned *flags, void *streamPtr)
 {
     dim3 block(32, 1, 1);
     dim3 grid((numElements + 1 - 1) / 1, 1, 1);
-    cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
-    gemm<<<grid, block, 0, stream>>>(
-        A, offsetBetweenElementsAx, offsetBetweenElementsAy,
-        B, offsetBetweenElementsBx, offsetBetweenElementsBy,
-        C, offsetBetweenElementsCx, offsetBetweenElementsCy,
-        numElements, flags);
+    // cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
+    int offset = 1;
+    for (int i = 0; i < iterDimOffset; i++)
+    {
+        offset *= dims[i];
+    }
+    for (int iter = 0; iter < dims[iterDimOffset]; iter++)
+    {
+        cudaStream_t stream;
+        cudaStreamCreate(&stream);
+        CHECK_ERR;
+        gemm<<<grid, block, 0, stream>>>(
+            A + iter * offset, offsetBetweenElementsAx, offsetBetweenElementsAy,
+            B + iter * offset, offsetBetweenElementsBx, offsetBetweenElementsBy,
+            C + iter * offset, offsetBetweenElementsCx, offsetBetweenElementsCy,
+            numElements, flags);
+        CHECK_ERR;
+    }
     CHECK_ERR;
 }
 
 int main()
 {
-    constexpr int numRows = 8;
-    constexpr int numCols = 8;
-    constexpr int sharedDim = 8;
-    constexpr int numElements = numRows * numCols;
-    constexpr size_t matrixSize = numElements * sizeof(float);
-    constexpr float tolerance = 1e-6; // Tolerance for floating-point comparison
+    const int64_t dims[3] = {8, 8, 8};
+    const int64_t numElements = dims[0] * dims[1] * dims[2];
+    const int64_t tensorSize = numElements * sizeof(float);
+    const float tolerance = 1e-6; // Tolerance for floating-point comparison
+    const int64_t numTensors = 1000;
 
     // Initialize the column-major matrices A, B, and C
-    float *matrixA = new float[numRows * numCols];
-    float *matrixB = new float[numRows * numCols];
-    float *matrixC_CPU = new float[numRows * numCols];
-    float *matrixC_GPU = new float[numRows * numCols];
-    float *matrixC_cuTensor = new float[numRows * numCols];
-    float *matrixC_GPU_MyGemm = new float[numRows * numCols];
+    float **tensorA = new float*[numTensors];
+    float **tensorB = new float*[numTensors];
+    float **tensorC_CPU = new float*[numTensors];
+    float **tensorC_cuTensor = new float*[numTensors];
+    float **tensorC_LoG = new float*[numTensors];
+
+    for (int i = 0; i<numTensors; i++){
+        tensorA[i] = new float[numElements];
+        tensorB[i] = new float[numElements];
+        tensorC_CPU[i] = new float[numElements];
+        tensorC_cuTensor[i] = new float[numElements];
+        tensorC_LoG[i] = new float[numElements];
+    }
 
     // Random number generator
     std::random_device rd;
@@ -215,92 +222,42 @@ int main()
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
     // Initialize matrices A and B with random values
-    for (int i = 0; i < numRows * numCols; i++)
-    {
-        matrixA[i] = dist(gen);
-        matrixB[i] = dist(gen);
-        matrixC_CPU[i] = 0.f;
-        matrixC_GPU[i] = 0.f;
-        matrixC_cuTensor[i] = 0.f;
-        matrixC_GPU_MyGemm[i] = 0.f;
+    for (int t = 0; t < numTensors; t++){
+        for (int i = 0; i < numElements; i++)
+        {
+            tensorA[t][i] = dist(gen);
+            tensorB[t][i] = dist(gen);
+            tensorC_CPU[t][i] = 0.f;
+            tensorC_cuTensor[t][i] = 0.f;
+            tensorC_LoG[t][i] = 0.f;
+        }
     }
+
 
     // Mat mul CPU
+    for (int t = 0; t < numTensors; t++){
     {
-        matrixMultiplyCPU(matrixA, matrixB, matrixC_CPU, numRows, numCols, numRows);
-    }
-
-    // Mat mul GPU with cuBLAS
-    {
-        // Transpose matrices A, B, and C to row-major format
-        float *deviceMatrixA;
-        float *deviceMatrixB;
-        float *deviceMatrixC;
-
-        cudaMalloc((void **)&deviceMatrixA, matrixSize);
-        CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixB, matrixSize);
-        CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixC, matrixSize);
-        CHECK_ERR;
-
-        // Multiply matrices A, B, and C using cuBLAS
-        cublasHandle_t handle;
-        cublasCreate(&handle);
-
-        constexpr float alpha = 1.0f;
-        constexpr float beta = 0.0f;
-
-        // Copy matrices A and B from the CPU to the GPU
-        cudaMemcpy(deviceMatrixA, matrixA, matrixSize, cudaMemcpyHostToDevice);
-        CHECK_ERR;
-        cudaMemcpy(deviceMatrixB, matrixB, matrixSize, cudaMemcpyHostToDevice);
-        CHECK_ERR;
-
-        // Perform matrix multiplication C = A * B using cuBLAS
-        cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, numRows, numCols, numRows, &alpha, deviceMatrixA, numRows, deviceMatrixB, numRows, &beta, deviceMatrixC, numRows);
-        CHECK_ERR;
-
-        // Copy the result matrix C from the GPU to the CPU
-        cudaMemcpy(matrixC_GPU, deviceMatrixC, matrixSize, cudaMemcpyDeviceToHost);
-        CHECK_ERR;
-
-        // Compare results with CPU matrix multiplication
-
-        bool resultsMatch = compareMatrices(matrixC_CPU, matrixC_GPU, numRows, numCols, tolerance);
-
-        if (resultsMatch)
+        for (size_t z = 0; z < dims[2]; z++)
         {
-            std::cout << "Results match! (CPU-cuBLAS)" << std::endl;
+            tensorMultiplyCPU(tensorA[t] + z * dims[0] * dims[1],
+                              tensorB[t] + z * dims[0] * dims[1],
+                              tensorC_CPU[t] + z * dims[0] * dims[1],
+                              dims[0], dims[1], dims[0]);
         }
-        else
-        {
-            std::cout << "Results do not match! (CPU-cuBLAS)" << std::endl;
-        }
-
-        // Clean up resources
-        cudaFree(deviceMatrixA);
-        CHECK_ERR;
-        cudaFree(deviceMatrixB);
-        CHECK_ERR;
-        cudaFree(deviceMatrixC);
-        CHECK_ERR;
-
-        cublasDestroy(handle);
     }
 
     // Mat mul with my general Gemm Implementation
     {
         // Transpose matrices A, B, and C to row-major format
-        float *deviceMatrixA;
-        float *deviceMatrixB;
-        float *deviceMatrixC;
+        float *devicetensorA;
+        float *devicetensorB;
+        float *devicetensorC;
 
-        cudaMalloc((void **)&deviceMatrixA, matrixSize);
+        cudaMalloc((void **)&devicetensorA, tensorSize);
         CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixB, matrixSize);
+        cudaMalloc((void **)&devicetensorB, tensorSize);
         CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixC, matrixSize);
+        cudaMalloc((void **)&devicetensorC, tensorSize);
         CHECK_ERR;
 
         // Multiply matrices A, B, and C using cuBLAS
@@ -311,22 +268,30 @@ int main()
         constexpr float beta = 0.0f;
 
         // Copy matrices A and B from the CPU to the GPU
-        cudaMemcpy(deviceMatrixA, matrixA, matrixSize, cudaMemcpyHostToDevice);
+        cudaMemcpy(devicetensorA, tensorA, tensorSize, cudaMemcpyHostToDevice);
         CHECK_ERR;
-        cudaMemcpy(deviceMatrixB, matrixB, matrixSize, cudaMemcpyHostToDevice);
+        cudaMemcpy(devicetensorB, tensorB, tensorSize, cudaMemcpyHostToDevice);
         CHECK_ERR;
 
         // Perform matrix multiplication C = A * B using cuBLAS
-        gemm_launcher(deviceMatrixA, numCols, 1, deviceMatrixB, numCols, 1, deviceMatrixC, numCols, 1, 1, nullptr, nullptr);
+        for (int _o = 0; _o < 8; ++_o) {
+            float const* _A = deviceMatrixA + 64*_o;
+            float const* _B = deviceMatrixB + 64*_o;
+            float * _C = deviceMatrixC + 64*_o;
+            sgemm_NT_NT_m8_n8_k8_lda8_ldb8_ldc8_alpha_1_beta_0_ppp_84fcd7e(_A, 0, _B, 0, _C, 0, numElements, nullptr, nullptr);
+        }
+
+        CHECK_ERR;
+        cudaDeviceSynchronize();
         CHECK_ERR;
 
-        // Copy the result matrix C from the GPU to the CPU
-        cudaMemcpy(matrixC_GPU_MyGemm, deviceMatrixC, matrixSize, cudaMemcpyDeviceToHost);
+        // Copy the result tensor C from the GPU to the CPU
+        cudaMemcpy(tensorC_LoG, devicetensorC, tensorSize, cudaMemcpyDeviceToHost);
         CHECK_ERR;
 
-        // Compare results with CPU matrix multiplication
+        // Compare results with CPU tensor multiplication
 
-        bool resultsMatch = compareMatrices(matrixC_CPU, matrixC_GPU_MyGemm, numRows, numCols, tolerance);
+        bool resultsMatch = compareMatrices(tensorC_CPU, tensorC_LoG, numElements, tolerance);
 
         if (resultsMatch)
         {
@@ -338,17 +303,17 @@ int main()
         }
 
         // Clean up resources
-        cudaFree(deviceMatrixA);
+        cudaFree(devicetensorA);
         CHECK_ERR;
-        cudaFree(deviceMatrixB);
+        cudaFree(devicetensorB);
         CHECK_ERR;
-        cudaFree(deviceMatrixC);
+        cudaFree(devicetensorC);
         CHECK_ERR;
 
         cublasDestroy(handle);
     }
 
-    // Matrix multiplication with cuTensor
+    // tensor multiplication with cuTensor
     {
         // cuTensor initialization
         cutensorHandle_t handle;
@@ -356,65 +321,65 @@ int main()
         CHECK_ERR;
 
         // Create vector of modes
-        std::vector<int> modeA{'i', 'k'};
-        std::vector<int> modeB{'k', 'j'};
-        std::vector<int> modeC{'i', 'j'};
+        std::vector<int> modeA{'i', 'k', 'n'};
+        std::vector<int> modeB{'k', 'j', 'n'};
+        std::vector<int> modeC{'i', 'j', 'n'};
         int nmodeA = modeA.size();
         int nmodeB = modeB.size();
         int nmodeC = modeC.size();
 
         // Tensor descriptors
         cutensorTensorDescriptor_t descA, descB, descC;
-        const int64_t *extentA = new int64_t[2]{numRows, sharedDim};
-        const int64_t *extentB = new int64_t[2]{sharedDim, numCols};
-        const int64_t *extentC = new int64_t[2]{numRows, numCols};
+        const int64_t *extentA = new int64_t[3]{dims[0], dims[1], dims[2]};
+        const int64_t *extentB = new int64_t[3]{dims[0], dims[1], dims[2]};
+        const int64_t *extentC = new int64_t[3]{dims[0], dims[1], dims[2]};
 
         // size_t elementsA = numRows * sharedDim;
         // size_t elementsB = sharedDim * numCols;
         // size_t elementsC = numRows * numCols;
 
-        float *deviceMatrixA;
-        float *deviceMatrixB;
-        float *deviceMatrixC;
+        float *devicetensorA;
+        float *devicetensorB;
+        float *devicetensorC;
 
-        cudaMalloc((void **)&deviceMatrixA, matrixSize);
+        cudaMalloc((void **)&devicetensorA, tensorSize);
         CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixB, matrixSize);
+        cudaMalloc((void **)&devicetensorB, tensorSize);
         CHECK_ERR;
-        cudaMalloc((void **)&deviceMatrixC, matrixSize);
+        cudaMalloc((void **)&devicetensorC, tensorSize);
         CHECK_ERR;
 
         constexpr float alpha = 1.0f;
         constexpr float beta = 0.0f;
 
         // Copy matrices A and B from the CPU to the GPU
-        cudaMemcpy(deviceMatrixA, matrixA, matrixSize, cudaMemcpyHostToDevice);
+        cudaMemcpy(devicetensorA, tensorA, tensorSize, cudaMemcpyHostToDevice);
         CHECK_ERR;
-        cudaMemcpy(deviceMatrixB, matrixB, matrixSize, cudaMemcpyHostToDevice);
+        cudaMemcpy(devicetensorB, tensorB, tensorSize, cudaMemcpyHostToDevice);
         CHECK_ERR;
 
-        cutensorInitTensorDescriptor(&handle, &descA, 2, extentA, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
+        cutensorInitTensorDescriptor(&handle, &descA, 3, extentA, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
         CHECK_ERR;
-        cutensorInitTensorDescriptor(&handle, &descB, 2, extentB, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
+        cutensorInitTensorDescriptor(&handle, &descB, 3, extentB, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
         CHECK_ERR;
-        cutensorInitTensorDescriptor(&handle, &descC, 2, extentC, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
+        cutensorInitTensorDescriptor(&handle, &descC, 3, extentC, NULL, CUDA_R_32F, CUTENSOR_OP_IDENTITY);
         CHECK_ERR;
 
         uint32_t alignmentRequirementA;
         uint32_t alignmentRequirementB;
         uint32_t alignmentRequirementC;
         cutensorGetAlignmentRequirement(&handle,
-                                        deviceMatrixA,
+                                        devicetensorA,
                                         &descA,
                                         &alignmentRequirementA);
         CHECK_ERR;
         cutensorGetAlignmentRequirement(&handle,
-                                        deviceMatrixB,
+                                        devicetensorB,
                                         &descB,
                                         &alignmentRequirementB);
         CHECK_ERR;
         cutensorGetAlignmentRequirement(&handle,
-                                        deviceMatrixC,
+                                        devicetensorC,
                                         &descC,
                                         &alignmentRequirementC);
         CHECK_ERR;
@@ -466,29 +431,29 @@ int main()
         // Execute the tensor contraction
         err = cutensorContraction(&handle,
                                   &plan,
-                                  (void *)&alpha, deviceMatrixA,
-                                  deviceMatrixB,
-                                  (void *)&beta, deviceMatrixC,
-                                  deviceMatrixC,
+                                  (void *)&alpha, devicetensorA,
+                                  devicetensorB,
+                                  (void *)&beta, devicetensorC,
+                                  devicetensorC,
                                   work, worksize, 0 /* stream */);
         CHECK_ERR;
 
         cudaDeviceSynchronize();
         CHECK_ERR;
 
-        cudaMemcpy(matrixC_cuTensor, deviceMatrixC, matrixSize, cudaMemcpyDeviceToHost);
+        cudaMemcpy(tensorC_cuTensor, devicetensorC, tensorSize, cudaMemcpyDeviceToHost);
         CHECK_ERR;
 
         cudaFree(work);
         CHECK_ERR;
-        cudaFree(deviceMatrixA);
+        cudaFree(devicetensorA);
         CHECK_ERR;
-        cudaFree(deviceMatrixB);
+        cudaFree(devicetensorB);
         CHECK_ERR;
-        cudaFree(deviceMatrixC);
+        cudaFree(devicetensorC);
         CHECK_ERR;
 
-        bool resultsMatch = compareMatrices(matrixC_cuTensor, matrixC_GPU, numRows, numCols, tolerance);
+        bool resultsMatch = compareMatrices(tensorC_cuTensor, tensorC_GPU, numElements, tolerance);
 
         if (resultsMatch)
         {
@@ -500,22 +465,22 @@ int main()
         }
     }
 
-    std::cout << "Matrix C (CPU Result):" << std::endl;
-    printMatrix(matrixC_CPU, numRows, numCols);
+    std::cout << "tensor C (CPU Result):" << std::endl;
+    printTensor(tensorC_CPU, dims[0], dims[1], dims[2]);
     std::cout << std::endl;
-    std::cout << "Matrix C (GPU Result cuBLAS):" << std::endl;
-    printMatrix(matrixC_GPU, numRows, numCols);
+    std::cout << "tensor C (GPU Result cuBLAS):" << std::endl;
+    printTensor(tensorC_GPU, dims[0], dims[1], dims[2]);
     std::cout << std::endl;
-    std::cout << "Matrix C (GPU Result Offset-Gemm):" << std::endl;
-    printMatrix(matrixC_GPU_MyGemm, numRows, numCols);
+    std::cout << "tensor C (GPU Result cuTensor):" << std::endl;
+    printTensor(tensorC_cuTensor, dims[0], dims[1], dims[2]);
     std::cout << std::endl;
-    std::cout << "Matrix C (GPU Result cuTensor):" << std::endl;
-    printMatrix(matrixC_cuTensor, numRows, numCols);
+    std::cout << "tensor C (GPU Result LoG):" << std::endl;
+    printTensor(tensorC_LoG, dims[0], dims[1], dims[2]);
     std::cout << std::endl;
 
-    delete[] matrixA;
-    delete[] matrixB;
-    delete[] matrixC_CPU;
-    delete[] matrixC_GPU;
-    delete[] matrixC_cuTensor;
+    delete[] tensorA;
+    delete[] tensorB;
+    delete[] tensorC_CPU;
+    delete[] tensorC_GPU;
+    delete[] tensorC_cuTensor;
 }

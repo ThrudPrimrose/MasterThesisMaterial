@@ -1,45 +1,106 @@
 #include <iostream>
 #include <cuda_runtime.h>
 #include <cassert>
+#include <vector>
+#include <optional>
 
-int getSPcores(cudaDeviceProp devProp)
-{  
+int getSPcores(const cudaDeviceProp &devProp)
+{
+    constexpr char errMessage[] = "Unknown device type in theoretical peak FLOP/s calculation for Nvidia GPUs";
     int cores = 0;
     int mp = devProp.multiProcessorCount;
-    switch (devProp.major){
-     case 2: // Fermi
-      if (devProp.minor == 1) cores = mp * 48;
-      else cores = mp * 32;
-      break;
-     case 3: // Kepler
-      cores = mp * 192;
-      break;
-     case 5: // Maxwell
-      cores = mp * 128;
-      break;
-     case 6: // Pascal
-      if ((devProp.minor == 1) || (devProp.minor == 2)) cores = mp * 128;
-      else if (devProp.minor == 0) cores = mp * 64;
-      else printf("Unknown device type\n");
-      break;
-     case 7: // Volta and Turing
-      if ((devProp.minor == 0) || (devProp.minor == 5)) cores = mp * 64;
-      else printf("Unknown device type\n");
-      break;
-     case 8: // Ampere
-      if (devProp.minor == 0) cores = mp * 64;
-      else if (devProp.minor == 6) { cores = mp * 128; assert(cores == 2048); }
-      else if (devProp.minor == 9) cores = mp * 128; // ada lovelace
-      else printf("Unknown device type\n");
-      break;
-     case 9: // Hopper
-      if (devProp.minor == 0) cores = mp * 128;
-      else printf("Unknown device type\n");
-      break;
-     default:
-      printf("Unknown device type\n"); 
-      break;
-      }
+
+    switch (devProp.major)
+    {
+    case 2:
+    { // Fermi
+        if (devProp.minor == 1)
+        {
+            cores = mp * 48;
+        }
+        else
+        {
+            cores = mp * 32;
+        }
+        break;
+    }
+    case 3:
+    { // Kepler
+        cores = mp * 192;
+        break;
+    }
+    case 5:
+    { // Maxwell
+        cores = mp * 128;
+        break;
+    }
+    case 6:
+    { // Pascal
+        if ((devProp.minor == 1) || (devProp.minor == 2))
+        {
+            cores = mp * 128;
+        }
+        else if (devProp.minor == 0)
+        {
+            cores = mp * 64;
+        }
+        else
+        {
+            throw std::runtime_error(errMessage);
+        }
+        break;
+    }
+    case 7:
+    { // Volta and Turing
+        if ((devProp.minor == 0) || (devProp.minor == 5))
+        {
+            cores = mp * 64;
+        }
+        else
+        {
+            throw std::runtime_error(errMessage);
+        }
+        break;
+    }
+    case 8:
+    { // Ampere
+        if (devProp.minor == 0)
+        {
+            cores = mp * 64;
+        }
+        else if (devProp.minor == 6)
+        {
+            cores = mp * 128;
+            assert(cores == 2048);
+        }
+        else if (devProp.minor == 9)
+        {
+            cores = mp * 128; // ada lovelace
+        }
+        else
+        {
+            throw std::runtime_error(errMessage);
+        }
+        break;
+    }
+    case 9:
+    { // Hopper
+        if (devProp.minor == 0)
+        {
+            cores = mp * 128;
+        }
+        else
+        {
+            throw std::runtime_error(errMessage);
+        }
+        break;
+    }
+    default:
+    {
+        throw std::runtime_error(errMessage);
+    }
+    }
+
     return cores;
 }
 
@@ -72,15 +133,17 @@ int main()
         // Calculate peak floating-point performance
         int coreCount = getSPcores(deviceProp);
         std::cout << "CUDA Cores: " << coreCount << std::endl;
-        //int cudaCores = deviceProp.multiProcessorCount * coreCount * deviceProp.maxBlocksPerMultiProcessor;
-        
+        // int cudaCores = deviceProp.multiProcessorCount * coreCount * deviceProp.maxBlocksPerMultiProcessor;
+
         float clockSpeedHz = deviceProp.clockRate * 1e3;
         std::cout << "Clock Rate: " << clockSpeedHz / 1e9 << " Ghz" << std::endl;
-        float flopsPerCUDACore = 2;  // Assuming FMA instructions (multiply + add)
+        float flopsPerCUDACore = 2; // Assuming FMA instructions (multiply + add)
         float peakPerformance = coreCount * clockSpeedHz * flopsPerCUDACore;
         std::cout << "Peak Floating-Point Performance: " << peakPerformance / 1e9 << " GFLOP/s" << std::endl;
         std::cout << "------------------------------------" << std::endl;
     }
+
+    std::vector<std::optional<double>> a = std::vector<std::optional<double>>({}, 1);
 
     return 0;
 }

@@ -7,3 +7,7 @@ col_c = 32
 
 Alpha = 1.0
 Beta = 0.0
+
+adressingA = "strided"
+adressingB = "strided"
+adressingC = "strided"

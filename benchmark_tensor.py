@@ -1,4 +1,4 @@
-from gemmforge import DenseMatrix, GenerationError, GemmGenerator, SparseMatrix
+from gemmforge import DenseMatrix, GenerationError, GemmGenerator
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
 import numpy as np
@@ -26,13 +26,12 @@ def get_available_mem_on_gpu():
     return meminfo[0]
 
 
-def get_suggested_num_elements(MatASize, MatBDenseSize, MatBSparseSize, MatCSize, SizeOfFloat):
+def get_suggested_num_elements(MatASize, MatBDenseSize, MatCSize, SizeOfFloat):
     # We mul A x BD(dense) = C1, A x BS(Sparse) = C2
     # And compare C1 and C1, C1 and 2 obtained back will be R1 and R2 on host
     # On host we need A, BD, BS, C, R1, R2
     # On device we need A, BD, BS, C1, C2
-    per_el_size = (MatASize + MatBDenseSize +
-                   MatBSparseSize + MatCSize * 2) * SizeOfFloat
+    per_el_size = (MatASize + MatBDenseSize + MatCSize * 2) * SizeOfFloat
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
@@ -182,8 +181,8 @@ def gen_matrix_b(rowB, colB, transposed, btype):
 try:
     for with_compile_time_values in [True, False]:
         for b_type in b_matrix_types:
-            for tA in [True, False]:
-                for tB in [True, False]:
+            for tA in [False]:
+                for tB in [False]:
                     testid = ""
                     if tA:
                         testid += "At_mul_"
@@ -223,26 +222,22 @@ try:
                                         num_cols=colA,
                                         addressing=adressingA,
                                         bbox=[0, 0, rowA, colA],
-                                        )
+                                        leading_dimension=rowA*colA)
 
                     coo, matrix_b, matrix_b_non_zeros_flat, b_el_count = gen_matrix_b(
                         rowB, colB, tB, b_type)
 
-                    mat_b_sparse = SparseMatrix(num_rows=rowB,
-                                                num_cols=colB,
-                                                addressing=adressingB,
-                                                coordinates=coo["coordinates"],
-                                                values=matrix_b_non_zeros_flat if with_compile_time_values else None)
-
-                    mat_b_dense = DenseMatrix(num_rows=rowB,
-                                              num_cols=colB,
-                                              bbox=[0, 0, rowB, colB],
-                                              addressing=adressingB)
+                    mat_b = DenseMatrix(num_rows=rowB,
+                                        num_cols=colB,
+                                        bbox=[0, 0, rowB, colB],
+                                        addressing=adressingB,
+                                        leading_dimension=rowB*colB)
 
                     mat_c = DenseMatrix(num_rows=rowC,
                                         num_cols=colC,
                                         bbox=[0, 0, rowC, colC],
-                                        addressing=adressingC)
+                                        addressing=adressingC,
+                                        leading_dimension=rowC*colC)
 
                     vm = vm_factory(
                         arch="sm_86", backend="cuda", fp_type="float")
@@ -261,7 +256,7 @@ try:
                     NT = ""
                     dense_gen = GemmGenerator(
                         vm=vm, kernel_type=GemmKernelType.AUTO)
-                    dense_gen.set(tA, tB, mat_a, mat_b_dense, mat_c, alpha=Alpha, beta=Beta,
+                    dense_gen.set(tA, tB, mat_a, mat_b, mat_c, alpha=Alpha, beta=Beta,
                                   base_name=f"A{T if transA else NT}_B{T if transB else NT}_DenseXDense")
                     dense_gen.generate()
                     # print(dense_gen.get_kernel())
@@ -271,19 +266,6 @@ try:
                     # Get the function name without void in the beginning
                     dense_function_name = dense_header.split("(")[0][4:]
                     dense_flops_per_op = dense_gen.get_flops()
-
-                    # , kernel_type=GemmKernelType.DENSE_SPARSE_REGISTER_ONLY_FULL_UNIT_VECTOR_BASED
-                    sparse_gen = GemmGenerator(
-                        vm=vm, kernel_type=GemmKernelType.AUTO)
-                    sparse_gen.set(tA, tB, mat_a, mat_b_sparse, mat_c, alpha=Alpha, beta=Beta,
-                                   base_name=f"A{T if transA else NT}_B{T if transB else NT}_{b_type}_DenseXSparse")
-                    sparse_gen.generate()
-                    # print(sparse_gen.get_kernel())
-                    # print(sparse_gen.get_launcher())
-                    # print(sparse_gen.get_launcher_header())
-                    sparse_header = sparse_gen.get_launcher_header()
-                    # Get the function name without void in the beginning
-                    sparse_function_name = sparse_header.split("(")[0][4:]
 
                     # A = np.random.random({rowA} * 9)
                     # B = np.random.random(9 * 9)
@@ -295,22 +277,19 @@ try:
                     A.fill(1.0)
                     for i in range(rowA * colA):
                         A[i] = i * 2.0
-                    B_dense = matrix_b
-                    B_sparse = matrix_b_non_zeros_flat
+                    B = matrix_b
 
                     np.set_printoptions(threshold=sys.maxsize)
                     strA = np.array2string(A, separator=', ').replace(
                         "[", "{").replace("]", "}")
-                    strB_sparse = np.array2string(np.array(B_sparse), separator=', ').replace(
-                        "[", "{").replace("]", "}")
-                    strB_dense = np.array2string(B_dense, separator=', ').replace(
+                    strB = np.array2string(B, separator=', ').replace(
                         "[", "{").replace("]", "}")
                     strC = np.array2string(C, separator=', ').replace(
                         "[", "{").replace("]", "}")
 
                     get_available_mem_on_gpu()
                     full, at95 = get_suggested_num_elements(
-                        rowA * colA, rowB * colB, b_el_count, rowC * colC, 4)
+                        rowA * colA * 32, rowB * colB * 32, rowC * colC * 32, 4)
                     num_els = at95
                     # num_els = 1
                     # num_els = 104857
@@ -367,15 +346,8 @@ try:
     // Dense x Dense Kernel
     {dense_gen.get_kernel()}
 
-    // Dense x Sparse Kernel
-    {sparse_gen.get_kernel()}
-
     // Dense x Dense Kernel Launcher
     {dense_gen.get_launcher()}
-
-    // Dense x Sparse Kernel Launcher
-    {sparse_gen.get_launcher()}
-
 
     int main(){{
     std::cout.precision(10);
@@ -387,52 +359,43 @@ try:
     // Element Matrices
     std::cout << "Instantiating core matrices" << std::endl;
     float CoreA[{rowA}*{colA}] = {strA};
-    float CoreB_sparse[{b_el_count}] = {strB_sparse};
-    float CoreB_dense[{rowB} * {colB}] = {strB_dense};
+    float CoreB[{rowB}*{colB}] = {strB};
     float CoreC[{rowC}*{colC}] = {strC};
     
     // Buffers 
     std::cout << "Instantiating buffer matrices" << std::endl;
-    float* A = new float[{rowA}*{colA}*{num_els}];
-    float* B_dense = new float[{rowB}*{colB}*{num_els}];
-    {f"float* B_sparse = new float[{b_el_count}*{num_els}];" if not with_compile_time_values else ""}
-    float* C = new float[{rowC}*{colC}*{num_els}];
-    float* R1 = new float[{rowC}*{colC}*{num_els}];
-    float* R2 = new float[{rowC}*{colC}*{num_els}];
+    float* A = new float[{rowA}*{colA}*32*{num_els}];
+    float* B = new float[{rowB}*{colB}*32*{num_els}];
+    float* C = new float[{rowC}*{colC}*32*{num_els}];
+    float* R1 = new float[{rowC}*{colC}*32*{num_els}];
 
     // Copy the Element Matrices N times into Element Buffers
     std::cout << "Copying core matrices to buffers" << std::endl;
-    for (int i = 0; i < {num_els}; i++){{
+    for (int i = 0; i < 32*{num_els}; i++){{
         std::memcpy(&A[{rowA} * {colA} * i], &CoreA[0], {rowA} * {colA} * sizeof(float));
-        std::memcpy(&B_dense[{rowB} * {colB} * i], &CoreB_dense[0], {rowB} * {colB} * sizeof(float));
-        {f"std::memcpy(&B_sparse[{b_el_count} * i], &CoreB_sparse[0], {b_el_count} * sizeof(float));" if not with_compile_time_values else ""}
+        std::memcpy(&B[{rowB} * {colB} * i], &CoreB[0], {rowB} * {colB} * sizeof(float));
         std::memcpy(&C[{rowC} * {colC} * i], &CoreC[0], {rowC} * {colC} * sizeof(float));
     }}
 
     float *A_dev = nullptr;
-    {"float *B_sparse_dev = nullptr;" if not with_compile_time_values else ""}
-    float *B_dense_dev = nullptr;
+    float *B_dev = nullptr;
     float *C1_dev = nullptr;
-    float *C2_dev = nullptr;
 
     std::cout << "Allocating device memory" << std::endl;
-    cudaMalloc((void **)&A_dev, sizeof(float) * {rowA} * {colA} * {num_els}); CHECK_ERR;
-    {f"cudaMalloc((void **)&B_sparse_dev, sizeof(float) * {b_el_count} * {num_els}); CHECK_ERR;" if not with_compile_time_values else ""}
-    cudaMalloc((void **)&B_dense_dev, sizeof(float) * {rowB} * {colB} * {num_els}); CHECK_ERR;
-    cudaMalloc((void **)&C1_dev, sizeof(float) * {rowC} * {colC} * {num_els}); CHECK_ERR;
-    cudaMalloc((void **)&C2_dev, sizeof(float) * {rowC} * {colC} * {num_els}); CHECK_ERR;
+    cudaMalloc((void **)&A_dev, sizeof(float) * {rowA} * {colA} *32* {num_els}); CHECK_ERR;
+    cudaMalloc((void **)&B_dev, sizeof(float) * {rowB} * {colB} *32* {num_els}); CHECK_ERR;
+    cudaMalloc((void **)&C1_dev, sizeof(float) * {rowC} * {colC} *32* {num_els}); CHECK_ERR;
 
     std::cout << "Copying buffers to device" << std::endl;
-    cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {rowA} * {colA} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    {f"cudaMemcpy((void *)B_sparse_dev, (void *)B_sparse, sizeof(float) *  {b_el_count} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;" if not with_compile_time_values else ""}
-    cudaMemcpy((void *)B_dense_dev, (void *)B_dense, sizeof(float) *  {rowB} * {colB} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)C1_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {rowA} * {colA} *32* {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)B_dev, (void *)B, sizeof(float) *  {rowB} * {colB} *32* {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)C1_dev, (void *)C, sizeof(float) * {rowC} * {colC} *32* {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
 
     // Dense x Dense Matrix Mult
-    {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
+    std::cout << "Fire and forget kernels for warm-up" << std::endl;
+    {dense_function_name}(A_dev, 0, B_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
     cudaDeviceSynchronize();
-    {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
+    {dense_function_name}(A_dev, 0, B_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
     cudaDeviceSynchronize();
 
     std::cout << "Calling Dense x Dense kernel" << std::endl;
@@ -442,7 +405,7 @@ try:
     cudaEventCreate(&stopDD);
     cudaEventRecord(startDD);
     //callFirstGemm(DeviceA, 0, DeviceB, 0, DeviceTmp, 0, NumElements, nullptr, FirstDriver.getTestStream());
-    {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
+    {dense_function_name}(A_dev, 0, B_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr);
     cudaEventRecord(stopDD);
     cudaDeviceSynchronize();
     cudaEventSynchronize(stopDD);
@@ -452,56 +415,20 @@ try:
     cudaEventDestroy(stopDD);
     cudaMemcpy(R1, C1_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost);
 
-    // Dense x Sparse Matrix Mult
-    {f"{sparse_function_name}(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, {num_els}, nullptr, nullptr);" if not with_compile_time_values else f"{sparse_function_name}(A_dev, 0, nullptr, 0, C2_dev, 0, {num_els}, nullptr, nullptr);"}
-    cudaDeviceSynchronize();
-    {f"{sparse_function_name}(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, {num_els}, nullptr, nullptr);" if not with_compile_time_values else f"{sparse_function_name}(A_dev, 0, nullptr, 0, C2_dev, 0, {num_els}, nullptr, nullptr);"}
-    cudaDeviceSynchronize();
-
-    std::cout << "Calling Dense x Sparse kernel" << std::endl;
-    float elapsedTime2 = 0.0;
-    cudaEvent_t startDS, stopDS;
-    cudaEventCreate(&startDS);
-    cudaEventCreate(&stopDS);
-    cudaEventRecord(startDS);
-    {f"{sparse_function_name}(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, {num_els}, nullptr, nullptr);" if not with_compile_time_values else f"{sparse_function_name}(A_dev, 0, nullptr, 0, C2_dev, 0, {num_els}, nullptr, nullptr);"}
-    cudaEventRecord(stopDS);
-    cudaDeviceSynchronize();
-    cudaEventSynchronize(stopDS);
-    cudaEventElapsedTime(&elapsedTime2, startDS, stopDS);
-    std::cout << "Dense x Sparse kernel took " << elapsedTime2 << " ms" << std::endl; 
-    cudaEventDestroy(startDS);
-    cudaEventDestroy(stopDS);
-    cudaMemcpy(R2, C2_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost);
-
     std::cout << "Freeing device memory" << std::endl;
     cudaFree(A_dev);
-    {f"cudaFree(B_sparse_dev);" if not with_compile_time_values else ""}
-    cudaFree(B_dense_dev);
+    cudaFree(B_dev);
     cudaFree(C1_dev);
-    cudaFree(C2_dev);
-
-    for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] >= R2[i] * 1.001 || R1[i] <= R2[i] * 0.999) {{
-        //throw std::runtime_error("{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!");
-        std::cout << "RESULTS DONT MATCH" << std::endl;
-        return 0;
-        }}
-    }}
 
     delete[] R1;
-    delete[] R2;
     delete[] A;
-    delete[] B_dense;
+    delete[] B;
     delete[] C;
-    {f"delete[] B_sparse;" if not with_compile_time_values else ""}
 
-    std::cout << "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Multiplications Match!" << std::endl;
-    std::cout << "Results Match!" << std::endl;
     }}
     """
                     f = open(
-                        f"{cur_dir}/cuda_code/benchmark_cuda_dense_sparse_{testid}.cu", "w")
+                        f"{cur_dir}/cuda_code/benchmark_cuda_tensor_{testid}.cu", "w")
                     f.write(s)
                     f.close()
                     # print(s)

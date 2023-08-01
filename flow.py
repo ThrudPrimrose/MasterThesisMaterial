@@ -48,6 +48,8 @@ signal.signal(signal.SIGINT, handler)
 
 
 # Compile CUDA Kernels
+# [f'{cur_dir}/benchmark_dense_sparse_cuda.py', f'{cur_dir}/benchmark_sparse_dense_cuda.py']
+# for generator in [f'{cur_dir}/benchmark_tensor.py']:
 for generator in [f'{cur_dir}/benchmark_dense_sparse_cuda.py', f'{cur_dir}/benchmark_sparse_dense_cuda.py']:
     proc = subprocess.run(['python3', generator], stdout=subprocess.PIPE)
     stdout_as_str += proc.stdout.decode('utf-8')
