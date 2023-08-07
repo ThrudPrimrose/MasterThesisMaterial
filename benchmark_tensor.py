@@ -181,8 +181,8 @@ def gen_matrix_b(rowB, colB, transposed, btype):
 try:
     for with_compile_time_values in [True, False]:
         for b_type in b_matrix_types:
-            for tA in [False]:
-                for tB in [False]:
+            for tA in [False, True]:
+                for tB in [False, True]:
                     testid = ""
                     if tA:
                         testid += "At_mul_"
@@ -202,11 +202,15 @@ try:
                     else:
                         rowA = col_a
                         colA = row_a
-                    rowB = row_b
-                    colB = col_a
+                    if not tB:
+                        rowB = row_b
+                        colB = col_b
+                    else:
+                        rowB = row_b
+                        colB = col_b
                     # if not tA:
-                    rowC = rowA
-                    colC = colB
+                    rowC = row_c
+                    colC = col_c
 
                     # else:
                     # rowC = 9

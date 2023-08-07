@@ -7,6 +7,7 @@ import sys
 from random import randint
 from numba import cuda
 import os
+from params import *
 
 cur_dir = os.getcwd()
 
@@ -125,21 +126,21 @@ try:
                     valid = "_compile_time_value" if with_compile_time_values else ""
                     testid += valid
 
-                    rowA = 32
-                    colA = 32
-                    if tA:
-                        rowA = 32
-                        colA = 32
-                    rowB = 32
-                    colB = 32
-                    rowC = 32
-                    colC = 32
-                    # rowA = 64
-                    # colA = 32
-                    # rowB = 32
-                    # colB = 32
-                    # rowC = 64
-                    # colC = 32
+                    if not tA:
+                        rowA = row_a
+                        colA = col_a
+                    else:
+                        rowA = col_a
+                        colA = row_a
+                    if not tB:
+                        rowB = row_b
+                        colB = col_b
+                    else:
+                        rowB = row_b
+                        colB = col_b
+                    # if not tA:
+                    rowC = row_c
+                    colC = col_c
 
                     coo, matrix_a, matrix_a_non_zeros_flat, a_el_count = gen_matrix_a(
                         rowA, colA, tA, a_type)

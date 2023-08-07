@@ -203,21 +203,15 @@ try:
                     else:
                         rowA = col_a
                         colA = row_a
-                    rowB = row_b
-                    colB = col_a
+                    if not tB:
+                        rowB = row_b
+                        colB = col_b
+                    else:
+                        rowB = row_b
+                        colB = col_b
                     # if not tA:
-                    rowC = rowA
-                    colC = colB
-
-                    # else:
-                    # rowC = 9
-                    # colC = 56
-                    # rowA = 64
-                    # colA = 32
-                    # rowB = 32
-                    # colB = 32
-                    # rowC = 64
-                    # colC = 32
+                    rowC = row_c
+                    colC = col_c
 
                     mat_a = DenseMatrix(num_rows=rowA,
                                         num_cols=colA,

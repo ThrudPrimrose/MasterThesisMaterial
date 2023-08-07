@@ -127,18 +127,21 @@ try:
                     valid = "_compile_time_value" if with_compile_time_values else ""
                     testid += valid
 
-                    rowA = row_a
-                    colA = col_a
-                    if tA:
+                    if not tA:
+                        rowA = row_a
+                        colA = col_a
+                    else:
                         rowA = col_a
                         colA = row_a
-                    rowB = row_b
-                    colB = col_b
-                    if tB:
-                        rowB = col_b
-                        colB = row_b
-                    rowC = row_a
-                    colC = col_b
+                    if not tB:
+                        rowB = row_b
+                        colB = col_b
+                    else:
+                        rowB = row_b
+                        colB = col_b
+                    # if not tA:
+                    rowC = row_c
+                    colC = col_c
 
                     coo, matrix_a, matrix_a_non_zeros_flat, a_el_count = gen_matrix_a(
                         rowA, colA, tA, a_type)
