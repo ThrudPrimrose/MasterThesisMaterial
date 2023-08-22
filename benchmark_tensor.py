@@ -1,4 +1,4 @@
-from gemmforge import DenseMatrix, GenerationError, GemmGenerator
+from gemmforge import DenseMatrix, GenerationError, GemmGenerator, LoGGenerator
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
 import numpy as np
@@ -181,8 +181,8 @@ def gen_matrix_b(rowB, colB, transposed, btype):
 try:
     for with_compile_time_values in [True, False]:
         for b_type in b_matrix_types:
-            for tA in [False, True]:
-                for tB in [False, True]:
+            for tA in [True]:
+                for tB in [False]:
                     testid = ""
                     if tA:
                         testid += "At_mul_"
@@ -226,7 +226,7 @@ try:
                                         num_cols=colA,
                                         addressing=adressingA,
                                         bbox=[0, 0, rowA, colA],
-                                        leading_dimension=rowA*colA)
+                                        leading_dimension=rowA)
 
                     coo, matrix_b, matrix_b_non_zeros_flat, b_el_count = gen_matrix_b(
                         rowB, colB, tB, b_type)
@@ -235,13 +235,13 @@ try:
                                         num_cols=colB,
                                         bbox=[0, 0, rowB, colB],
                                         addressing=adressingB,
-                                        leading_dimension=rowB*colB)
+                                        leading_dimension=rowB)
 
                     mat_c = DenseMatrix(num_rows=rowC,
                                         num_cols=colC,
                                         bbox=[0, 0, rowC, colC],
                                         addressing=adressingC,
-                                        leading_dimension=rowC*colC)
+                                        leading_dimension=rowC)
 
                     vm = vm_factory(
                         arch="sm_86", backend="cuda", fp_type="float")
@@ -258,7 +258,7 @@ try:
                     # , kernel_type=GemmKernelType.REGISTER_ONLY_BASED
                     T = "t"
                     NT = ""
-                    dense_gen = GemmGenerator(
+                    dense_gen = LoGGenerator(
                         vm=vm, kernel_type=GemmKernelType.AUTO)
                     dense_gen.set(tA, tB, mat_a, mat_b, mat_c, alpha=Alpha, beta=Beta,
                                   base_name=f"A{T if transA else NT}_B{T if transB else NT}_DenseXDense")
