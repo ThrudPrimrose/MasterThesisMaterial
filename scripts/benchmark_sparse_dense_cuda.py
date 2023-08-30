@@ -65,7 +65,7 @@ def gen_matrix_a(rowA, colA, transposed, atype):
     elif atype == "band":
         raise Exception("NO")
     elif atype == "random":
-        entry_count = int(0.15 * rowB * colB)
+        entry_count = int(1.0 * rowB * colB)
         a_el_count = entry_count
         l = set()
         while len(l) < entry_count:
@@ -110,7 +110,7 @@ def gen_matrix_a(rowA, colA, transposed, atype):
 try:
     for with_compile_time_values in [False, True]:
         for a_type in a_matrix_types:
-            for tA in [True, False]:
+            for tA in [False, True]:
                 for tB in [False, True]:
                     testid = ""
                     if tA:
@@ -135,8 +135,8 @@ try:
                         rowB = row_b
                         colB = col_b
                     else:
-                        rowB = row_b
-                        colB = col_b
+                        rowB = col_b
+                        colB = row_b
                     # if not tA:
                     rowC = row_c
                     colC = col_c
@@ -231,8 +231,8 @@ try:
                     get_available_mem_on_gpu()
                     full, at80 = get_suggested_num_elements(
                         rowA * colA, rowB * colB, a_el_count, rowC * colC, 4)
-                    # num_els = at80
-                    num_els = 1
+                    num_els = at80
+                    #num_els = 1
 
                     ctv = "_ctv" if with_compile_time_values else ""
                     n = f"A{T if transA else NT}_{a_type}_B{T if transB else NT}_SparseXDense{ctv}"

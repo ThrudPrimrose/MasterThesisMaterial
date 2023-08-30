@@ -50,7 +50,9 @@ signal.signal(signal.SIGINT, handler)
 
 # Compile CUDA Kernels
 # [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']
-for generator in [f'{scripts_dir}/benchmark_tensor.py']:
+#for generator in [f'{scripts_dir}/benchmark_tensor.py']:
+for generator in [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]:
+#for generator in [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]:
 #for generator in [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']:
     proc = subprocess.run(['python3', generator], stdout=subprocess.PIPE)
     stdout_as_str += proc.stdout.decode('utf-8')
@@ -62,7 +64,7 @@ for file in os.listdir(code_path):
     benchmark_identifier = filename.split(".cu")[0].split("benchmark_cuda_")[1]
 
     compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
---ptxas-options=-v --source-in-ptx {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+--ptxas-options=-v --source-in-ptx -lcublas {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
     profile_command = f'sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
 --import-source yes {exec_path}/{benchmark_identifier}'
