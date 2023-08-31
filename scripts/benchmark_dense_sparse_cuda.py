@@ -572,6 +572,7 @@ int main(){{
     }}
     cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
 
+    /*
     std::cout << "Calling cuBlas DxD Kernels" << std::endl;
     float elapsedTime3 = 0.0;
     float** A_begins = new float*[{num_els}];
@@ -696,6 +697,7 @@ int main(){{
         break;
         }}
     }}
+    */
 
     std::cout << "Freeing device memory" << std::endl;
     cudaFree(A_dev);
