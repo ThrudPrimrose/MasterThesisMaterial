@@ -471,9 +471,9 @@ int main(){{
     float* C = new float[{rowC}*{colC}*{num_els}];
     float* R1 = new float[{rowC}*{colC}*{num_els}];
     float* R2 = new float[{rowC}*{colC}*{num_els}];
-    float* BCSC_data = new float[{len(Bcsc.data)}*{num_els}];
-    int* BCSC_indices = new int[{len(Bcsc.indices)}*{num_els}];
-    int* BCSC_indptr = new int[{len(Bcsc.indptr)}*{num_els}];
+    //float* BCSC_data = new float[{len(Bcsc.data)}*{num_els}];
+    //int* BCSC_indices = new int[{len(Bcsc.indices)}*{num_els}];
+    //int* BCSC_indptr = new int[{len(Bcsc.indptr)}*{num_els}];
 
     // Copy the Element Matrices N times into Element Buffers
     std::cout << "Copying core matrices to buffers" << std::endl;
@@ -482,9 +482,9 @@ int main(){{
         std::memcpy(&B_dense[{rowB} * {colB} * i], &CoreB_dense[0], {rowB} * {colB} * sizeof(float));
         {f"std::memcpy(&B_sparse[{b_el_count} * i], &CoreB_sparse[0], {b_el_count} * sizeof(float));" if not with_compile_time_values else ""}
         std::memcpy(&C[{rowC} * {colC} * i], &CoreC[0], {rowC} * {colC} * sizeof(float));
-        std::memcpy(&BCSC_data[{len(Bcsc.data)} * i], &CoreBCSC_data[0], {len(Bcsc.data)} * sizeof(int));
-        std::memcpy(&BCSC_indices[{len(Bcsc.indices)} * i], &CoreBCSC_indices[0], {len(Bcsc.indices)} * sizeof(int));
-        std::memcpy(&BCSC_indptr[{len(Bcsc.indptr)} * i], &CoreBCSC_indptr[0], {len(Bcsc.indptr)} * sizeof(int));
+        //std::memcpy(&BCSC_data[{len(Bcsc.data)} * i], &CoreBCSC_data[0], {len(Bcsc.data)} * sizeof(int));
+        //std::memcpy(&BCSC_indices[{len(Bcsc.indices)} * i], &CoreBCSC_indices[0], {len(Bcsc.indices)} * sizeof(int));
+        //std::memcpy(&BCSC_indptr[{len(Bcsc.indptr)} * i], &CoreBCSC_indptr[0], {len(Bcsc.indptr)} * sizeof(int));
     }}
 
     float *A_dev = nullptr;
@@ -492,9 +492,9 @@ int main(){{
     float *B_dense_dev = nullptr;
     float *C1_dev = nullptr;
     float *C2_dev = nullptr;
-    int *BCSC_data_dev = nullptr;
-    int *BCSC_indices_dev = nullptr;
-    int *BCSC_indptr_dev = nullptr;
+    //int *BCSC_data_dev = nullptr;
+    //int *BCSC_indices_dev = nullptr;
+    //int *BCSC_indptr_dev = nullptr;
 
     std::cout << "Allocating device memory" << std::endl;
     cudaMalloc((void **)&A_dev, sizeof(float) * {rowA} * {colA} * {num_els}); CHECK_ERR;
@@ -502,9 +502,9 @@ int main(){{
     cudaMalloc((void **)&B_dense_dev, sizeof(float) * {rowB} * {colB} * {num_els}); CHECK_ERR;
     cudaMalloc((void **)&C1_dev, sizeof(float) * {rowC} * {colC} * {num_els}); CHECK_ERR;
     cudaMalloc((void **)&C2_dev, sizeof(float) * {rowC} * {colC} * {num_els}); CHECK_ERR;
-    cudaMalloc((void **)&BCSC_data_dev, sizeof(int) * {len(Bcsc.data)} * {num_els}); CHECK_ERR;
-    cudaMalloc((void **)&BCSC_indices_dev, sizeof(int) * {len(Bcsc.indices)} * {num_els}); CHECK_ERR;
-    cudaMalloc((void **)&BCSC_indptr_dev, sizeof(int) * {len(Bcsc.indptr)} * {num_els}); CHECK_ERR;
+    //cudaMalloc((void **)&BCSC_data_dev, sizeof(int) * {len(Bcsc.data)} * {num_els}); CHECK_ERR;
+    //cudaMalloc((void **)&BCSC_indices_dev, sizeof(int) * {len(Bcsc.indices)} * {num_els}); CHECK_ERR;
+    //cudaMalloc((void **)&BCSC_indptr_dev, sizeof(int) * {len(Bcsc.indptr)} * {num_els}); CHECK_ERR;
     
     std::cout << "Copying buffers to device" << std::endl;
     cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {rowA} * {colA} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
@@ -512,9 +512,9 @@ int main(){{
     cudaMemcpy((void *)B_dense_dev, (void *)B_dense, sizeof(float) *  {rowB} * {colB} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)C1_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)BCSC_data_dev, (void *)BCSC_data, sizeof(int) *  {len(Bcsc.data)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)BCSC_indices_dev, (void *)BCSC_indices, sizeof(int) * {len(Bcsc.indices)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)BCSC_indptr_dev, (void *)BCSC_indptr, sizeof(int) * {len(Bcsc.indptr)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    //cudaMemcpy((void *)BCSC_data_dev, (void *)BCSC_data, sizeof(int) *  {len(Bcsc.data)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    //cudaMemcpy((void *)BCSC_indices_dev, (void *)BCSC_indices, sizeof(int) * {len(Bcsc.indices)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    //cudaMemcpy((void *)BCSC_indptr_dev, (void *)BCSC_indptr, sizeof(int) * {len(Bcsc.indptr)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
     
     // Dense x Dense Matrix Mult
     {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, {num_els}, nullptr, nullptr); CHECK_ERR;
