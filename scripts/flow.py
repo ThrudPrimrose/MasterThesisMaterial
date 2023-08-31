@@ -63,10 +63,16 @@ for file in os.listdir(code_path):
     filename_without_suffix = filename.split(".cu")[0]
     benchmark_identifier = filename.split(".cu")[0].split("benchmark_cuda_")[1]
 
-    compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
---ptxas-options=-v --source-in-ptx -lcublas {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+    advanced_compile_command = f"{nvcc} -ccbin={gcc} -I{cuda_incl} -I{mat_lib_incl} -L{cuda_lib} -L{mat_lib_lib} --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
+--ptxas-options=-v --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
-    profile_command = f'sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
+    if workaround:
+        compile_command = advanced_compile_command
+    else:
+        compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
+--ptxas-options=-v --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+
+    profile_command = f'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{ld_library_path}; sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
 --import-source yes {exec_path}/{benchmark_identifier}'
 
     run_command = f"{exec_path}/{benchmark_identifier}"
@@ -74,19 +80,34 @@ for file in os.listdir(code_path):
     command = profile_command if mode == "Profile" else run_command
 
     print("Compile: ", filename)
-    proc = Popen(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    proc = Popen(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    for line in proc.stdout:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        out_file.write(line)
+    for line in proc.stderr:
+        sys.stderr.write(line)
+        sys.stderr.flush()
+        err_file.write(line)
     proc.wait()
-    stdout_as_str += proc.stdout.read().decode('utf-8')
-    stderr_as_str += proc.stderr.read().decode('utf-8')
+    #stdout_as_str += proc.stdout.read().decode('utf-8')
+    #stderr_as_str += proc.stderr.read().decode('utf-8')
 
     print(f"{mode}: {exec_path}/{benchmark_identifier}")
-    proc = Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    proc = Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    for line in proc.stdout:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+    for line in proc.stderr:
+        sys.stderr.write(line)
+        sys.stderr.flush()
+        err_file.write(line)
     proc.wait()
-    stdout_as_str += proc.stdout.read().decode('utf-8')
-    stderr_as_str += proc.stderr.read().decode('utf-8')
+    #stdout_as_str += proc.stdout.read().decode('utf-8')
+    #stderr_as_str += proc.stderr.read().decode('utf-8')
 
-out_file.write(stdout_as_str)
-err_file.write(stderr_as_str)
+#out_file.write(stdout_as_str)
+#err_file.write(stderr_as_str)
 
 out_file.close()
 err_file.close()

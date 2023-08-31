@@ -1,3 +1,4 @@
+import random
 from gemmforge import DenseMatrix, GenerationError, GemmGenerator, SparseMatrix
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
@@ -11,8 +12,8 @@ import scipy
 from params import *
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
-b_matrix_types = ["band", "single_column_b",
-                  "single_row_b", "chequered", "full"]
+#"band", "single_column_b", "single_row_b", "chequered",
+b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full", "random"]
 
 
 
@@ -36,7 +37,7 @@ def get_suggested_num_elements(MatASize, MatBDenseSize, MatBSparseSize, MatCSize
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
-    at95 = int(0.85 * can_fit_els)
+    at95 = int(0.90 * can_fit_els)
     # print(f"Can fit {can_fit_els} matrices of given sizes, at 80% capacity {at80}")
     return (can_fit_els, at95)
     # return (1,1)
@@ -155,6 +156,26 @@ def gen_matrix_b(rowB, colB, transposed, btype):
                     coo["entries"].append([i, j, i * 10.0 + j + 1])
                     coo["coordinates"].append([i, j])
                     B[i, j] = i * 10.0 + j + 1
+        b_el_count = len(coo["coordinates"])
+    elif btype == "random":
+        entry_count = int(non_zero_ratio * rowB * colB)
+        b_el_count = entry_count
+        l = set()
+        while len(l) < entry_count:
+            i = randint(0, rowB - 1)
+            j = randint(0, colB - 1)
+            l.add((i, j))
+        llist = list(l)
+        assert (len(llist) == b_el_count)
+        for (row, col) in llist:
+            B[row, col] = 1
+        for j in range(colA):
+            for i in range(rowA):
+                if B[i, j] != 0:
+                    r = random.randint(1, 9)
+                    coo["coordinates"].append([i, j])
+                    coo["entries"].append([i, j, r])
+                    B[i, j] = r
         b_el_count = len(coo["coordinates"])
     else:
         raise Exception("NO")
@@ -578,7 +599,7 @@ int main(){{
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "First cuBlas call failed";
     }}
-    cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_NT" if transB else "CUBLAS_OP_N"},
+    cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
             {rowA}, {colB}, {colA}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
             &beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
