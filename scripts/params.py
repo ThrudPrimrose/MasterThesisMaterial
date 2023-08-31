@@ -12,8 +12,8 @@ col_b = 32
 row_c = 32
 col_c = 32
 
-Alpha = 1.0
-Beta = 0.0
+Alpha = 1.5
+Beta = 1.0
 
 adressingA = "strided"
 adressingB = "strided"

@@ -65,7 +65,7 @@ def gen_matrix_a(rowA, colA, transposed, atype):
     elif atype == "band":
         raise Exception("NO")
     elif atype == "random":
-        entry_count = int(1.0 * rowB * colB)
+        entry_count = int(0.15 * rowB * colB)
         a_el_count = entry_count
         l = set()
         while len(l) < entry_count:
