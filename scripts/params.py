@@ -25,6 +25,9 @@ adressingA = "strided"
 adressingB = "strided"
 adressingC = "strided"
 
+#debug = True
+debug = False
+
 # Change always
 workaround = False
 scripts_dir = "/home/primrose/Work/MasterThesisMaterial/scripts"

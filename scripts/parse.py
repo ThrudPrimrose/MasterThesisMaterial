@@ -28,7 +28,6 @@ report_sparse_dense = []
 # LOPS = sockets * (cores per socket) * (number of clock cycles per second) * (number of floating point operations per cycle)
 #
 
-
 # row_a = 56
 # col_a = 9
 # row_b = 9
