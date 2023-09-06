@@ -63,14 +63,14 @@ for file in os.listdir(code_path):
     filename_without_suffix = filename.split(".cu")[0]
     benchmark_identifier = filename.split(".cu")[0].split("benchmark_cuda_")[1]
 
-    advanced_compile_command = f"{nvcc} -ccbin={gcc} -I{cuda_incl} -I{mat_lib_incl} -L{cuda_lib} -L{mat_lib_lib} --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
---ptxas-options=-v --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+    advanced_compile_command = f"{nvcc} -ccbin={gcc} -I{cuda_incl} -I{mat_lib_incl} -L{cuda_lib} -L{mat_lib_lib} --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info \
+ --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
     if workaround:
         compile_command = advanced_compile_command
     else:
-        compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info --resource-usage \
---ptxas-options=-v --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+        compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info \
+ --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
     profile_command = f'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{ld_library_path}; sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
 --import-source yes {exec_path}/{benchmark_identifier}'
