@@ -30,8 +30,8 @@ def get_suggested_num_elements(MatASize, MatBDenseSize, MatBSparseSize, MatCSize
     # On host we need A, BD, BS, C, R1, R2
     # On device we need A, BD, BS, C1, C2
     per_el_size = (MatASize + MatBDenseSize +
-                   MatBSparseSize + MatCSize * 4 + MatBCSCSize) * SizeOfFloat
-    # 2 extra Matrix C because of cuSparse...
+                   MatBSparseSize + MatCSize * 5 + MatBCSCSize) * SizeOfFloat
+    # 3 extra Matrix C because of cuSparse...
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
@@ -845,10 +845,16 @@ int main(){{
     delete[] IdMat;
     delete[] C3_begins;
     delete[] C4_begins;
-    cudaFree(C3_dev_begins);
-    cudaFree(C4_dev_begins);
+    cudaFree(C3_dev_begins); CHECK_ERR;
+    cudaFree(C4_dev_begins); CHECK_ERR;
     delete[] IdMat_begins;
-    cudaFree(IdMat_dev_begins);
+    cudaFree(IdMat_dev_begins); CHECK_ERR;
+    cudaFree(IdMat_dev); CHECK_ERR;
+    cudaFree(BT_data_dev); CHECK_ERR;
+    cudaFree(BT_indices_dev); CHECK_ERR;
+    cudaFree(BT_indptr_dev); CHECK_ERR;
+    cudaFree(C3_dev); CHECK_ERR;
+    cudaFree(dBuffer); CHECK_ERR;
 
     std::cout << "Freeing device memory" << std::endl;
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
@@ -862,10 +868,14 @@ int main(){{
         }}
     }}
     
-    cudaFree(C4_dev);
+    cudaFree(C4_dev); CHECK_ERR;
     delete[] RcuSparse;
     delete[] R1;
     delete[] RT;
+    {f"cudaFree(B_sparse_dev); CHECK_ERR;" if not with_compile_time_values else ""}
+    cudaFree(A_dev);
+    cudaFree(B_dense_dev);
+    cudaFree(C1_dev);
     }}
     """
                     f = open(
