@@ -25,8 +25,11 @@ adressingA = "strided"
 adressingB = "strided"
 adressingC = "strided"
 
-#debug = True
+# Always False while benchmarking
 debug = False
+
+# Change if wanted
+b_matrix_types = ["band", "chequered", "full", "random"]
 
 # Change always
 workaround = False

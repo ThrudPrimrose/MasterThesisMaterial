@@ -11,9 +11,6 @@ import scipy
 
 from params import *
 
-#b_matrix_types = ["band", "chequered", "full", "random"]
-b_matrix_types = ["random"]
-
 def get_available_mem_on_gpu():
     gpus = cuda.gpus.lst
 
