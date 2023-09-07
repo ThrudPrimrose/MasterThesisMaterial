@@ -87,10 +87,12 @@ for file in os.listdir(code_path):
         sys.stdout.write(line)
         sys.stdout.flush()
         out_file.write(line)
+        out_file.flush()
     for line in proc.stderr:
         sys.stderr.write(line)
         sys.stderr.flush()
         err_file.write(line)
+        err_file.flush()
     proc.wait()
     #stdout_as_str += proc.stdout.read().decode('utf-8')
     #stderr_as_str += proc.stderr.read().decode('utf-8')
@@ -100,10 +102,13 @@ for file in os.listdir(code_path):
     for line in proc.stdout:
         sys.stdout.write(line)
         sys.stdout.flush()
+        out_file.write(line)
+        out_file.flush()
     for line in proc.stderr:
         sys.stderr.write(line)
         sys.stderr.flush()
         err_file.write(line)
+        err_file.flush()
     proc.wait()
     #stdout_as_str += proc.stdout.read().decode('utf-8')
     #stderr_as_str += proc.stderr.read().decode('utf-8')
