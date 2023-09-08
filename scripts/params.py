@@ -31,6 +31,7 @@ debug = False
 
 # Change if wanted
 b_matrix_types = ["band", "chequered", "full", "random"]
+#b_matrix_types = ["random"]
 
 # Change when GPU changes in GB/s and GFLOP/s
 peakMemoryBandwidthTheo = 760.08 #176.032
@@ -46,7 +47,9 @@ dense_blue = my_blue
 workaround = False
 scripts_dir = "/home/primrose/Work/MasterThesisMaterial/scripts"
 data_dir = f"{scripts_dir}/../data"
-input_name = "stdout32-32-beta0.txt"
+input_name = "../scripts/stdout.txt" #"stdout32-32-beta0.txt"
+save_plots = False
+debug_print = False
 
 ld_library_path = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64:/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/11.8/lib64"
 nvcc = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/11.8/bin/nvcc"

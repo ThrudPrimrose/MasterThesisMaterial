@@ -175,7 +175,7 @@ def gen_matrix_b(rowB, colB, transposed, btype):
             B_nonzeros = []
             i = 0
             for el in B:
-                if el > 0.0001 or el < -0.0001:
+                if el > 0.00001 or el < -0.00001:
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
                     coords = np.unravel_index(i, (rowB, colB), "F")
@@ -191,7 +191,7 @@ def gen_matrix_b(rowB, colB, transposed, btype):
             B_nonzeros = []
             i = 0
             for el in B:
-                if el > 0.0001 or el < -0.0001:
+                if el > 0.00001 or el < -0.00001:
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
                     coords = np.unravel_index(i, (rowB, colB), "F")
@@ -267,16 +267,16 @@ try:
 
                     coo, matrix_b, matrix_b_non_zeros_flat, b_el_count, npB = gen_matrix_b(
                         rowB, colB, tB, b_type)
-                    if tB:
+                    if not tB:
                         BT = npB.transpose()
                     else:
                         BT = npB
                     BT_1d = BT.flatten("F")
-                    BT_tmp = []
-                    for b in BT_1d:
-                        if b != 0.0:
-                           BT_tmp.append(b)
-                    BT_1d = np.array(BT_tmp)
+                    #BT_tmp = []
+                    #for b in BT_1d:
+                    #    if b != 0.0:
+                    #       BT_tmp.append(b)
+                    #BT_1d = np.array(BT_tmp)
 
                     BT_sparse = scipy.sparse.csr_matrix(BT)
                     BT_sparse_data = BT_sparse.data
@@ -495,12 +495,34 @@ void checkErr(const std::string &File, int Line) {{
 {sparse_gen.get_launcher()}
 
 
-const float alpha_dev = {Alpha}f;
-const float beta_dev = {Beta}f;
-const float transpose_alpha_dev = 1.0f;
-const float transpose_beta_dev = 0.0f;
+float *alpha_dev;
+float *beta_dev;
+float *transpose_alpha_dev;
+float *transpose_beta_dev;
+
+__global__ void printKernel(const float* devicePtr, int n) {{
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < n) {{
+        printf("Value at index %d: %f\\n", idx, devicePtr[idx]);
+    }}
+}}
 
 int main(){{
+    bool debug_print = {"true" if debug_print else "false"};
+    cudaMalloc(&alpha_dev, sizeof(float));
+    cudaMalloc(&beta_dev, sizeof(float));
+    cudaMalloc(&transpose_alpha_dev, sizeof(float));
+    cudaMalloc(&transpose_beta_dev, sizeof(float));
+    float alpha = {Alpha}f;
+    float beta = {Beta}f;
+    float talpha = 1.0f;
+    float tbeta = 0.0f;
+    cudaMemcpy(alpha_dev, &alpha, sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(beta_dev, &beta, sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(transpose_alpha_dev, &talpha, sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(transpose_beta_dev, &tbeta, sizeof(float), cudaMemcpyHostToDevice);
+
     std::cout.precision(10);
     std::cout << std::setw(10);
     cublasHandle_t handle;
@@ -510,6 +532,8 @@ int main(){{
     }}
     cusparseHandle_t cuSparseHandle;
     cusparseCreate(&cuSparseHandle);
+    cusparseSetPointerMode(cuSparseHandle, CUSPARSE_POINTER_MODE_DEVICE);
+    cublasSetPointerMode(handle, CUBLAS_POINTER_MODE_DEVICE);
 
     std::cout << "Gemm-Type: " << "{n}" << std::endl;
     std::cout << "Number of elements: " << "{num_els}" << std::endl;
@@ -616,9 +640,10 @@ int main(){{
     cudaMemcpy(R2, C2_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] >= R2[i] * 1.001 || R1[i] <= R2[i] * 0.999) {{
+        if (std::abs(R1[i] - R2[i]) >= 0.1) {{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!";
             //throw std::runtime_error(s);
+            std::cout << " " << std::to_string(R1[i]) + " and " + std::to_string(R2[i]) << std::endl;
             std::cout << "Dense x Dense Gemmforge and Dense x Sparse Gemmforge results don't match!" << std::endl;
             std::cout << s << std::endl;
             break;
@@ -647,15 +672,15 @@ int main(){{
     cudaMemcpy((void *)C2_dev_begins, (void *)C2_begins, {num_els} * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     // First 2 to discard
     cublasStatus_t cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowC}, {colC}, {rowB}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-        &beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
+        {rowC}, {colC}, {rowB}, alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "First cuBlas call failed";
     }}
     cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-            {rowC}, {colC}, {rowB}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-            &beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
+            {rowC}, {colC}, {rowB}, alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+            beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "Second cuBlas call failed";
@@ -665,8 +690,8 @@ int main(){{
     cudaEventCreate(&stopCuBlas); CHECK_ERR;
     cudaEventRecord(startCuBlas); CHECK_ERR;
     cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowC}, {colC}, {rowB}, (const float*)&alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-        (const float*)&beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
+        {rowC}, {colC}, {rowB}, (const float*)alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        (const float*)beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "Second cuBlas call failed";
     }}
@@ -680,7 +705,7 @@ int main(){{
     cudaMemcpy(R2, C2_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] >= R2[i] * 1.001 || R1[i] <= R2[i] * 0.999) {{
+        if (std::abs(R1[i] - R2[i]) >= 0.1) {{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
                 std::to_string(R1[i]) + " and " + std::to_string(R2[i]) + " | " + std::to_string(R1[{rowC}*{colC}*{num_els}-1]) + " and " + std::to_string(R2[{rowC}*{colC}*{num_els} - 1]);
             //throw std::runtime_error(s);
@@ -703,7 +728,7 @@ int main(){{
     // Buffers 
     std::cout << "Instantiating transposed buffer matrices" << std::endl;
     float* AT = new float[{rowA}*{colA}*{num_els}];
-    float* CT = new float[{rowC}*{colC}*{num_els}];
+    float* CT = new float[{rowCT}*{colCT}*{num_els}];
     float* RT = new float[{rowC}*{colC}*{num_els}];
     float* BT_data = new float[{len(BT_sparse_data)}*{num_els}];
     int* BT_indices = new int[{len(BT_sparse_indices)}*{num_els}];
@@ -716,7 +741,7 @@ int main(){{
                 if (i == j){{
                     IdMat[k*{colC}*{colC} + i*{colC} + j ] = 1.0f;
                 }}
-                if (i!=j){{
+                else if (i!=j){{
                     IdMat[k*{colC}*{colC} + i*{colC} + j ] = 0.0f;
                 }}
                 
@@ -728,8 +753,8 @@ int main(){{
     std::cout << "Copying transposed core matrices to buffers" << std::endl;
     for (int i = 0; i < {num_els}; i++){{
         std::memcpy(&AT[{rowA} * {colA} * i], &CoreAT[0], {rowA} * {colA} * sizeof(float));
-        std::memcpy(&CT[{rowC} * {colC} * i], &CoreCT[0], {rowC} * {colC} * sizeof(float));
-        std::memcpy(&BT_data[{len(BT_sparse_data)} * i], &CoreBT_data[0], {len(BT_sparse_data)} * sizeof(int));
+        std::memcpy(&CT[{rowCT} * {colCT} * i], &CoreCT[0], {rowC} * {colC} * sizeof(float));
+        std::memcpy(&BT_data[{len(BT_sparse_data)} * i], &CoreBT_data[0], {len(BT_sparse_data)} * sizeof(float));
         std::memcpy(&BT_indices[{len(BT_sparse_indices)} * i], &CoreBT_indices[0], {len(BT_sparse_indices)} * sizeof(int));
         std::memcpy(&BT_indptr[{len(BT_sparse_indptr)} * i], &CoreBT_indptr[0], {len(BT_sparse_indptr)} * sizeof(int));
     }}
@@ -754,14 +779,17 @@ int main(){{
     cudaMalloc((void **)&BT_data_dev, {num_els} * {len(BT_sparse_data)} * sizeof(float)); CHECK_ERR;
     cudaMalloc((void **)&BT_indices_dev, {num_els} * {len(BT_sparse_indices)} * sizeof(int)); CHECK_ERR;
     cudaMalloc((void **)&BT_indptr_dev, {num_els} * {len(BT_sparse_indptr)} * sizeof(int)); CHECK_ERR;
-    cudaMalloc((void **)&C3_dev, {num_els} * {rowC} * {colC} * sizeof(float)); CHECK_ERR;
+    cudaMalloc((void **)&C3_dev, {num_els} * {rowCT} * {colCT} * sizeof(float)); CHECK_ERR;
     cudaMalloc((void **)&C4_dev, {num_els} * {rowC} * {colC} * sizeof(float)); CHECK_ERR;
-    cudaMalloc((void **)&IdMat_dev, {num_els} * {rowC} * {colC} * sizeof(float)); CHECK_ERR;
+    cudaMalloc((void **)&IdMat_dev, {num_els} * {colC} * {colC} * sizeof(float)); CHECK_ERR;
     cudaMemcpy((void *)BT_data_dev, (void *)BT_data, sizeof(float) *  {len(BT_sparse_data)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)BT_indices_dev, (void *)BT_indices, sizeof(int) * {len(BT_sparse_indices)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)BT_indptr_dev, (void *)BT_indptr, sizeof(int) * {len(BT_sparse_indptr)} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)C3_dev, (void *)C, sizeof(float) * {rowCT} * {colCT} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
-    cudaMemcpy((void *)IdMat_dev, (void *)IdMat, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)C3_dev, (void *)CT, sizeof(float) * {rowCT} * {colCT} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)C4_dev, (void *)CT, sizeof(float) * {rowCT} * {colCT} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)IdMat_dev, (void *)IdMat, sizeof(float) * {colC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {rowA} * {colA} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
+    
     float** C3_begins = new float*[{num_els}];
     float** C3_dev_begins = nullptr;
     float** C4_begins = new float*[{num_els}];
@@ -769,9 +797,12 @@ int main(){{
     float** IdMat_begins = new float*[{num_els}];
     float** IdMat_dev_begins = nullptr;
     for (int i = 0; i < {num_els}; i++){{
-        C3_begins[i] = &C3_dev[0] + {rowC} * {colC} * i;
-        C4_begins[i] = &C4_dev[0] + {rowC} * {colC} * i;
-        IdMat_begins[i] = &IdMat_dev[0] + {rowC} * {colC} * i;
+        C3_begins[i] = C3_dev + {rowC} * {colC} * i;
+        C4_begins[i] = C4_dev + {rowC} * {colC} * i;
+        IdMat_begins[i] = IdMat_dev + {colC} * {colC} * i;
+        //std::cout << *(CT + {rowC} * {colC} * i + 3) << std::endl;
+        //std::cout << *(IdMat + {colC} * {colC} * i) << std::endl;
+        //std::cout << CoreCT[3] << std::endl;
     }}
     cudaMalloc((void **)&C3_dev_begins, {num_els} * sizeof(float*)); CHECK_ERR;
     cudaMalloc((void **)&C4_dev_begins, {num_els} * sizeof(float*)); CHECK_ERR;
@@ -779,17 +810,19 @@ int main(){{
     cudaMemcpy((void *)C3_dev_begins, (void *)C3_begins, {num_els} * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)C4_dev_begins, (void *)C4_begins, {num_els} * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)IdMat_dev_begins, (void *)IdMat_begins, {num_els} * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
-    CHECK_CUSPARSE( cusparseCreateCsr(&matBT, {colBT}, {rowBT}, {len(BT_sparse_data)},
+    CHECK_CUSPARSE( cusparseCreateCsr(&matBT, {rowBT}, {colBT}, {len(BT_sparse_data)},
                                       BT_indptr_dev, BT_indices_dev, BT_data_dev,
                                       CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F) )
-    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(matBT, {num_els}, {len(BT_sparse_indptr)}, {len(BT_sparse_data)}))
+    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(matBT, {num_els}, 0, {len(BT_sparse_data)}))
 
+    
+    //std::cout << "A" << "{"T" if tA else ""}" << " has dimensions " << "{rowA}" << "x" << "{colA}" << std::endl;
     CHECK_CUSPARSE( cusparseCreateDnMat(&matAT, {rowA}, {colA}, {rowA}, A_dev,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL) )
-    CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matAT,  {num_els}, {rowA} * {colA}) )
+    CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matAT, {num_els}, {rowA} * {colA}) )
     // Create dense matrix C
-    CHECK_CUSPARSE( cusparseCreateDnMat(&matCT, {colCT}, {rowCT}, {colCT}, C3_dev,
+    CHECK_CUSPARSE( cusparseCreateDnMat(&matCT, {rowCT}, {colCT}, {rowCT}, C3_dev,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL) )
     CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matCT, {num_els}, {rowCT} * {colCT}) )
 
@@ -798,9 +831,10 @@ int main(){{
                                  cuSparseHandle,
                                  CUSPARSE_OPERATION_NON_TRANSPOSE,
                                  { "CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
-                                 (const float*)&alpha_dev, matBT, matAT, (const float*)&beta_dev, matCT, CUDA_R_32F,
+                                 alpha_dev, matBT, matAT, beta_dev, matCT, CUDA_R_32F,
                                  CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
     CHECK_CUDA( cudaMalloc(&dBuffer, bufferSize) )
+    cudaDeviceSynchronize(); CHECK_ERR;
     //cudaDeviceSynchronize(); CHECK_ERR;
     // execute SpMM
     cudaEvent_t startcuSparse, stopcuSparse;
@@ -810,12 +844,12 @@ int main(){{
     CHECK_CUSPARSE( cusparseSpMM(cuSparseHandle,
                                  CUSPARSE_OPERATION_NON_TRANSPOSE,
                                  { "CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
-                                 &alpha_dev, matBT, matAT, &beta_dev, matCT, CUDA_R_32F,
+                                 alpha_dev, matBT, matAT, beta_dev, matCT, CUDA_R_32F,
                                  CUSPARSE_SPMM_CSR_ALG2, dBuffer) )
-    //cudaDeviceSynchronize(); CHECK_ERR;
+    cudaDeviceSynchronize(); CHECK_ERR;
     cuBlasStatus = cublasSgemmBatched(handle, CUBLAS_OP_T, CUBLAS_OP_N,
-        {rowC}, {colC}, {rowC}, (const float*)&transpose_alpha_dev, (const float **)C3_dev_begins, {rowC}, (const float **)IdMat_dev_begins, {rowC},
-        (const float*)&transpose_beta_dev, (float **)C4_dev_begins, {rowC}, {num_els}); CHECK_ERR;
+        {rowC}, {colC}, {rowC}, transpose_alpha_dev, (const float **)C3_dev_begins, {rowC}, (const float **)IdMat_dev_begins, {rowC},
+        transpose_beta_dev, (float **)C4_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "Second cuBlas call failed";
     }}
@@ -825,10 +859,15 @@ int main(){{
     CHECK_ERR;
     cudaEventRecord(stopcuSparse); CHECK_ERR;
     cudaEventSynchronize(stopcuSparse); CHECK_ERR;
+    cudaStreamSynchronize(stream);
     float elapsedTime4 = 0.0f;
     cudaEventElapsedTime(&elapsedTime4, startcuSparse, stopcuSparse); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     std::cout << "cuSparse DxS kernel took " << elapsedTime4 << " ms" << std::endl; 
+
+    float* RcuSparse = new float[{rowC} * {colC} * {num_els}];
+    cudaMemcpy(RcuSparse, C4_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
+    //cudaMemcpy(RcuSparse, C3_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     // destroy matrix/vector descriptors
     CHECK_CUSPARSE( cusparseDestroySpMat(matBT) )
@@ -836,16 +875,15 @@ int main(){{
     CHECK_CUSPARSE( cusparseDestroyDnMat(matCT) )
     CHECK_CUSPARSE( cusparseDestroy(cuSparseHandle) )
 
-    float* RcuSparse = new float[{rowC} * {colC} * {num_els}];
-    cudaMemcpy(RcuSparse, C4_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
-
     for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] >= RcuSparse[i] * 1.001 || R1[i] <= RcuSparse[i] * 0.999) {{
+        if (std::abs(R1[i] - RcuSparse[i]) >= 0.1) {{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
                 std::to_string(R1[i]) + " and " + std::to_string(RcuSparse[i]) + " | " + std::to_string(R1[{rowC}*{colC}*{num_els}-1]) + " and " + std::to_string(RcuSparse[{rowC}*{colC}*{num_els} - 1]);
             //throw std::runtime_error(s);
-            std::cout << "RESULTS DONT MATCH" << std::endl;
-            std::cout << s << std::endl;
+            if (debug_print){{
+                std::cout << "RESULTS DONT MATCH" << std::endl;
+                std::cout << s << std::endl;
+            }}
             break;
         }}
     }}
