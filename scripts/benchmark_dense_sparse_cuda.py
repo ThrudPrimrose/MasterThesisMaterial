@@ -149,16 +149,16 @@ def gen_matrix_b(rowB, colB, transposed, btype):
         for (row, col) in llist:
             B[row, col] = 1
         if not transposed:
-            for j in range(colA):
-                for i in range(rowA):
+            for j in range(colB):
+                for i in range(rowB):
                     if B[i, j] != 0:
                         r = random.randint(1, 9)
                         coo["coordinates"].append([i, j])
                         coo["entries"].append([i, j, r])
                         B[i, j] = r
         else:
-            for i in range(rowA):
-                for j in range(colA):
+            for i in range(rowB):
+                for j in range(colB):
                     if B[i, j] != 0:
                         r = random.randint(1, 9)
                         coo["coordinates"].append([i, j])
