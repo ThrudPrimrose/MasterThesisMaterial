@@ -437,10 +437,10 @@ cov = p_ds[[
 ]].cov()
 print(cov)
 heatmap = sns.heatmap(cov, annot=True, fmt=".2f")
-fig = heatmap.get_figure()
-fig.tight_layout()
-fig.savefig(f"{data_dir}/plots/heatmap-cov-ds.png")
-fig.clear()
+#fig = heatmap.get_figure()
+#fig.tight_layout()
+#fig.savefig(f"{data_dir}/plots/heatmap-cov-ds.png")
+#fig.clear()
 
 corr = p_ds[[
     "Speed-up",
@@ -451,10 +451,10 @@ corr = p_ds[[
 ]].corr()
 print(corr)
 heatmap = sns.heatmap(corr, annot=True, fmt=".2f")
-fig = heatmap.get_figure()
-fig.tight_layout()
-fig.savefig(f"{data_dir}/plots/heatmap-corr-ds.png")
-fig.clear()
+#fig = heatmap.get_figure()
+#fig.tight_layout()
+#fig.savefig(f"{data_dir}/plots/heatmap-corr-ds.png")
+#fig.clear()
 
 """
 cov = p_sd[[
@@ -497,8 +497,7 @@ fig.savefig(f"{data_dir}/data/plots/heatmap-corr-sd.png")
 #lookupPeakMemoryBandwidth = 192
 #lookupPeakFLOP = 5500
 
-fig.clear()
-
+#fig.clear()
 dd_points = p_ds[["DD Flop/b", "DD GFlop/s"]]
 ds_points = p_ds[["DS Flop/b", "DS GFlop/s"]]
 ds_points_ctv = p_ds_ctv[["DS Flop/b", "DS GFlop/s"]]
@@ -571,9 +570,10 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
 
 #plot_roofline(peakMemoryBandwidth, peakFLOP,
 #              "Experimental from Nsight Compute")
-plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
+if save_plots:
+    plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
               "Roofline Model for Dense-Dense and Dense-Sparse Kernels", ds_points=ds_points, dd_points=dd_points, p_ds=p_ds, addname="")
-plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
+    plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
               "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith Compile Time Matrix Values", ds_points=ds_points_ctv,
                 dd_points=dd_points_ctv, p_ds=p_ds_ctv, addname="-ctv")
 #plot_roofline(lookupPeakMemoryBandwidth,
@@ -710,5 +710,6 @@ def plot_in_a_grid(p_ds, addname):
     plt.clf()
     #plt.show()
 
-plot_in_a_grid(p_ds=p_ds, addname="")
-plot_in_a_grid(p_ds=p_ds_ctv, addname="-ctv")
+if save_plots:
+    plot_in_a_grid(p_ds=p_ds, addname="")
+    plot_in_a_grid(p_ds=p_ds_ctv, addname="-ctv")

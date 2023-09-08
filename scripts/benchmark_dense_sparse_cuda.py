@@ -148,23 +148,13 @@ def gen_matrix_b(rowB, colB, transposed, btype):
         assert (len(llist) == b_el_count)
         for (row, col) in llist:
             B[row, col] = 1
-        if not transposed:
-            for j in range(colB):
-                for i in range(rowB):
-                    if B[i, j] != 0:
-                        r = random.randint(1, 9)
-                        coo["coordinates"].append([i, j])
-                        coo["entries"].append([i, j, r])
-                        B[i, j] = r
-        else:
             for i in range(rowB):
                 for j in range(colB):
                     if B[i, j] != 0:
                         r = random.randint(1, 9)
-                        coo["coordinates"].append([i, j])
-                        coo["entries"].append([i, j, r])
+                        #coo["coordinates"].append([i, j])
+                        #coo["entries"].append([i, j, r])
                         B[i, j] = r
-        b_el_count = len(coo["coordinates"])
     else:
         raise Exception("NO")
 
@@ -173,27 +163,44 @@ def gen_matrix_b(rowB, colB, transposed, btype):
         npB = B
         B = B.flatten("F")
         B_nonzeros = []
+        
         for el in B:
             if el > 0.0001 or el < -0.0001:
                 assert (el != 0 and el != 0.0)
                 B_nonzeros.append(el)
     else:
         if transposed:
-            npB = B
-            B = npB.flatten("C")
+            npB = B.T
+            B = npB.flatten("F")
             B_nonzeros = []
+            i = 0
             for el in B:
                 if el > 0.0001 or el < -0.0001:
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
+                    coords = np.unravel_index(i, (rowB, colB), "F")
+                    #print(coords)
+                    r = random.randint(1, 9)
+                    coo["coordinates"].append([coords[1], coords[0]])
+                    coo["entries"].append([coords[1], coords[0], el])
+                i+=1
+            b_el_count = len(coo["coordinates"])
         else:
             npB = B
             B = B.flatten("F")
             B_nonzeros = []
+            i = 0
             for el in B:
                 if el > 0.0001 or el < -0.0001:
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
+                    coords = np.unravel_index(i, (rowB, colB), "F")
+                    #print(coords)
+                    r = random.randint(1, 9)
+                    coo["coordinates"].append([coords[0], coords[1]])
+                    coo["entries"].append([coords[0], coords[1], el])
+                i+=1
+            b_el_count = len(coo["coordinates"])
     return (coo, B, B_nonzeros, b_el_count, npB)
 
 
@@ -462,7 +469,6 @@ void checkErr(const std::string &File, int Line) {{
     if (status != CUSPARSE_STATUS_SUCCESS) {{                                  \\
         printf("CUSPARSE API failed at line %d with error: %s (%d)\\n",         \\
                __LINE__, cusparseGetErrorString(status), status);              \\
-        return EXIT_FAILURE;                                                   \\
     }}                                                                         \\
 }}
                                           
@@ -473,7 +479,6 @@ void checkErr(const std::string &File, int Line) {{
     if (status != cudaSuccess) {{                                            \\
         printf("CUDA API failed at line %d with error: %s (%d)\\n",             \\
                __LINE__, cudaGetErrorString(status), status);                  \\
-        return EXIT_FAILURE;                                                   \\
     }}                                                                         \\
 }}
 
@@ -614,9 +619,9 @@ int main(){{
         if (R1[i] >= R2[i] * 1.001 || R1[i] <= R2[i] * 0.999) {{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!";
             //throw std::runtime_error(s);
-            std::cout << "RESULTS DONT MATCH" << std::endl;
+            std::cout << "Dense x Dense Gemmforge and Dense x Sparse Gemmforge results don't match!" << std::endl;
             std::cout << s << std::endl;
-            return 0;
+            break;
         }}
     }}
     cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyHostToDevice); CHECK_ERR;
@@ -642,14 +647,14 @@ int main(){{
     cudaMemcpy((void *)C2_dev_begins, (void *)C2_begins, {num_els} * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     // First 2 to discard
     cublasStatus_t cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowA}, {colB}, {colA}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        {rowC}, {colC}, {rowB}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
         &beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "First cuBlas call failed";
     }}
     cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-            {rowA}, {colB}, {colA}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+            {rowC}, {colC}, {rowB}, &alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
             &beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
@@ -660,7 +665,7 @@ int main(){{
     cudaEventCreate(&stopCuBlas); CHECK_ERR;
     cudaEventRecord(startCuBlas); CHECK_ERR;
     cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowA}, {colB}, {colA}, (const float*)&alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        {rowC}, {colC}, {rowB}, (const float*)&alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
         (const float*)&beta_dev, (float **)C2_dev_begins, {rowC}, {num_els}); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "Second cuBlas call failed";
@@ -679,9 +684,9 @@ int main(){{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
                 std::to_string(R1[i]) + " and " + std::to_string(R2[i]) + " | " + std::to_string(R1[{rowC}*{colC}*{num_els}-1]) + " and " + std::to_string(R2[{rowC}*{colC}*{num_els} - 1]);
             //throw std::runtime_error(s);
-            std::cout << "RESULTS DONT MATCH" << std::endl;
+            std::cout << "Gemmforge and cuBlas results don't match" << std::endl;
             std::cout << s << std::endl;
-            return 0;
+            break;
         }}
     }}
     delete[] A_begins;
@@ -834,6 +839,18 @@ int main(){{
     float* RcuSparse = new float[{rowC} * {colC} * {num_els}];
     cudaMemcpy(RcuSparse, C4_dev, sizeof(float) * {rowC} * {colC} * {num_els}, cudaMemcpyDeviceToHost); CHECK_ERR;
 
+    for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
+        if (R1[i] >= RcuSparse[i] * 1.001 || R1[i] <= RcuSparse[i] * 0.999) {{
+            std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
+                std::to_string(R1[i]) + " and " + std::to_string(RcuSparse[i]) + " | " + std::to_string(R1[{rowC}*{colC}*{num_els}-1]) + " and " + std::to_string(RcuSparse[{rowC}*{colC}*{num_els} - 1]);
+            //throw std::runtime_error(s);
+            std::cout << "RESULTS DONT MATCH" << std::endl;
+            std::cout << s << std::endl;
+            break;
+        }}
+    }}
+    std::cout << "Freeing device memory" << std::endl;
+    
     delete[] AT;
     delete[] CT;
     delete[] BT_data;
@@ -852,19 +869,6 @@ int main(){{
     cudaFree(BT_indptr_dev); CHECK_ERR;
     cudaFree(C3_dev); CHECK_ERR;
     cudaFree(dBuffer); CHECK_ERR;
-
-    std::cout << "Freeing device memory" << std::endl;
-    for (int i = 0; i < {rowC}*{colC}*{num_els}; i++){{
-        if (R1[i] >= RcuSparse[i] * 1.001 || R1[i] <= RcuSparse[i] * 0.999) {{
-            std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
-                std::to_string(R1[i]) + " and " + std::to_string(RcuSparse[i]) + " | " + std::to_string(R1[{rowC}*{colC}*{num_els}-1]) + " and " + std::to_string(RcuSparse[{rowC}*{colC}*{num_els} - 1]);
-            //throw std::runtime_error(s);
-            std::cout << "RESULTS DONT MATCH" << std::endl;
-            std::cout << s << std::endl;
-            return 0;
-        }}
-    }}
-    
     cudaFree(C4_dev); CHECK_ERR;
     delete[] RcuSparse;
     delete[] R1;
