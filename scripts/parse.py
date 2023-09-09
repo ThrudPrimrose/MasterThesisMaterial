@@ -11,7 +11,7 @@ import numpy as np
 from params import *
 
 # path = f"{data_dir}/gemmforge_remote/stdout_only_run.txt"
-path = f"{data_dir}/{input_name}"
+
 
 # The simple state machine
 # Initial ->(1) Kernel Region ->(2) Initial
@@ -24,8 +24,6 @@ path = f"{data_dir}/{input_name}"
 # ==PROF== Disconnected from process
 # Peak Memory Bandwidth: 176.032GB/s
 # Peak Floating-Point Performance: 270385 GFLOPS
-
-report_dense_sparse = []
 
 FLOAT_SIZE = 4
 
@@ -60,13 +58,16 @@ def calculate_ops_dense(ctv=False):
     # Done for every row (row_a) *
 
     Flops = (row_a) * (2 * col_a * col_b)
+    #Flops -= col_a * col_b # First row
 
     if Alpha != 1.0:
         Flops += row_c * col_c
 
+    #Flops += row_a * col_a
+
     # Adding C to end result, row_c = row_a, col_c = col_b
     if Beta != 0.0:
-        Flops += row_c * col_c
+        Flops += 2 * row_c * col_c
 
     load_store = get_load_store_size(row_b * col_b, ctv)
 
@@ -95,27 +96,25 @@ def calculate_ops_dense_sparse(typestr, ctv):
         ops = 0
         ops += 2 * col_a * 2 * 2  # first and last row
         ops += (row_a - 2) * col_a * 3 * 2  # for every other row
-        ops += row_a * col_a
-        load_store = get_load_store_size(3*row_b - 2, ctv)
+        if Alpha != 1.0:
+            ops += row_c * col_c
+        if Beta != 0.0:
+            ops += 2 * row_c * col_c
+        #ops += row_a * col_a
+        #ops -= row_a * col_a
+        load_store = get_load_store_size(3*col_b - 2, ctv)
         return (ops, load_store)
     elif typestr == "full":
         return calculate_ops_dense(ctv)
-    elif typestr == "single_row":
-        # Every row of A will be multiplied with a single row of B
-        ops = row_a * col_a * 1 * 2
-        ops += row_a * col_a
-        load_store = get_load_store_size(col_b, ctv)
-        return (ops, load_store)
-    elif typestr == "single_column":
-        # Every row of A will be multiple with 1 element
-        ops = row_a * col_a * 1 * 2
-        ops += row_a * col_a
-        load_store = get_load_store_size(row_b, ctv)
-        return (ops, load_store)
     elif typestr == "random":
         el_count = int(sparsity * (row_b * col_b))
-        ops = row_a * col_a * col_b * sparsity * 2
-        ops += row_a * col_a
+        ops = row_a * el_count * 2
+        if Alpha != 1.0:
+            ops += row_c * col_c
+        if Beta != 0.0:
+            ops += 2 * row_c * col_c
+        #ops += row_a * col_a
+        #ops -= row_a * col_a
         load_store = get_load_store_size(el_count, ctv)
         return (ops, load_store)
     elif typestr == "chequered":
@@ -125,386 +124,376 @@ def calculate_ops_dense_sparse(typestr, ctv):
         d = col_b // 2
         el_count = a*b + c*d
         ops = row_a * el_count * 2
-        ops += row_a * col_a
+        if Alpha != 1.0:
+            ops += row_c * col_c
+        if Beta != 0.0:
+            ops += 2 * row_c * col_c
+        #ops += row_a * col_a
+        #ops -= row_a * col_a
         load_store = get_load_store_size(el_count, ctv)
         return (ops, load_store)
     else:
         raise Exception(typestr + " is undefined")
 
 
-with open(path, "r") as file:
-    identifier = ""
-    dense_time = 0.0
-    sparse_time = 0.0
-    speed_up = 0.0
-    op_diff = 0.0
-    load_diff = 0.0
-    flops_per_byte_dd = 0.0
-    flops_per_byte_ds = 0.0
-    dense_sparse_type = ""
-    sparse_dense_type = ""
-    gemmforge_flops_per_el = 0.0
-    my_flops_per_el = 0.0
-    state = "initial"
-    num_items = 0.0
-    cublas_time = 0.0
-    cusparse_time = 0.0
+pd_ds_dataframes = list()
+pd_ds_ctv_dataframes = list()
 
-    i = 1
-    for line in file:
-        print(i)
-        if "Number of elements:" in line:
-            el_count = int(line.split(":")[1].strip())
-            num_items = float(el_count)
-            i += 1
-            continue
-        if "Dense FLOP/s per element from gemmforge:" in line:
-            gemmforge_flops_per_el = int(line.split(":")[1].strip())
-            gemmforge_flops_per_el = float(gemmforge_flops_per_el)
-            i += 1
-            continue
+for i in range(runs):
+    path = f"{stdout_dir}/run{i}.txt"
+    report_dense_sparse = []
+    with open(path, "r") as file:
+        identifier = ""
+        dense_time = 0.0
+        sparse_time = 0.0
+        speed_up = 0.0
+        op_diff = 0.0
+        load_diff = 0.0
+        flops_per_byte_dd = 0.0
+        flops_per_byte_ds = 0.0
+        dense_sparse_type = ""
+        sparse_dense_type = ""
+        gemmforge_flops_per_el = 0.0
+        my_flops_per_el = 0.0
+        state = "initial"
+        num_items = 0.0
+        cublas_time = 0.0
+        cusparse_time = 0.0
 
-        if state == "initial" and "Gemm-Type:" in line:
-            l = line.split("Type:")
-            identifier = l[-1]
-            # inside the identifier there has to be smth like: dense_sparse_At_mul_B_full_compiler_time_value
-            # A{T if transA else NT}_{a_type}_B{T if transB else NT}_DenseXDense
-            # or
-            # A{T if transA else NT}_B{T if transB else NT}_{b_type}_DenseXDense
-            tokens = identifier.split("_")
-            assert (len(tokens) >= 4)
-            if "DenseXSparse" in identifier:
-                dense_sparse_type = tokens[2]
-                if dense_sparse_type == "single":
-                    dense_sparse_type += "_" + tokens[3]
-                assert (dense_sparse_type != "")
-                print(i, "DS: ", dense_sparse_type)
-            elif "SparseXDense" in identifier:
-                sparse_dense_type = tokens[1]
-                if sparse_dense_type == "single":
-                    sparse_dense_type += "_" + tokens[2]
-                assert (sparse_dense_type != "")
-                print(i, "SD: ", sparse_dense_type)
-            state = "kernel"
-            print(i, " initial -> kernel")
-            i += 1
-            continue
-        elif state == "kernel" and "Dense x Dense kernel took" in line:
-            duration = line.split("Dense x Dense kernel took ")[1][:-3]
-            dense_time = float(duration)
-            state = "kernel-2"
-            print(i, " kernel -> kernel-2")
-            i += 1
-            continue
-        elif state == "kernel-2" and "Dense x Sparse kernel took" in line:
-            duration = line.split("Dense x Sparse kernel took ")[1][:-3]
-            sparse_time = float(duration)
-            state = "kernel-3"
-            print(i, " kernel-2 -> kernel-3")
-            i += 1
-            continue
-            """
-            elif state == "kernel-2" and "Sparse x Dense kernel took" in line:
-                duration = line.split("Sparse x Dense kernel took ")[1][:-3]
-                sparse_time = float(duration)
-                state = "write-sd"
-                print(i, " kernel-2 -> write-sd")
+        i = 1
+        for line in file:
+            #print(i)
+            if "Number of elements:" in line:
+                el_count = int(line.split(":")[1].strip())
+                num_items = float(el_count)
                 i += 1
                 continue
-            """
-        elif state == "kernel-3" and "cuBlas DxD kernel took" in line:
-            duration = line.split("cuBlas DxD kernel took ")[1][:-3]
-            cublas_time = float(duration)
-            state = "kernel-4"
-            print(i, " kernel-2 -> kernel-3")
-            i += 1
-            continue
-        elif state == "kernel-4" and "cuSparse DxS kernel" in line:
-            duration = line.split("cuSparse DxS kernel took ")[1][:-3]
-            cusparse_time = float(duration)
-            state = "write-ds"
-            print(i, " kernel-4 -> write-ds")
-            i += 1
-            continue
-        elif state == "write-ds" and "Freeing device memory" in line:
-            speed_up = dense_time / sparse_time
-            dd_ops, dd_load_store = calculate_ops_dense()
-            print(dense_sparse_type)
-            if "_ctv" in identifier:
-                ds_ops, ds_load_store = calculate_ops_dense_sparse(
-                    dense_sparse_type, True)
+            if "Dense FLOP/s per element from gemmforge:" in line:
+                gemmforge_flops_per_el = int(line.split(":")[1].strip())
+                gemmforge_flops_per_el = float(gemmforge_flops_per_el)
+                i += 1
+                continue
+            if state == "initial" and "Gemm-Type:" in line:
+                l = line.split("Type:")
+                identifier = l[-1]
+                # inside the identifier there has to be smth like: dense_sparse_At_mul_B_full_compiler_time_value
+                # A{T if transA else NT}_{a_type}_B{T if transB else NT}_DenseXDense
+                # or
+                # A{T if transA else NT}_B{T if transB else NT}_{b_type}_DenseXDense
+                tokens = identifier.split("_")
+                assert (len(tokens) >= 4)
+                if "DenseXSparse" in identifier:
+                    dense_sparse_type = tokens[2]
+                    if dense_sparse_type == "single":
+                        dense_sparse_type += "_" + tokens[3]
+                    assert (dense_sparse_type != "")
+                    #print(i, "DS: ", dense_sparse_type)
+                elif "SparseXDense" in identifier:
+                    sparse_dense_type = tokens[1]
+                    if sparse_dense_type == "single":
+                        sparse_dense_type += "_" + tokens[2]
+                    assert (sparse_dense_type != "")
+                    #print(i, "SD: ", sparse_dense_type)
+                state = "kernel"
+                #print(i, " initial -> kernel")
+                i += 1
+                continue
+            elif state == "kernel" and "Dense x Dense kernel took" in line:
+                duration = line.split("Dense x Dense kernel took ")[1][:-3]
+                dense_time = float(duration)
+                state = "kernel-2"
+                #print(i, " kernel -> kernel-2")
+                i += 1
+                print([dense_time, 0.0, 0.0, 0.0])
+                continue
+            elif state == "kernel-2" and "Dense x Sparse kernel took" in line:
+                duration = line.split("Dense x Sparse kernel took ")[1][:-3]
+                sparse_time = float(duration)
+                state = "kernel-3"
+                #print(i, " kernel-2 -> kernel-3")
+                print([dense_time, sparse_time, 0.0, 0.0])
+                i += 1
+                continue
+                """
+                elif state == "kernel-2" and "Sparse x Dense kernel took" in line:
+                    duration = line.split("Sparse x Dense kernel took ")[1][:-3]
+                    sparse_time = float(duration)
+                    state = "write-sd"
+                    print(i, " kernel-2 -> write-sd")
+                    i += 1
+                    continue
+                """
+            elif state == "kernel-3" and "cuBlas DxD kernel took" in line:
+                duration = line.split("cuBlas DxD kernel took ")[1][:-3]
+                cublas_time = float(duration)
+                state = "kernel-4"
+                #print(i, " kernel-3 -> kernel-4")
+                i += 1
+                print([dense_time, sparse_time, cublas_time, 0.0])
+                continue
+            elif state == "kernel-4" and "cuSparse DxS kernel" in line:
+                duration = line.split("cuSparse DxS kernel took ")[1][:-3]
+                cusparse_time = float(duration)
+                state = "write-ds"
+                #print(i, " kernel-4 -> write-ds")
+                i += 1
+                print([dense_time, sparse_time, cublas_time, cusparse_time])
+                continue
+            elif state != "initial" and "Freeing device memory" in line:
+                speed_up = 0.0 if sparse_time == 0.0 else dense_time / sparse_time
+                dd_ops, dd_load_store = calculate_ops_dense(False)
+                #print(dense_sparse_type)
+                if "_ctv" in identifier:
+                    ds_ops, ds_load_store = calculate_ops_dense_sparse(
+                        dense_sparse_type, True)
+                else:
+                    ds_ops, ds_load_store = calculate_ops_dense_sparse(
+                        dense_sparse_type, False)
+                op_diff = float(dd_ops) / float(ds_ops)
+                load_store_diff = float(dd_load_store) / float(ds_load_store)
+                flops_per_byte_dd = float(dd_ops) / float(dd_load_store)
+                flops_per_byte_ds = float(ds_ops) / float(ds_load_store)
+                speed_up_per = 100*(dense_time - sparse_time) / dense_time
+                dd_flops = (float(num_items) * float(dd_ops)) / (float(dense_time)*1e6)
+                if num_items == 0.0:
+                    raise Exception("Number items should have been found")
+                ds_flops = (float(num_items) * float(ds_ops)) / (float(sparse_time)*1e6)
+                report_dense_sparse.append([identifier,
+                                            dense_time,
+                                            sparse_time,
+                                            cublas_time,
+                                            cusparse_time,
+                                            speed_up,
+                                            # round(speed_up_per, 2),
+                                            op_diff,
+                                            load_store_diff,
+                                            flops_per_byte_dd,
+                                            flops_per_byte_ds,
+                                            dd_flops,
+                                            ds_flops,
+                                            ])
+                i += 1
+                identifier = ""
+                dense_time = 0.0
+                sparse_time = 0.0
+                speed_up = 0.0
+                state = "initial"
+                substate = ""
+                op_diff = 0.0
+                load_store_diff = 0.0
+                flops_per_byte_dd = 0.0
+                flops_per_byte_ds = 0.0
+                sparse_dense_type = ""
+                dense_sparse_type = ""
+                num_items = 0.0
+                cublas_time = 0.0
+                cusparse_time = 0.0
+                #print(i, " write-ds -> return")
+                continue
+            elif state == "write-sd" and "Freeing device memory" in line:
+                """
+                speed_up = dense_time / sparse_time
+                dd_ops, dd_load_store = calculate_ops_dense()
+                print(sparse_dense_type)
+                sd_ops, sd_load_store = calculate_ops_sparse_dense(
+                    sparse_dense_type)
+                op_diff = dd_ops / sd_ops
+                load_store_diff = dd_load_store / sd_load_store
+                flops_per_byte_dd = dd_ops / (dd_load_store)
+                flops_per_byte_sd = sd_ops / (sd_load_store)
+                speed_up_per = 100*(dense_time - sparse_time) / dense_time
+                report_sparse_dense.append([identifier,
+                                            round(dense_time, 6),
+                                            round(sparse_time, 6),
+                                            round(speed_up, 6),
+                                            round(speed_up_per, 6),
+                                            round(op_diff, 6),
+                                            round(load_store_diff, 6),
+                                            round(flops_per_byte_dd, 6),
+                                            round(flops_per_byte_sd, 6),
+                                            ])
+                """
+                state = "return"
+                i += 1
+                #print(i, " write-sd -> return")
+                identifier = ""
+                dense_time = 0.0
+                sparse_time = 0.0
+                speed_up = 0.0
+                state = "initial"
+                substate = ""
+                op_diff = 0.0
+                load_store_diff = 0.0
+                flops_per_byte_dd = 0.0
+                flops_per_byte_ds = 0.0
+                sparse_dense_type = ""
+                dense_sparse_type = ""
+                num_items = 0.0
+                cublas_time = 0.0
+                cusparse_time = 0.0
+                #print(i, " return -> initial")
+                i += 1
+                continue
             else:
-                ds_ops, ds_load_store = calculate_ops_dense_sparse(
-                    dense_sparse_type, False)
-            op_diff = dd_ops / ds_ops
-            load_store_diff = dd_load_store / ds_load_store
-            flops_per_byte_dd = float(dd_ops) / float(dd_load_store)
-            flops_per_byte_ds = float(ds_ops) / float(ds_load_store)
-            speed_up_per = 100*(dense_time - sparse_time) / dense_time
-            dd_flops = float(num_items) * float(dd_ops) * \
-                1e-9 / (float(dense_time)*1e-3)
-            dd_flops = 1e-6 * \
-                (float(dd_ops) / (float(dense_time) / float(num_items)))
-            gemmforge_dd_flops = float(
-                num_items) * float(gemmforge_flops_per_el) * 1e-9 / (float(dense_time)*1e-3)
-            total_bytes = dd_load_store
-            print(num_items, " * ", dd_ops,
-                  " * 1e3 / (", dense_time, " * 1e9) = ", dd_flops)
-            print(gemmforge_flops_per_el, " =? ", dd_ops)
-            if num_items == 0.0:
-                raise Exception("Number items should have been found")
-            ds_flops = float(num_items) * float(ds_ops) * \
-                1e-9 / (float(sparse_time)*1e-3)
-            report_dense_sparse.append([identifier,
-                                        round(dense_time, 4),
-                                        round(sparse_time, 4),
-                                        round(cublas_time, 4),
-                                        round(cusparse_time, 4),
-                                        round(speed_up, 4),
-                                        # round(speed_up_per, 2),
-                                        round(op_diff, 4),
-                                        round(load_store_diff, 4),
-                                        round(flops_per_byte_dd, 4),
-                                        round(flops_per_byte_ds, 4),
-                                        round(dd_flops, 4),
-                                        round(ds_flops, 4),
-                                        round(gemmforge_dd_flops, 4),
-                                        ])
-            state = "return"
-            i += 1
-            print(i, " write-ds -> return")
-            continue
-        elif state == "write-sd" and "Freeing device memory" in line:
-            """
-            speed_up = dense_time / sparse_time
-            dd_ops, dd_load_store = calculate_ops_dense()
-            print(sparse_dense_type)
-            sd_ops, sd_load_store = calculate_ops_sparse_dense(
-                sparse_dense_type)
-            op_diff = dd_ops / sd_ops
-            load_store_diff = dd_load_store / sd_load_store
-            flops_per_byte_dd = dd_ops / (dd_load_store)
-            flops_per_byte_sd = sd_ops / (sd_load_store)
-            speed_up_per = 100*(dense_time - sparse_time) / dense_time
-            report_sparse_dense.append([identifier,
-                                        round(dense_time, 6),
-                                        round(sparse_time, 6),
-                                        round(speed_up, 6),
-                                        round(speed_up_per, 6),
-                                        round(op_diff, 6),
-                                        round(load_store_diff, 6),
-                                        round(flops_per_byte_dd, 6),
-                                        round(flops_per_byte_sd, 6),
-                                        ])
-            """
-            state = "return"
-            i += 1
-            print(i, " write-sd -> return")
-            continue
-        elif state == "return":
-            identifier = ""
-            dense_time = 0.0
-            sparse_time = 0.0
-            speed_up = 0.0
-            state = "initial"
-            substate = ""
-            op_diff = 0.0
-            load_store_diff = 0.0
-            flops_per_byte_dd = 0.0
-            flops_per_byte_ds = 0.0
-            sparse_dense_type = ""
-            dense_sparse_type = ""
-            num_items = 0.0
-            cublas_time = 0.0
-            cusparse_time = 0.0
-            print(i, " return -> initial")
-            i += 1
-            continue
-        else:
-            i += 1
+                i += 1
 
-report_dense_sparse_both = list(sorted(report_dense_sparse, key=lambda x: x[0]))
-#report_sparse_dense = list(sorted(report_sparse_dense, key=lambda x: x[0]))
-report_dense_sparse = list(
-    filter(lambda x: not "_ctv" in x[0], report_dense_sparse_both))
-#report_sparse_dense = list(
-#    filter(lambda x: "_ctv" not in x[0], report_sparse_dense))
-report_dense_sparse_ctv = list(
-    filter(lambda x: "_ctv" in x[0], report_dense_sparse_both))
+    """
+    print(
+        tabulate(report_dense_sparse,
+                headers=["Identifier",
+                        "DD Time",
+                        "DS Time",
+                        "cuBlas Time",
+                        "cuSparse Time",
+                        "Speed-up",
+                        "Flop. Ceil",
+                        "LS Ceil",
+                        "DD Flop/b",
+                        "DS Flop/b",
+                        "DD GFlop/s",
+                        "DS GFlop/s"],
+                tablefmt="github"))
+    """
 
-print(
-    tabulate(report_dense_sparse,
-             headers=["Identifier",
-                      "DD Time",
-                      "DS Time",
-                      "cuBlas Time",
-                      "cuSparse Time",
-                      "Speed-up",
-                      # "%",
-                      "Flop. Ceil",
-                      "LS Ceil",
-                      "DD Flop/b",
-                      "DS Flop/b",
-                      "DD GFlop/s",
-                      "DS GFlop/s",
-                      "Ge. DD GFlop/s"],
-             tablefmt="github"))
-print(
-    tabulate(report_dense_sparse_ctv,
-             headers=["Identifier",
-                      "DD Time",
-                      "DS Time",
-                      "cuBlas Time",
-                      "cuSparse Time",
-                      "Speed-up",
-                      # "%",
-                      "Flop. Ceil",
-                      "LS Ceil",
-                      "DD Flop/b",
-                      "DS Flop/b",
-                      "DD GFlop/s",
-                      "DS GFlop/s",
-                      "Ge. DD GFlop/s"],
-             tablefmt="github"))
-"""
-print(
-    tabulate(report_sparse_dense,
-             headers=["Identifier",
-                      "DD Time",
-                      "DS Time",
-                      "Speed-up",
-                      "%",
-                      "Flop. Ceil",
-                      "LS Ceil",
-                      "DD GFlop/b",
-                      "DS GFlop/b"],
-             tablefmt="github"))
-"""
+    report_dense_sparse_both = list(sorted(report_dense_sparse, key=lambda x: x[0]))
+    #report_sparse_dense = list(sorted(report_sparse_dense, key=lambda x: x[0]))
+    report_dense_sparse = list(
+        filter(lambda x: not "_ctv" in x[0], report_dense_sparse_both))
+    #report_sparse_dense = list(
+    #    filter(lambda x: "_ctv" not in x[0], report_sparse_dense))
+    report_dense_sparse_ctv = list(
+        filter(lambda x: "_ctv" in x[0], report_dense_sparse_both))
 
-p_ds = pd.DataFrame(data=report_dense_sparse, columns=[
-    "Identifier",
-    "DD Time",
-    "DS Time",
-    "cuBlas Time",
-    "cuSparse Time",
-    "Speed-up",
-    # "%",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b",
-    "DD GFlop/s",
-    "DS GFlop/s",
-    "Gemmforge DD GFlop/s"
-])
-p_ds_ctv = pd.DataFrame(data=report_dense_sparse_ctv, columns=[
-    "Identifier",
-    "DD Time",
-    "DS Time",
-    "cuBlas Time",
-    "cuSparse Time",
-    "Speed-up",
-    # "%",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b",
-    "DD GFlop/s",
-    "DS GFlop/s",
-    "Gemmforge DD GFlop/s"
-])
+    """
+    print(
+        tabulate(report_dense_sparse,
+                headers=["Identifier",
+                        "DD Time",
+                        "DS Time",
+                        "cuBlas Time",
+                        "cuSparse Time",
+                        "Speed-up",
+                        "Flop. Ceil",
+                        "LS Ceil",
+                        "DD Flop/b",
+                        "DS Flop/b",
+                        "DD GFlop/s",
+                        "DS GFlop/s"],
+                tablefmt="github"))
+    print(
+        tabulate(report_dense_sparse_ctv,
+                headers=["Identifier",
+                        "DD Time",
+                        "DS Time",
+                        "cuBlas Time",
+                        "cuSparse Time",
+                        "Speed-up",
+                        # "%",
+                        "Flop. Ceil",
+                        "LS Ceil",
+                        "DD Flop/b",
+                        "DS Flop/b",
+                        "DD GFlop/s",
+                        "DS GFlop/s"],
+                tablefmt="github"))
+    """
 
-"""
-p_sd = pd.DataFrame(data=report_sparse_dense, columns=[
-    "Identifier",
-    "DD Time",
-    "DS Time",
-    "Speed-up",
-    "%",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b"
-])
-"""
+    tmp1 = pd.DataFrame(data=deepcopy(report_dense_sparse), columns=[
+        "Identifier",
+        "DD Time",
+        "DS Time",
+        "cuBlas Time",
+        "cuSparse Time",
+        "Speed-up",
+        # "%",
+        "Flop. Ceil",
+        "LS Ceil",
+        "DD Flop/b",
+        "DS Flop/b",
+        "DD GFlop/s",
+        "DS GFlop/s"
+    ])
+    tmp1 = tmp1.sort_values(by="Identifier").copy()
+    print(tmp1)
+    pd_ds_dataframes.append(tmp1.copy())
+    tmp2 = pd.DataFrame(data=deepcopy(report_dense_sparse_ctv), columns=[
+        "Identifier",
+        "DD Time",
+        "DS Time",
+        "cuBlas Time",
+        "cuSparse Time",
+        "Speed-up",
+        # "%",
+        "Flop. Ceil",
+        "LS Ceil",
+        "DD Flop/b",
+        "DS Flop/b",
+        "DD GFlop/s",
+        "DS GFlop/s"
+    ])
+    tmp2 = tmp2.sort_values(by="Identifier").copy()
+    print(tmp2)
+    pd_ds_ctv_dataframes.append(deepcopy(tmp2))
 
-cov = p_ds[[
-    "Speed-up",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b"
-]].cov()
-print(cov)
-heatmap = sns.heatmap(cov, annot=True, fmt=".2f")
-#fig = heatmap.get_figure()
-#fig.tight_layout()
-#fig.savefig(f"{data_dir}/plots/heatmap-cov-ds.png")
-#fig.clear()
+#print(len(pd_ds_dataframes))
+#print("---------------------")
 
-corr = p_ds[[
-    "Speed-up",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b"
-]].corr()
-print(corr)
-heatmap = sns.heatmap(corr, annot=True, fmt=".2f")
-#fig = heatmap.get_figure()
-#fig.tight_layout()
-#fig.savefig(f"{data_dir}/plots/heatmap-corr-ds.png")
-#fig.clear()
+# This takes the average and covariance of 2 pandas data frames,
+# Runtime for denses parse dense sparse with ctv 
 
-"""
-cov = p_sd[[
-    "Speed-up",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b"
-]].cov()
-print(cov)
-heatmap = sns.heatmap(cov, annot=True, fmt=".2f")
-fig = heatmap.get_figure()
-fig.tight_layout()
-fig.savefig(f"{data_dir}/data/plots/heatmap-cov-sd.png")
-fig.clear()
+p_ds_sum = pd_ds_dataframes[0].copy()
 
-corr = p_sd[[
-    "Speed-up",
-    "Flop. Ceil",
-    "LS Ceil",
-    "DD Flop/b",
-    "DS Flop/b"
-]].corr()
-print(corr)
-heatmap = sns.heatmap(corr, annot=True, fmt=".2f")
-fig = heatmap.get_figure()
-fig.tight_layout()
-fig.savefig(f"{data_dir}/data/plots/heatmap-corr-sd.png")
-"""
+# Take average except the str row (ops on str not supported sadly)
+for df in pd_ds_dataframes[1:]:
+    p_ds_sum.iloc[:, 1:] += df.iloc[:, 1:].copy()
 
-# benchmark says 192 mem bandwidth
-# website says 5.5 Tflops?
-#peakMemoryBandwidthTheo = 176.032  # GB /s
-#peakFLOPTheo = 4329.47  # GFlop /s
+p_ds_sum.iloc[:, 1:] = p_ds_sum.iloc[:, 1:].copy() / float(runs)
+p_ds = p_ds_sum.copy()
+print(p_ds)
+#print(p_ds)
+#print("---------------------")
+p_ds_ctv_sum = pd_ds_ctv_dataframes[0].copy()
 
-# Experimental values from NVPROF
-#peakMemoryBandwidth = 175
-#peakFLOP = 2918
+# Take average except the str row (ops on str not supported sadly)
+for df in pd_ds_ctv_dataframes[1:]:
+    p_ds_ctv_sum.iloc[:, 1:] += df.iloc[:, 1:].copy()
 
-#lookupPeakMemoryBandwidth = 192
-#lookupPeakFLOP = 5500
+p_ds_ctv_sum.iloc[:, 1:] = p_ds_ctv_sum.iloc[:, 1:].copy() / float(runs)
+p_ds_ctv = p_ds_ctv_sum.copy()
+print(p_ds_ctv)
+#print(p_ds_ctv)
+#print("======================")
+p_ds_var_dist = pd_ds_dataframes[0].copy()
+p_ds_var_dist.iloc[:, 1:] -= p_ds_sum.iloc[:, 1:].copy()
+p_ds_var_dist.iloc[:, 1:] = p_ds_var_dist.iloc[:, 1:].copy().pow(2)
+for df in pd_ds_dataframes[1:]:
+    tmp = df.iloc[:, 1:].copy() - p_ds.iloc[:, 1:].copy()
+    p_ds_var_dist += tmp.pow(2).copy()
+p_ds_var = p_ds_var_dist.iloc[:, 1:].copy() / float(runs)
+
+p_ds_ctv_var_dist = pd_ds_ctv_dataframes[0].copy()
+p_ds_ctv_var_dist.iloc[:, 1:] -= p_ds_ctv.iloc[:, 1:].copy()
+p_ds_ctv_var_dist.iloc[:, 1:] = p_ds_ctv_var_dist.iloc[:, 1:].copy().pow(2)
+for df in pd_ds_ctv_dataframes[1:]:
+    tmp = df.iloc[:, 1:].copy() - p_ds_ctv.iloc[:, 1:].copy()
+    p_ds_ctv_var_dist += tmp.pow(2).copy()
+p_ds_ctv_var = p_ds_ctv_var_dist.iloc[:, 1:].copy() / float(runs)
+
+#p_ds_ctv_var = sum([(x - p_ds_ctv).pow(2) for x in pd_ds_ctv_dataframes]) / runs
+
+#print(p_ds)
+#print("~~~~~~~~~~~~~~~~~~~")
+#print(p_ds_ctv)
+print(p_ds_var)
+print(p_ds_ctv_var)
+#raise Exception("uwu")
 
 #fig.clear()
 dd_points = p_ds[["DD Flop/b", "DD GFlop/s"]]
 ds_points = p_ds[["DS Flop/b", "DS GFlop/s"]]
 ds_points_ctv = p_ds_ctv[["DS Flop/b", "DS GFlop/s"]]
 dd_points_ctv = p_ds_ctv[["DD Flop/b", "DD GFlop/s"]]
-print(dd_points)
-print(ds_points)
-print(ds_points_ctv)
+
 
 
 def round_up_to_power_of_ten(n):
@@ -517,6 +506,7 @@ def round_up_to_power_of_ten(n):
         return 10 ** power
 
 def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_points, dd_points, p_ds, addname):
+    plt.clf()
     done = [False for _ in b_matrix_types]
     txt = ["" for _ in p_ds["Identifier"]]
     def roof(val): return min(peak_floating_point_perf,

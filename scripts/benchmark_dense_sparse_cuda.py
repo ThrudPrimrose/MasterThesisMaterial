@@ -915,6 +915,8 @@ int main(){{
     cudaFree(A_dev);
     cudaFree(B_dense_dev);
     cudaFree(C1_dev);
+
+    cudaDeviceReset();
     }}
     """
                     f = open(
