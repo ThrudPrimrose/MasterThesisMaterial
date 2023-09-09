@@ -1,3 +1,4 @@
+import os
 #row_a = 56
 #col_a = 9
 #row_b = 9
@@ -47,7 +48,7 @@ dense_blue = my_blue
 
 # Change always
 workaround = False
-scripts_dir = "/home/primrose/Work/MasterThesisMaterial/scripts"
+scripts_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = f"{scripts_dir}/../data"
 stdout_dir = f"{data_dir}/A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
 save_plots = True
