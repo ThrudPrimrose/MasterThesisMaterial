@@ -5,17 +5,19 @@
 #row_c = 56
 #col_c = 9
 
-# Change if wanted
-row_a = 56
-col_a = 9
-row_b = 9
-col_b = 9
-row_c = 56
-col_c = 9
+runs = 2
 
 # Change if wanted
-Alpha = 1.0
-Beta = 0.0
+row_a = 32
+col_a = 32
+row_b = 32
+col_b = 32
+row_c = 32
+col_c = 32
+
+# Change if wanted
+Alpha = 1.5
+Beta = 1.5
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -34,8 +36,8 @@ b_matrix_types = ["band", "chequered", "full", "random"]
 #b_matrix_types = ["random"]
 
 # Change when GPU changes in GB/s and GFLOP/s
-peakMemoryBandwidthTheo = 760.08 #176.032
-peakFLOPTheo = 29767.7 #4329.47
+peakMemoryBandwidthTheo = 176.032 #760.08 #176.032
+peakFLOPTheo = 4329.47 #29767.7 #4329.47
 
 # Dont change
 nvidia_green = "#76b900"
@@ -47,8 +49,8 @@ dense_blue = my_blue
 workaround = False
 scripts_dir = "/home/primrose/Work/MasterThesisMaterial/scripts"
 data_dir = f"{scripts_dir}/../data"
-input_name = "../scripts/stdout.txt" #"stdout32-32-beta0.txt"
-save_plots = False
+stdout_dir = f"{data_dir}/A56x9-B9x9-a1.0-b0.0"
+save_plots = True
 debug_print = False
 
 ld_library_path = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64:/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/11.8/lib64"
