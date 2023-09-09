@@ -5,7 +5,7 @@
 #row_c = 56
 #col_c = 9
 
-runs = 2
+runs = 10
 
 # Change if wanted
 row_a = 32
