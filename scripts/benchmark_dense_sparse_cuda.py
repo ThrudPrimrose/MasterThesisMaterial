@@ -32,7 +32,7 @@ def get_suggested_num_elements(MatASize, MatBDenseSize, MatBSparseSize, MatCSize
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
-    at95 = int(0.90 * can_fit_els)
+    at95 = int(0.80 * can_fit_els)
     # print(f"Can fit {can_fit_els} matrices of given sizes, at 80% capacity {at80}")
     return (can_fit_els, at95)
     # return (1,1)
