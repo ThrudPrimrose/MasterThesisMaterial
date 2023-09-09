@@ -49,7 +49,7 @@ dense_blue = my_blue
 workaround = False
 scripts_dir = "/home/primrose/Work/MasterThesisMaterial/scripts"
 data_dir = f"{scripts_dir}/../data"
-stdout_dir = f"{data_dir}/A56x9-B9x9-a1.0-b0.0"
+stdout_dir = f"{data_dir}/A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
 save_plots = True
 debug_print = False
 
