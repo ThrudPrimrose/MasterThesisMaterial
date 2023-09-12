@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from params import *
+from aux import *
 
 # path = f"{data_dir}/gemmforge_remote/stdout_only_run.txt"
 
@@ -433,7 +434,7 @@ for i in range(runs):
     ])
     tmp2 = tmp2.sort_values(by="Identifier").copy()
     print(tmp2)
-    pd_ds_ctv_dataframes.append(deepcopy(tmp2))
+    pd_ds_ctv_dataframes.append(tmp2.copy())
 
 #print(len(pd_ds_dataframes))
 #print("---------------------")
@@ -469,7 +470,9 @@ p_ds_var_dist.iloc[:, 1:] = p_ds_var_dist.iloc[:, 1:].copy().pow(2)
 for df in pd_ds_dataframes[1:]:
     tmp = df.iloc[:, 1:].copy() - p_ds.iloc[:, 1:].copy()
     p_ds_var_dist += tmp.pow(2).copy()
-p_ds_var = p_ds_var_dist.iloc[:, 1:].copy() / float(runs)
+p_ds_var = p_ds_var_dist.copy()
+p_ds_var.iloc[:, 1:] = p_ds_var_dist.iloc[:, 1:].copy() / float(runs)
+p_ds_var["Identifier"] = p_ds["Identifier"]
 
 p_ds_ctv_var_dist = pd_ds_ctv_dataframes[0].copy()
 p_ds_ctv_var_dist.iloc[:, 1:] -= p_ds_ctv.iloc[:, 1:].copy()
@@ -477,7 +480,9 @@ p_ds_ctv_var_dist.iloc[:, 1:] = p_ds_ctv_var_dist.iloc[:, 1:].copy().pow(2)
 for df in pd_ds_ctv_dataframes[1:]:
     tmp = df.iloc[:, 1:].copy() - p_ds_ctv.iloc[:, 1:].copy()
     p_ds_ctv_var_dist += tmp.pow(2).copy()
-p_ds_ctv_var = p_ds_ctv_var_dist.iloc[:, 1:].copy() / float(runs)
+p_ds_ctv_var = p_ds_ctv_var_dist.copy()
+p_ds_ctv_var["Identifier"] = p_ds_ctv["Identifier"]
+
 
 #p_ds_ctv_var = sum([(x - p_ds_ctv).pow(2) for x in pd_ds_ctv_dataframes]) / runs
 
@@ -505,7 +510,8 @@ def round_up_to_power_of_ten(n):
         power = math.ceil(math.log10(n))
         return 10 ** power
 
-def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_points, dd_points, p_ds, addname):
+def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_points, dd_points, p_ds, addname,
+                  second_values=False, ds_points_2=None, dd_points_2=None, p_ds_2=None):
     plt.clf()
     done = [False for _ in b_matrix_types]
     txt = ["" for _ in p_ds["Identifier"]]
@@ -521,29 +527,60 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
                     done[i] = True
                     txt[xit] = b_matrix_types[i].capitalize()
         xit += 1
-    plt.scatter(x=ds_points["DS Flop/b"],y=ds_points["DS GFlop/s"], c=sparse_rose, s=10, label="Dense-Sparse")
-    for i, (xi, yi) in enumerate(zip(ds_points["DS Flop/b"], ds_points["DS GFlop/s"])):
-        roofline = roof(xi)
-        implementation = yi
-        percentage = implementation*100.0 / roofline
-        if txt[i] != "":
-            txt[i] = txt[i] + " " + str(round(percentage,2)) + "%"
-        plt.annotate(txt[i] , (xi, yi), textcoords="offset points", xytext=(8,-2), ha='left', size=9)
+    txt2 = deepcopy(txt)
 
-    (xi, yi) = (dd_points["DD Flop/b"][0], dd_points["DD GFlop/s"][0])
-    roofline = roof(xi)
-    implementation = yi
-    percentage = implementation*100.0 / roofline
-    t = "Dense" + " " + str(round(percentage,2)) + "%"
-    if addname == "":
-        plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8,-12), ha='left', size=9)
+    if not second_values:
+        l = [(ds_points, dd_points, p_ds)]
     else:
-        plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8,-2), ha='left', size=9)
+        l = [(ds_points, dd_points, p_ds), (ds_points_2, dd_points_2, p_ds_2)] 
 
-    plt.scatter(x=dd_points["DD Flop/b"],
-                y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
-    ymax = max(max(dd_points["DD GFlop/s"]), max(ds_points["DS GFlop/s"]))
-    xmax =  max(max(dd_points["DD Flop/b"]), max(ds_points["DS Flop/b"]))
+    for m, (ds_points, dd_points, p_ds) in enumerate(l):
+        plt.scatter(x=ds_points["DS Flop/b"],y=ds_points["DS GFlop/s"], c=sparse_rose, s=10, label="Dense-Sparse")
+        for name in b_matrix_types:
+            avg = 0.0
+            n = 0
+            for i, (xi, yi) in enumerate(zip(ds_points["DS Flop/b"], ds_points["DS GFlop/s"])):
+                if name in p_ds["Identifier"].iloc[i]:
+                    roofline = roof(xi)
+                    implementation = yi
+                    percentage = implementation*100.0 / roofline
+                    avg += percentage
+                    n += 1
+            for i, (xi, yi) in enumerate(zip(ds_points["DS Flop/b"], ds_points["DS GFlop/s"])):
+                if name in p_ds["Identifier"].iloc[i]:
+                    if m == 0:
+                        if txt[i] != "":
+                            ctv = ""
+                            txt[i] = txt[i] + ctv + " " + str(round(avg/n,2)) + "%"
+                    else:
+                        if txt2[i] != "":
+                            ctv = "(ctv)"
+                            txt2[i] = txt2[i] + ctv + " " + str(round(avg/n,2)) + "%"                      
+                    if m == 0:
+                        plt.annotate(txt[i] , (xi, yi), textcoords="offset points", xytext=(8,-2), ha='left', size=9 if len(l) == 1 else 7)
+                    else:
+                        plt.annotate(txt2[i] , (xi, yi), textcoords="offset points", xytext=(12,-9), ha='left', size=9 if len(l) == 1 else 7)
+        avg = 0.0
+        n = 0
+        for i, (xi, yi) in enumerate(zip(dd_points["DD Flop/b"], dd_points["DD GFlop/s"])):
+            roofline = roof(xi)
+            implementation = yi
+            percentage = implementation*100.0 / roofline
+            avg += percentage
+            n += 1
+        xi = dd_points["DD Flop/b"][0]
+        yi = dd_points["DD GFlop/s"][0]
+        t = "Dense" + " " + str(round(avg/n,2)) + "%"
+        if m == 0:
+            if len(l) == 1:
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8,-12), ha='left', size=9)
+            else:
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(12,-17), ha='left', size=7)
+
+        plt.scatter(x=dd_points["DD Flop/b"],
+                    y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
+        ymax = max(max(dd_points["DD GFlop/s"]), max(ds_points["DS GFlop/s"]))
+        xmax =  max(max(dd_points["DD Flop/b"]), max(ds_points["DS Flop/b"]))
     plt.yscale("log")
     plt.xscale("log")
     plt.ylim((0, round_up_to_power_of_ten(ymax)))
@@ -566,11 +603,23 @@ if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
               "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith Compile Time Matrix Values", ds_points=ds_points_ctv,
                 dd_points=dd_points_ctv, p_ds=p_ds_ctv, addname="-ctv")
+    plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
+              "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith Compile Time Matrix Values", ds_points=ds_points,
+                dd_points=dd_points, p_ds=p_ds, addname="-both", second_values=True, ds_points_2=ds_points_ctv, dd_points_2=dd_points_ctv, p_ds_2=p_ds_ctv)
 #plot_roofline(lookupPeakMemoryBandwidth,
 #              lookupPeakFLOP, "Theoretical from Web")
 
-def plot_in_a_grid(p_ds, addname):
+
+def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
     times_only = p_ds[[
+        "Identifier",
+        "DD Time",
+        "DS Time",
+        "cuBlas Time",
+        "cuSparse Time"
+    ]]
+    print(p_ds_var)
+    times_only_var = p_ds_var[[
         "Identifier",
         "DD Time",
         "DS Time",
@@ -586,18 +635,27 @@ def plot_in_a_grid(p_ds, addname):
         row['cuBlas Time'] = row['cuBlas Time'] / row['cuBlas Time']
         return row
 
-    relative_speed_up = times_only.apply(modify_row, axis=1)
-    print(relative_speed_up)
+    if plot_relative_speed_up:
+        values = times_only.apply(modify_row, axis=1)
+        print(values)
+    else:
+        values = times_only
+        variances = times_only_var
 
     groups = list()
+    var_groups = list()
     max_group_len = 0
     for b_type in b_matrix_types:
-        mask = [b_type in x for x in relative_speed_up['Identifier']]
-        filtered_df = relative_speed_up[[b_type in x for x in relative_speed_up['Identifier']]]
+        mask = [b_type in x for x in values['Identifier']]
+        filtered_df = values[[b_type in x for x in values['Identifier']]]
         if len(filtered_df) > max_group_len:
             max_group_len = len(filtered_df)
         print(filtered_df)
         groups.append(filtered_df)
+        if not plot_relative_speed_up:
+            filtered_df_var = variances[[b_type in x for x in values['Identifier']]]
+            var_groups.append(filtered_df_var)
+            print(filtered_df_var)
 
     # Create a 4x4 grid of subplots
     fig, axarr = plt.subplots(len(groups), max_group_len, figsize=(len(groups)*4, max_group_len*(4)))
@@ -622,7 +680,8 @@ def plot_in_a_grid(p_ds, addname):
                 x = order[j] 
                 x = x.replace("_", " ")
                 x = x.replace("t", "^T")
-                s = r"$" + r"C \leftarrow \alpha \cdot " + x + r" + \beta \cdot C" + r"$"
+                xs = x.split()
+                s = r"$" + r"C \leftarrow \alpha \cdot " + xs[0] + r" \times " + xs[1] + r" + \beta \cdot C" + r"$"
                 axarr[0, j].set_title(s)
         #plt.xticks(rotation=75)
         for orderr in order:
@@ -633,19 +692,30 @@ def plot_in_a_grid(p_ds, addname):
                     order_found = True
                     plotted.append((i, j))
                     row_data = groups[i].iloc[j].tolist()[1:]
+                    if not plot_relative_speed_up:
+                        var_data = var_groups[i].iloc[j].tolist()[1:]
+                        std_dev_data =  np.sqrt(var_data)
+                        yerr = 1.96 * (std_dev_data / np.sqrt(runs))
                     labels = groups[i].columns.tolist()[1:]
                     labels = [deepcopy(x).split(" Time")[0] for x in labels]
                     labels = ["Dense-Dense" if "DD" in x else x for x in labels]
                     labels = ["Dense-Sparse" if "DS" in x else x for x in labels]
-                    print(labels)
-                    print(row_data)
+                    print("Row-Labels:", labels)
+                    print("Row-Data:", row_data)
                     colors = [nvidia_green if "cuBlas" in x or "cuSparse" in x else sparse_rose if "Dense-Sparse" in x else dense_blue for x in labels]
                     #colors = [sparse_rose if "Dense-Sparse" in x else deepcopy(str(x)) for x in colors]
                     print(colors)
-                    bars = axarr[i, j].bar(labels, row_data, color=colors)
+                    if not plot_relative_speed_up:
+                        bars = axarr[i, j].bar(labels, row_data, color=colors)
+                        #axarr[i, j].errorbar(labels, row_data, yerr=yerr, fmt='-o')
+                        shade_darker = [darken_hex_color(color, 0.60) for color in colors]
+                        for pos, y, err, color in zip(labels, row_data, yerr, shade_darker):
+                            axarr[i, j].errorbar(pos, y, err, lw=1, capsize=5, capthick=1, color=color)
+                    else:
+                        bars = axarr[i, j].bar(labels, row_data, color=colors)
                     axarr[i, j].tick_params(axis='x', rotation=20, labelsize=9, pad=-2)
                     #axarr[i, j].set_title(f'Plot {4*i + j + 1}')
-                    axarr[i, j].set_ylim((0.0, y_max+0.3))
+                    axarr[i, j].set_ylim((0.0, y_max+0.05*y_max))
                     
                     if j == 0:
                         g = groups[i].iloc[j]["Identifier"].split(orderr)[1].split("_DenseXSparse")[0].capitalize()
@@ -654,7 +724,7 @@ def plot_in_a_grid(p_ds, addname):
                         axarr[i, j].annotate(g, xy=(0, 0.5), xytext=(-axarr[i, j].yaxis.labelpad - 10, 0),
                                 xycoords=axarr[i, j].yaxis.label, textcoords='offset points',
                                 size='large', ha='right', va='center')
-                    axarr[i, j].set_ylim((0.0, y_max))
+                    axarr[i, j].set_ylim((0.0, y_max+0.05*y_max))
                     axarr[i, j].yaxis.set_major_locator(MaxNLocator(nbins=11))
                     for bar in bars:
                         height = bar.get_height()
@@ -696,10 +766,12 @@ def plot_in_a_grid(p_ds, addname):
     #    ax.title.set(y=1.05)  # Adjust as necessary
     fig.subplots_adjust(wspace=0.2, hspace=0.2)
     plt.tight_layout()
-    plt.savefig(f"{data_dir}/plots/dense-sparse{addname}-grid-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf")
+    plt.savefig(f"{data_dir}/plots/dense-sparse{addname}-grid-{'relSpeedup' if plot_relative_speed_up else 'abs_time'}-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf")
     plt.clf()
     #plt.show()
 
 if save_plots:
-    plot_in_a_grid(p_ds=p_ds, addname="")
-    plot_in_a_grid(p_ds=p_ds_ctv, addname="-ctv")
+    plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var,  addname="", plot_relative_speed_up=False)
+    plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=False)
+    plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=True)
+    plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=True)
