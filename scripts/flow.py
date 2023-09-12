@@ -33,7 +33,7 @@ if mode == "Profile":
 
 for i in range(runs):
     out_file = open(out_path + f"/run{i}.txt", "w")
-    #err_file = open(err_path + f"/run{i}.txt", "w")
+    err_file = open(out_path + f"/err{i}.txt", "w")
 
     stdout_as_str = ""
     #stderr_as_str = ""
@@ -92,8 +92,8 @@ for i in range(runs):
         for line in proc.stderr:
             sys.stderr.write(line)
             sys.stderr.flush()
-            #err_file.write(line)
-            #err_file.flush()
+            err_file.write(line)
+            err_file.flush()
         proc.wait()
         #stdout_as_str += proc.stdout.read().decode('utf-8')
         #stderr_as_str += proc.stderr.read().decode('utf-8')
@@ -108,8 +108,8 @@ for i in range(runs):
         for line in proc.stderr:
             sys.stderr.write(line)
             sys.stderr.flush()
-            #err_file.write(line)
-            #err_file.flush()
+            err_file.write(line)
+            err_file.flush()
         proc.wait()
         #stdout_as_str += proc.stdout.read().decode('utf-8')
         #stderr_as_str += proc.stderr.read().decode('utf-8')
@@ -118,4 +118,4 @@ for i in range(runs):
     #err_file.write(stderr_as_str)
 
     out_file.close()
-    #err_file.close()
+    err_file.close()
