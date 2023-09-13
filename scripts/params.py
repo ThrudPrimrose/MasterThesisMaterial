@@ -18,7 +18,7 @@ col_c = 32
 
 # Change if wanted
 Alpha = 1.5
-Beta = 1.5
+Beta = 0.0
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -37,8 +37,10 @@ b_matrix_types = ["band", "chequered", "full", "random"]
 #b_matrix_types = ["random"]
 
 # Change when GPU changes in GB/s and GFLOP/s
-peakMemoryBandwidthTheo = 176.032 #760.08 #176.032
-peakFLOPTheo = 4329.47 #29767.7 #4329.47
+#peakMemoryBandwidthTheo = 176.032 #760.08 #176.032
+#peakFLOPTheo = 4329.47 #29767.7 #4329.47
+peakMemoryBandwidthTheo = 760.08
+peakFLOPTheo = 29767.7
 
 # Dont change
 nvidia_green = "#76b900"
