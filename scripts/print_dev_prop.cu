@@ -71,7 +71,6 @@ int getSPcores(const cudaDeviceProp &devProp)
         else if (devProp.minor == 6)
         {
             cores = mp * 128;
-            assert(cores == 2048);
         }
         else if (devProp.minor == 9)
         {

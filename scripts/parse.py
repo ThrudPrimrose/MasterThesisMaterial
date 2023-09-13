@@ -29,6 +29,9 @@ from aux import *
 FLOAT_SIZE = 4
 
 
+if not os.path.exists(f"{stdout_dir}/plots"):
+    os.mkdir(f"{stdout_dir}/plots")
+
 def get_load_store_size(b_el_count, ctv):
     load_store = 0
 
@@ -559,7 +562,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
                     if m == 0:
                         plt.annotate(txt[i] , (xi, yi), textcoords="offset points", xytext=(8,-2), ha='left', size=9 if len(l) == 1 else 7)
                     else:
-                        plt.annotate(txt2[i] , (xi, yi), textcoords="offset points", xytext=(12,-9), ha='left', size=9 if len(l) == 1 else 7)
+                        plt.annotate(txt2[i] , (xi, yi), textcoords="offset points", xytext=(12, 7), ha='left', size=9 if len(l) == 1 else 7)
         avg = 0.0
         n = 0
         for i, (xi, yi) in enumerate(zip(dd_points["DD Flop/b"], dd_points["DD GFlop/s"])):
@@ -573,9 +576,9 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
         t = "Dense" + " " + str(round(avg/n,2)) + "%"
         if m == 0:
             if len(l) == 1:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8,-12), ha='left', size=9)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8,-9), ha='left', size=9)
             else:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(12,-17), ha='left', size=7)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8, -9), ha='left', size=7)
 
         plt.scatter(x=dd_points["DD Flop/b"],
                     y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
@@ -592,7 +595,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
     # Show the plot
     plt.legend(loc="lower right")
     plt.tight_layout()
-    plt.savefig(f"{data_dir}/plots/dense-sparse{addname}-roofline-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf.pdf")
+    plt.savefig(f"{stdout_dir}/plots/dense-sparse{addname}-roofline-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf.pdf")
     plt.clf()
 
 #plot_roofline(peakMemoryBandwidth, peakFLOP,
@@ -604,7 +607,7 @@ if save_plots:
               "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith Compile Time Matrix Values", ds_points=ds_points_ctv,
                 dd_points=dd_points_ctv, p_ds=p_ds_ctv, addname="-ctv")
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
-              "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith Compile Time Matrix Values", ds_points=ds_points,
+              "Roofline Model for Dense-Dense and Dense-Sparse Kernels\nWith and Without Compile Time Values", ds_points=ds_points,
                 dd_points=dd_points, p_ds=p_ds, addname="-both", second_values=True, ds_points_2=ds_points_ctv, dd_points_2=dd_points_ctv, p_ds_2=p_ds_ctv)
 #plot_roofline(lookupPeakMemoryBandwidth,
 #              lookupPeakFLOP, "Theoretical from Web")
@@ -766,7 +769,7 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
     #    ax.title.set(y=1.05)  # Adjust as necessary
     fig.subplots_adjust(wspace=0.2, hspace=0.2)
     plt.tight_layout()
-    plt.savefig(f"{data_dir}/plots/dense-sparse{addname}-grid-{'relSpeedup' if plot_relative_speed_up else 'abs_time'}-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf")
+    plt.savefig(f"{stdout_dir}/plots/dense-sparse{addname}-grid-{'relSpeedup' if plot_relative_speed_up else 'abs_time'}-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf")
     plt.clf()
     #plt.show()
 
@@ -775,3 +778,81 @@ if save_plots:
     plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=False)
     plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=True)
     plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=True)
+
+
+l1 = list()
+l2 = list()
+for index, row in p_ds.iterrows():
+    bytefactor = row["DD Flop/b"] / row["DS Flop/b"]
+    speed_up = row["DD Time"] / row["DS Time"]
+    #print(f"For: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficeint for the case without CTV:", correlation_coefficient)
+
+l1.clear()
+l2.clear()
+for index, row in p_ds_ctv.iterrows():
+    bytefactor = row["DD Flop/b"] / row["DS Flop/b"]
+    speed_up = row["DD Time"] / row["DS Time"]
+    #print(f"For CTV: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficient for the case with CTV:", correlation_coefficient)
+
+l1 = list()
+l2 = list()
+for index, row in p_ds.iterrows():
+    bytefactor = row["DD GFlop/s"] / row["DS GFlop/s"]
+    speed_up = row["DD Time"] / row["DS Time"]
+    #print(f"For: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficeint for the case without CTV GFLOP/s:", correlation_coefficient)
+
+l1.clear()
+l2.clear()
+for index, row in p_ds_ctv.iterrows():
+    bytefactor = row["DD GFlop/s"] / row["DS GFlop/s"]
+    speed_up = row["DD Time"] / row["DS Time"]
+    #print(f"For CTV: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficient for the case with CTV GFLOP/s:", correlation_coefficient)
+
+l1 = list()
+l2 = list()
+for index, row in p_ds.iterrows():
+    bytefactor = row["DD GFlop/s"] / row["DS GFlop/s"]
+    speed_up = row["DD Time"] / row["DS Time"]
+    #print(f"For: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficeint for the case without CTV GFLOP/s:", correlation_coefficient)
+
+l1.clear()
+l2.clear()
+for index, row in p_ds_ctv.iterrows():
+    bytefactor = row["DD Flop/b"] / row["DS Flop/b"]
+    speed_up = row["DD GFlop/s"] / row["DS GFlop/s"]
+    #print(f"For CTV: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficient for the case with CTV GFLOP/s from FLOP/b:", correlation_coefficient)
+
+l1.clear()
+l2.clear()
+for index, row in p_ds.iterrows():
+    bytefactor = row["DD Flop/b"] / row["DS Flop/b"]
+    speed_up = row["DD GFlop/s"] / row["DS GFlop/s"]
+    #print(f"For CTV: {row['Identifier']}, speed-up {speed_up} and load-store-decrease {bytefactor}")
+    l1.append(speed_up)
+    l2.append(bytefactor)
+correlation_coefficient = np.corrcoef(l1, l2)[0, 1]
+print("Correlation coefficient for the case without CTV GFLOP/s from FLOP/b:", correlation_coefficient)
