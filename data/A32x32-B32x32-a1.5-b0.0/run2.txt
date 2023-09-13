@@ -1,0 +1,608 @@
+Gemm-Type: At_B_full_DenseXSparse_ctv
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.554303885 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.401056051 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 15.48700809 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05270386 ms
+Freeing device memory
+Gemm-Type: At_Bt_chequered_DenseXSparse
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.177919865 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.530751944 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 18.4237442 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.85923195 ms
+Freeing device memory
+Gemm-Type: At_B_random_DenseXSparse_ctv
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.766719818 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.200000048 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.48249626 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.49119949 ms
+Freeing device memory
+Gemm-Type: A_B_band_DenseXSparse_ctv
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.860928059 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.280895948 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 20.12569618 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 23.51001549 ms
+Freeing device memory
+Gemm-Type: At_Bt_random_DenseXSparse_ctv
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.765696049 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.201983929 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 19.8092804 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.48991966 ms
+Freeing device memory
+Gemm-Type: At_B_chequered_DenseXSparse_ctv
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.176735878 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.834431887 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 17.71017647 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.84809685 ms
+Freeing device memory
+Gemm-Type: At_Bt_chequered_DenseXSparse_ctv
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.171775818 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.830336094 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 17.3639679 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.85235214 ms
+Freeing device memory
+Gemm-Type: At_B_band_DenseXSparse_ctv
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.868319988 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.280864 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.78764725 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.99286461 ms
+Freeing device memory
+Gemm-Type: A_B_full_DenseXSparse_ctv
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.545088053 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.385855913 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 14.66777611 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05264091 ms
+Freeing device memory
+Gemm-Type: A_Bt_random_DenseXSparse
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.763648033 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.457024097 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.09132767 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.50204849 ms
+Freeing device memory
+Gemm-Type: A_Bt_band_DenseXSparse_ctv
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.875135899 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.275775909 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 22.63552094 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 22.99600029 ms
+Freeing device memory
+Gemm-Type: At_Bt_full_DenseXSparse
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.554080009 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.552256107 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 15.81363201 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05286407 ms
+Freeing device memory
+Gemm-Type: At_B_chequered_DenseXSparse
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.170752048 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.497983932 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 17.42950439 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.88838387 ms
+Freeing device memory
+Gemm-Type: A_B_random_DenseXSparse
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.753407955 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.45600009 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 19.66278458 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.49321556 ms
+Freeing device memory
+Gemm-Type: A_B_chequered_DenseXSparse
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.170623779 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.483648062 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 18.21491241 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.88140869 ms
+Freeing device memory
+Gemm-Type: At_Bt_random_DenseXSparse
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.766592026 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.447808027 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.02166367 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.49817657 ms
+Freeing device memory
+Gemm-Type: At_B_random_DenseXSparse
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.757696152 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.449856043 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.61350441 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.98713684 ms
+Freeing device memory
+Gemm-Type: A_Bt_random_DenseXSparse_ctv
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.762623787 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.196928024 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 19.88419151 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.49523163 ms
+Freeing device memory
+Gemm-Type: At_B_full_DenseXSparse
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.554303885 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.557312012 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 15.93558407 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05504036 ms
+Freeing device memory
+Gemm-Type: At_B_band_DenseXSparse
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.88345623 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.435519934 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 22.30579185 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.99231911 ms
+Freeing device memory
+Gemm-Type: At_Bt_band_DenseXSparse_ctv
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.876287937 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.279871941 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.7774086 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.99462318 ms
+Freeing device memory
+Gemm-Type: At_Bt_full_DenseXSparse_ctv
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.559423923 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.402143955 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 15.36201572 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 17.21078491 ms
+Freeing device memory
+Gemm-Type: A_Bt_full_DenseXSparse
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.550208092 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.550208092 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 15.42348766 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.04102325 ms
+Freeing device memory
+Gemm-Type: A_B_band_DenseXSparse
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.866047859 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.422208071 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.44563293 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.99350357 ms
+Freeing device memory
+Gemm-Type: A_B_full_DenseXSparse
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.543040037 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.547136068 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 14.66470432 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05219269 ms
+Freeing device memory
+Gemm-Type: At_Bt_band_DenseXSparse
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.877151966 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.442687988 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.65145683 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 22.00127983 ms
+Freeing device memory
+Gemm-Type: A_Bt_chequered_DenseXSparse
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.173823833 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.525631905 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 18.10124779 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.85267258 ms
+Freeing device memory
+Gemm-Type: A_Bt_band_DenseXSparse
+Number of elements: 274420
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.874239922 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.420160055 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 22.73807907 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.993536 ms
+Freeing device memory
+Gemm-Type: A_B_random_DenseXSparse_ctv
+Number of elements: 268079
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.748288155 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 3.144704103 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 21.05747223 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 21.48166466 ms
+Freeing device memory
+Gemm-Type: A_B_chequered_DenseXSparse_ctv
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.163584232 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.800640106 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 18.76787186 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.85071945 ms
+Freeing device memory
+Gemm-Type: A_Bt_chequered_DenseXSparse_ctv
+Number of elements: 235033
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 4.171775818 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.807807922 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 18.42070389 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 18.85606384 ms
+Freeing device memory
+Gemm-Type: A_Bt_full_DenseXSparse_ctv
+Number of elements: 199892
+Dense FLOP/s per element from gemmforge: 63488
+Instantiating core matrices
+Instantiating buffer matrices
+Copying core matrices to buffers
+Allocating device memory
+Copying buffers to device
+Calling Dense x Dense kernel
+Dense x Dense kernel took 3.554176092 ms
+Calling Dense x Sparse kernel
+Dense x Sparse kernel took 2.390016079 ms
+Calling cuBlas DxD Kernels
+cuBlas DxD kernel took 14.60531235 ms
+Instantiating transposed buffer matrices
+Copying transposed core matrices to buffers
+Calling cuSparse DxS Kernels
+cuSparse DxS kernel took 16.05471992 ms
+Freeing device memory
