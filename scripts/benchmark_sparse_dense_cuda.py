@@ -1,13 +1,13 @@
 import random
+import sys
+from random import randint
+
+import numpy as np
+from numba import cuda
+
 from gemmforge import DenseMatrix, GenerationError, GemmGenerator, SparseMatrix
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
-import numpy as np
-import sys
-from random import randint
-from numba import cuda
-import os
-
 from params import *
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
@@ -232,7 +232,7 @@ try:
                     full, at80 = get_suggested_num_elements(
                         rowA * colA, rowB * colB, a_el_count, rowC * colC, 4)
                     num_els = at80
-                    #num_els = 1
+                    # num_els = 1
 
                     ctv = "_ctv" if with_compile_time_values else ""
                     n = f"A{T if transA else NT}_{a_type}_B{T if transB else NT}_SparseXDense{ctv}"

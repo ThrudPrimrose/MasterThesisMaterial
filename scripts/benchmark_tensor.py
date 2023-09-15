@@ -1,17 +1,17 @@
-from gemmforge import DenseMatrix, GenerationError, GemmGenerator, LoGGenerator
+import sys
+
+import numpy as np
+from numba import cuda
+
+from gemmforge import DenseMatrix, GenerationError, LoGGenerator
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
-import numpy as np
-import sys
-from random import randint
-from numba import cuda
-import os
-
 from params import *
 
 # b_matrix_types = ["band", "single_column_b", "single_row_b", "chequered", "full"]
 b_matrix_types = ["band", "single_column_b",
                   "single_row_b", "chequered", "full"]
+
 
 def get_available_mem_on_gpu():
     gpus = cuda.gpus.lst

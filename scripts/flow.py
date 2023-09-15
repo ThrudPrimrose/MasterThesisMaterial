@@ -1,9 +1,8 @@
-import os
-import subprocess
-from subprocess import Popen
-import signal
-import sys
 import shutil
+import signal
+import subprocess
+import sys
+from subprocess import Popen
 
 from params import *
 
@@ -12,9 +11,9 @@ code_path = f"{scripts_dir}/cuda_code"
 exec_path = f"{scripts_dir}/cuda_executables"
 report_path = f"{scripts_dir}/reports"
 out_path = stdout_dir
-#err_path = stdout_dir
+# err_path = stdout_dir
 
-#mode = "Profile"
+# mode = "Profile"
 mode = "Run"
 
 for path in [code_path, exec_path, report_path, out_path]:
@@ -25,7 +24,7 @@ for path in [code_path, exec_path, out_path]:
     if os.path.exists(path):
         shutil.rmtree(path)
         os.mkdir(path)
-        
+
 if mode == "Profile":
     if os.path.exists(report_path):
         shutil.rmtree(report_path)
@@ -36,25 +35,27 @@ for i in range(runs):
     err_file = open(out_path + f"/err{i}.txt", "w")
 
     stdout_as_str = ""
-    #stderr_as_str = ""
+
+
+    # stderr_as_str = ""
 
     def handler(signum, frame):
         out_file.write(stdout_as_str)
-        #err_file.write(stderr_as_str)
+        # err_file.write(stderr_as_str)
 
         out_file.close()
-        #err_file.close()
+        # err_file.close()
         exit(1)
+
 
     signal.signal(signal.SIGINT, handler)
 
-
     # Compile CUDA Kernels
     # [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']
-    #for generator in [f'{scripts_dir}/benchmark_tensor.py']:
-    #for generator in [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]:
-    for generator in [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]:
-    #for generator in [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']:
+    # for generator in [f'{scripts_dir}/benchmark_tensor.py']:
+    for generator in [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]:
+        # for generator in [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]:
+        # for generator in [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']:
         proc = subprocess.run(['python3', generator], stdout=subprocess.PIPE)
         stdout_as_str += proc.stdout.decode('utf-8')
         print("Call: ", generator)
@@ -95,8 +96,8 @@ for i in range(runs):
             err_file.write(line)
             err_file.flush()
         proc.wait()
-        #stdout_as_str += proc.stdout.read().decode('utf-8')
-        #stderr_as_str += proc.stderr.read().decode('utf-8')
+        # stdout_as_str += proc.stdout.read().decode('utf-8')
+        # stderr_as_str += proc.stderr.read().decode('utf-8')
 
         print(f"{mode}: {exec_path}/{benchmark_identifier}")
         proc = Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
@@ -111,11 +112,11 @@ for i in range(runs):
             err_file.write(line)
             err_file.flush()
         proc.wait()
-        #stdout_as_str += proc.stdout.read().decode('utf-8')
-        #stderr_as_str += proc.stderr.read().decode('utf-8')
+        # stdout_as_str += proc.stdout.read().decode('utf-8')
+        # stderr_as_str += proc.stderr.read().decode('utf-8')
 
-    #out_file.write(stdout_as_str)
-    #err_file.write(stderr_as_str)
+    # out_file.write(stdout_as_str)
+    # err_file.write(stderr_as_str)
 
     out_file.close()
     err_file.close()

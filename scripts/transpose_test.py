@@ -4,6 +4,7 @@ def print_matrix(matrix, rows, cols):
             print(matrix[i * cols + j], end=" ")
         print()
 
+
 def transpose_matrix(matrix, rows, cols):
     # Initialize the transposed matrix AT with dimensions (cols x rows)
     transposed_matrix = [0] * (rows * cols)
@@ -18,6 +19,7 @@ def transpose_matrix(matrix, rows, cols):
             transposed_matrix[index_AT] = matrix[index_A]
 
     return transposed_matrix
+
 
 # Create a matrix A with dimensions 8x16 and store it in a 1D array (column-major format)
 matrix_A = [i + j * 8 + 1 for j in range(16) for i in range(8)]
@@ -51,9 +53,10 @@ for i in range(0, 8):
         glbMemCol = i
         shrMemCol = glbMemRow
         shrMemRow = glbMemCol
-        #shrOffset = (shrMemRow * 16) + shrMemCol
+        # shrOffset = (shrMemRow * 16) + shrMemCol
         glbOffset = Idx + i * 16
-        #glbOffset = i * 8 + Idx
-        #shrOffset = Idx * 16 + i
+        # glbOffset = i * 8 + Idx
+        # shrOffset = Idx * 16 + i
         shrOffset = shrMemRow + (shrMemCol * 8)
-        print("shrOffset: ", shrOffset, "glbOffset: ", glbOffset, "val in transposed (shared): ", matrix_A[shrOffset], "val in not-transposed (glb)", matrix_AT[glbOffset])
+        print("shrOffset: ", shrOffset, "glbOffset: ", glbOffset, "val in transposed (shared): ", matrix_A[shrOffset],
+              "val in not-transposed (glb)", matrix_AT[glbOffset])

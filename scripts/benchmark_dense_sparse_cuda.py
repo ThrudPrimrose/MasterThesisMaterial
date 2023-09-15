@@ -1,15 +1,16 @@
 import random
+import sys
+from random import randint
+
+import numpy as np
+import scipy
+from numba import cuda
+
 from gemmforge import DenseMatrix, GenerationError, GemmGenerator, SparseMatrix
 from gemmforge.instructions.builders.kernels.gemms.factory import GemmKernelType
 from gemmforge.vm import vm_factory
-import numpy as np
-import sys
-from random import randint
-from numba import cuda
-import os
-import scipy
-
 from params import *
+
 
 def get_available_mem_on_gpu():
     gpus = cuda.gpus.lst
@@ -152,18 +153,17 @@ def gen_matrix_b(rowB, colB, transposed, btype):
                 for j in range(colB):
                     if B[i, j] != 0:
                         r = random.randint(1, 9)
-                        #coo["coordinates"].append([i, j])
-                        #coo["entries"].append([i, j, r])
+                        # coo["coordinates"].append([i, j])
+                        # coo["entries"].append([i, j, r])
                         B[i, j] = r
     else:
         raise Exception("NO")
-
 
     if btype != "random":
         npB = B
         B = B.flatten("F")
         B_nonzeros = []
-        
+
         for el in B:
             if el > 0.0001 or el < -0.0001:
                 assert (el != 0 and el != 0.0)
@@ -179,11 +179,11 @@ def gen_matrix_b(rowB, colB, transposed, btype):
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
                     coords = np.unravel_index(i, (rowB, colB), "F")
-                    #print(coords)
+                    # print(coords)
                     r = random.randint(1, 9)
                     coo["coordinates"].append([coords[1], coords[0]])
                     coo["entries"].append([coords[1], coords[0], el])
-                i+=1
+                i += 1
             b_el_count = len(coo["coordinates"])
         else:
             npB = B
@@ -195,18 +195,18 @@ def gen_matrix_b(rowB, colB, transposed, btype):
                     assert (el != 0 and el != 0.0)
                     B_nonzeros.append(el)
                     coords = np.unravel_index(i, (rowB, colB), "F")
-                    #print(coords)
+                    # print(coords)
                     r = random.randint(1, 9)
                     coo["coordinates"].append([coords[0], coords[1]])
                     coo["entries"].append([coords[0], coords[1], el])
-                i+=1
+                i += 1
             b_el_count = len(coo["coordinates"])
     return (coo, B, B_nonzeros, b_el_count, npB)
 
 
 coo, B, B_nonzeros, b_el_count, npB = gen_matrix_b(9, 9, False, "band")
 print(npB)
-Bcsc = scipy.sparse.csc_matrix(npB, shape=(9,9), dtype=float, copy=True)
+Bcsc = scipy.sparse.csc_matrix(npB, shape=(9, 9), dtype=float, copy=True)
 print(Bcsc.data)
 print(", ".join([str(x) for x in Bcsc.data]))
 print(", ".join([str(x) for x in Bcsc.indices]))
@@ -250,12 +250,12 @@ try:
                         colB = row_b
                         rowBT = col_b
                         colBT = row_b
-                    #if not tA:
+                    # if not tA:
                     rowC = row_c
                     colC = col_c
                     rowCT = col_c
                     colCT = row_c
-                    #else:
+                    # else:
                     #    rowC = col_c
                     #    colC = row_c
 
@@ -272,11 +272,11 @@ try:
                     else:
                         BT = npB
                     BT_1d = BT.flatten("F")
-                    #BT_tmp = []
-                    #for b in BT_1d:
+                    # BT_tmp = []
+                    # for b in BT_1d:
                     #    if b != 0.0:
                     #       BT_tmp.append(b)
-                    #BT_1d = np.array(BT_tmp)
+                    # BT_1d = np.array(BT_tmp)
 
                     BT_sparse = scipy.sparse.csr_matrix(BT)
                     BT_sparse_data = BT_sparse.data
@@ -284,7 +284,7 @@ try:
                     BT_sparse_indptr = BT_sparse.indptr
 
                     BT_sparse_data_str = "{" + ", ".join([str(x) for x in BT_sparse_data]) + "}"
-                    BT_sparse_indices_str = "{" +  ", ".join([str(x) for x in BT_sparse_indices]) + "}"
+                    BT_sparse_indices_str = "{" + ", ".join([str(x) for x in BT_sparse_indices]) + "}"
                     BT_sparse_indptr_str = "{" + ", ".join([str(x) for x in BT_sparse_indptr]) + "}"
                     print("data:", BT_sparse_data_str)
                     print("indices:", BT_sparse_indices_str)
@@ -295,7 +295,7 @@ try:
                     CTId_sparse_indices = CTId_sparse.indices
                     CTId_sparse_indptr = CTId_sparse.indptr
                     CTId_sparse_data_str = "{" + ", ".join([str(x) for x in CTId_sparse_data]) + "}"
-                    CTId_sparse_indices_str = "{" +  ", ".join([str(x) for x in CTId_sparse_indices]) + "}"
+                    CTId_sparse_indices_str = "{" + ", ".join([str(x) for x in CTId_sparse_indices]) + "}"
                     CTId_sparse_indptr_str = "{" + ", ".join([str(x) for x in CTId_sparse_indptr]) + "}"
 
                     mat_b_sparse = SparseMatrix(num_rows=rowB,
@@ -830,7 +830,7 @@ int main(){{
     CHECK_CUSPARSE( cusparseSpMM_bufferSize(
                                  cuSparseHandle,
                                  CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                 { "CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                 {"CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                  alpha_dev, matBT, matAT, beta_dev, matCT, CUDA_R_32F,
                                  CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
     CHECK_CUDA( cudaMalloc(&dBuffer, bufferSize) )
@@ -843,7 +843,7 @@ int main(){{
     cudaEventRecord(startcuSparse); CHECK_ERR;
     CHECK_CUSPARSE( cusparseSpMM(cuSparseHandle,
                                  CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                 { "CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                 {"CUSPARSE_OPERATION_NON_TRANSPOSE" if tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                  alpha_dev, matBT, matAT, beta_dev, matCT, CUDA_R_32F,
                                  CUSPARSE_SPMM_CSR_ALG2, dBuffer) )
     cudaDeviceSynchronize(); CHECK_ERR;

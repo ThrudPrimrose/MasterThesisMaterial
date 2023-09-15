@@ -1,5 +1,3 @@
-import colorsys
-
 def darken_hex_color(hex_color, factor=0.7):
     """
     Darken a hex color by a given factor.

@@ -1,5 +1,7 @@
-from yateto import *
 import os
+
+from yateto import *
+
 
 def add_weird_tensor(g):
     N = 8
@@ -17,13 +19,11 @@ def add_weird_tensor(g):
 arch = useArchitectureIdentifiedBy(
     host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
 generator = Generator(arch)
-#add_simple_tensor(generator)
-#add_complex_matrix(generator)
-#add_matrix(generator)
+# add_simple_tensor(generator)
+# add_complex_matrix(generator)
+# add_matrix(generator)
 add_weird_tensor(generator)
 
 directory = os.path.dirname(os.path.abspath(__file__))
 generator.generate(outputDir=directory,
                    gemm_cfg=GeneratorCollection([GemmForge(arch)]))
-
-
