@@ -51,11 +51,7 @@ for i in range(runs):
     signal.signal(signal.SIGINT, handler)
 
     # Compile CUDA Kernels
-    # [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']
-    # for generator in [f'{scripts_dir}/benchmark_tensor.py']:
-    for generator in [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]:
-        # for generator in [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]:
-        # for generator in [f'{scripts_dir}/benchmark_dense_sparse_cuda.py', f'{scripts_dir}/benchmark_sparse_dense_cuda.py']:
+    for generator in flow_generator_list:
         proc = subprocess.run(['python3', generator], stdout=subprocess.PIPE)
         stdout_as_str += proc.stdout.decode('utf-8')
         print("Call: ", generator)

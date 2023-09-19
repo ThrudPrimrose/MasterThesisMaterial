@@ -35,6 +35,7 @@ debug = False
 
 # Change if wanted
 b_matrix_types = ["band", "chequered", "full", "random"]
+a_matrix_types = b_matrix_types
 # b_matrix_types = ["random"]
 
 # Change when GPU changes in GB/s and GFLOP/s
@@ -69,3 +70,6 @@ mat_lib_lib = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64"
 # gcc = "clang"
 # ld_library_path = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/lib64:/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/lib64"
 # mat_lib_incl ="."
+
+#flow_generator_list = [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]
+flow_generator_list = [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]

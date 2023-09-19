@@ -203,6 +203,92 @@ def gen_matrix_b(rowB, colB, transposed, btype):
             b_el_count = len(coo["coordinates"])
     return (coo, B, B_nonzeros, b_el_count, npB)
 
+def gen_matrix_a(rowA, colA, transposed, atype):
+    A = np.zeros([rowA, colA])
+    coo = {"name": "A", "rows": rowA, "cols": colA,
+           "entries": [], "coordinates": []}
+    if atype == "full":
+        for j in range(colA):
+            for i in range(rowA):
+                r1 = random.randint(1, 9)
+                A[i, j] = r1
+    elif atype == "band":
+        block_size = min([rowA, colA])
+        block_count = int(max([rowA, colA]) / block_size)
+        for b in range(block_count):
+            for i in range(block_size):
+                r1 = random.randint(1, 9)
+                A[i + block_size*b, i + block_size*b] = r1
+                if i > 0:
+                    r2 = random.randint(1, 9)
+                    A[i + block_size*b - 1, i + block_size*b] = r2
+                if i < block_size - 1:
+                    r3 = random.randint(1, 9)
+                    A[i + block_size*b + 1, i + block_size*b] = r3
+        b = block_count
+        for i in range(block_size*block_count, max([rowA, colA])):
+            if i > 0 and i > block_size*block_count:
+                r1 = random.randint(1, 9)
+                A[i - 1, i] = r1
+            r2 = random.randint(1, 9)
+            A[i, i] = r2
+            if i < max([rowA, colA]) - 1:
+                r3 = random.randint(1, 9)
+                A[i + 1, ] = r3
+    elif atype == "random":
+        entry_count = int(non_zero_ratio * rowA * colA)
+        a_el_count = entry_count
+        l = set()
+        while len(l) < entry_count:
+            i = randint(0, rowA - 1)
+            j = randint(0, colA - 1)
+            l.add((i, j))
+        llist = list(l)
+        assert (len(llist) == a_el_count)
+        for (row, col) in llist:
+            A[row, col] = 1
+        for j in range(colA):
+            for i in range(rowA):
+                if A[i, j] != 0:
+                    r = random.randint(1, 9)
+                    A[i, j] = r
+    elif atype == "chequered":
+        for i in range(rowA):
+            for j in range(colA):
+                if i % 2 == 0:
+                    if j % 2 == 0:
+                        r1 = random.randint(1, 9)
+                        A[i, j] = r1
+                else:
+                    if j % 2 == 1:
+                        r2 = random.randint(1, 9)
+                        A[i, j] = r2
+    else:
+        raise Exception("NO")
+
+    if transposed:
+        npA = A.T
+    else:
+        npA = A
+    A = npA.flatten("F")
+    A_nonzeros = []
+    i = 0
+    for el in A:
+        if el > 0.00001 or el < -0.00001:
+            assert (el != 0 and el != 0.0)
+            A_nonzeros.append(el)
+            coords = np.unravel_index(i, (rowA, colA), "F")
+
+            if transposed:
+                coo["coordinates"].append([coords[1], coords[0]])
+                coo["entries"].append([coords[1], coords[0], el])
+            else:
+                coo["coordinates"].append([coords[0], coords[1]])
+                coo["entries"].append([coords[0], coords[1], el])
+        i += 1
+    a_el_count = len(coo["coordinates"])
+    return (coo, A, A_nonzeros, a_el_count, npA)
+
 
 coo, B, B_nonzeros, b_el_count, npB = gen_matrix_b(9, 9, False, "band")
 print(npB)
@@ -265,7 +351,9 @@ try:
                                         bbox=[0, 0, rowA, colA],
                                         )
 
-                    coo, matrix_b, matrix_b_non_zeros_flat, b_el_count, npB = gen_matrix_b(
+                    #coo, matrix_b, matrix_b_non_zeros_flat, b_el_count, npB = gen_matrix_b(
+                    #    rowB, colB, tB, b_type)
+                    coo, matrix_b, matrix_b_non_zeros_flat, b_el_count, npB = gen_matrix_a(
                         rowB, colB, tB, b_type)
                     if not tB:
                         BT = npB.transpose()
