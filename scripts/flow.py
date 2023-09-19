@@ -20,10 +20,15 @@ for path in [code_path, exec_path, report_path, out_path]:
     if not os.path.exists(path):
         os.mkdir(path)
 
-for path in [code_path, exec_path, out_path]:
+for path in [code_path, exec_path]:
     if os.path.exists(path):
         shutil.rmtree(path)
         os.mkdir(path)
+
+if write_output:
+    if os.path.exists(out_path):
+        shutil.rmtree(out_path)
+        os.mkdir(out_path)
 
 if mode == "Profile":
     if os.path.exists(report_path):
@@ -31,24 +36,22 @@ if mode == "Profile":
         os.mkdir(report_path)
 
 for i in range(runs):
-    out_file = open(out_path + f"/run{i}.txt", "w")
-    err_file = open(out_path + f"/err{i}.txt", "w")
+    if write_output:
+        out_file = open(out_path + f"/run{i}.txt", "w")
+        err_file = open(out_path + f"/err{i}.txt", "w")
 
     stdout_as_str = ""
 
+    if write_output:
+        def handler(signum, frame):
+            out_file.write(stdout_as_str)
+            # err_file.write(stderr_as_str)
 
-    # stderr_as_str = ""
+            out_file.close()
+            # err_file.close()
+            exit(1)
 
-    def handler(signum, frame):
-        out_file.write(stdout_as_str)
-        # err_file.write(stderr_as_str)
-
-        out_file.close()
-        # err_file.close()
-        exit(1)
-
-
-    signal.signal(signal.SIGINT, handler)
+        signal.signal(signal.SIGINT, handler)
 
     # Compile CUDA Kernels
     for generator in flow_generator_list:
@@ -84,13 +87,15 @@ for i in range(runs):
         for line in proc.stdout:
             sys.stdout.write(line)
             sys.stdout.flush()
-            out_file.write(line)
-            out_file.flush()
+            if write_output:
+                out_file.write(line)
+                out_file.flush()
         for line in proc.stderr:
             sys.stderr.write(line)
             sys.stderr.flush()
-            err_file.write(line)
-            err_file.flush()
+            if write_output:
+                err_file.write(line)
+                err_file.flush()
         proc.wait()
         # stdout_as_str += proc.stdout.read().decode('utf-8')
         # stderr_as_str += proc.stderr.read().decode('utf-8')
@@ -100,13 +105,15 @@ for i in range(runs):
         for line in proc.stdout:
             sys.stdout.write(line)
             sys.stdout.flush()
-            out_file.write(line)
-            out_file.flush()
+            if write_output:
+                out_file.write(line)
+                out_file.flush()
         for line in proc.stderr:
             sys.stderr.write(line)
             sys.stderr.flush()
-            err_file.write(line)
-            err_file.flush()
+            if write_output:
+                err_file.write(line)
+                err_file.flush()
         proc.wait()
         # stdout_as_str += proc.stdout.read().decode('utf-8')
         # stderr_as_str += proc.stderr.read().decode('utf-8')
@@ -114,5 +121,6 @@ for i in range(runs):
     # out_file.write(stdout_as_str)
     # err_file.write(stderr_as_str)
 
-    out_file.close()
-    err_file.close()
+    if write_output:
+        out_file.close()
+        err_file.close()
