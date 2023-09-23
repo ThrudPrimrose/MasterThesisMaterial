@@ -365,7 +365,7 @@ int main(){{
   }}
 
   std::cout << "Gemm-Type: " << "{n}" << std::endl;
-  std::cout << "Number of elements: " << "num_els" << std::endl;
+  std::cout << "Number of elements: " << num_els << std::endl;
   // Element Matrices
   std::cout << "Instantiating core matrices" << std::endl;
   float CoreA_sparse[{a_el_count}] = {strA_sparse};
