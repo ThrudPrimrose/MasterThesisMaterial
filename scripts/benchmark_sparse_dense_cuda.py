@@ -633,15 +633,22 @@ int main(){{
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG1, &bufferSize) )
-    CHECK_CUDA( cudaMalloc((void**)&dBuffers[i], bufferSize) )
+    if (bufferSize == 0){{
+        bufferSize = 100;
+    }}
+    CHECK_CUDA( cudaMalloc(&dBuffers[i], bufferSize) )
     cudaDeviceSynchronize(); CHECK_ERR;
+    if (dBuffers[i] == NULL){{
+        std::cout << "External Buffer should not be NULL." << std::endl;
+    }}
     CHECK_CUSPARSE( cusparseSpMM_preprocess(cuSparseHandle,
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG1, (void*)dBuffers[i]) )
+                                    CUSPARSE_SPMM_CSR_ALG1, dBuffers[i]) )
     cudaDeviceSynchronize(); CHECK_ERR;
   }}
+  cudaDeviceSynchronize(); CHECK_ERR;
 
   cudaEvent_t startcuSparse, stopcuSparse;
   cudaEventCreate(&startcuSparse); CHECK_ERR;
