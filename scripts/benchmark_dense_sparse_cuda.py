@@ -279,12 +279,8 @@ def gen_matrix_a(rowA, colA, transposed, atype):
             A_nonzeros.append(el)
             coords = np.unravel_index(i, (rowA, colA), "F")
 
-            if transposed:
-                coo["coordinates"].append([coords[1], coords[0]])
-                coo["entries"].append([coords[1], coords[0], el])
-            else:
-                coo["coordinates"].append([coords[0], coords[1]])
-                coo["entries"].append([coords[0], coords[1], el])
+            coo["coordinates"].append([coords[0], coords[1]])
+            coo["entries"].append([coords[0], coords[1], el])
         i += 1
     a_el_count = len(coo["coordinates"])
     return (coo, A, A_nonzeros, a_el_count, npA)
@@ -592,10 +588,22 @@ __global__ void printKernel(const float* devicePtr, int n) {{
 
 int main(){{
     bool debug_print = {"true" if debug_print else "false"};
+    float *alpha_dev = nullptr;
+    float *beta_dev = nullptr;
+    float *transpose_alpha_dev = nullptr;
+    float *transpose_beta_dev = nullptr;
     float alpha = {Alpha}f;
     float beta = {Beta}f;
-    float transpose_alpha = 1.0f;
-    float transpose_beta = 0.0f;
+    float talpha = 1.0f;
+    float tbeta = 0.0f;
+    cudaMalloc(&alpha_dev, sizeof(float));
+    cudaMalloc(&beta_dev, sizeof(float));
+    cudaMalloc(&transpose_alpha_dev, sizeof(float));
+    cudaMalloc(&transpose_beta_dev, sizeof(float));
+    cudaMemcpy((void*)alpha_dev, (void*)&alpha, sizeof(float), cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void*)beta_dev, (void*)&beta, sizeof(float), cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void*)transpose_alpha_dev, (void*)&talpha, sizeof(float), cudaMemcpyHostToDevice); CHECK_ERR;
+    cudaMemcpy((void*)transpose_beta_dev, (void*)&tbeta, sizeof(float), cudaMemcpyHostToDevice); CHECK_ERR;
 
     std::cout.precision(10);
     std::cout << std::setw(10);
@@ -604,6 +612,7 @@ int main(){{
     if (createStatus != CUBLAS_STATUS_SUCCESS) {{
         throw std::runtime_error("UWU");
     }}
+    cublasSetPointerMode(handle, CUBLAS_POINTER_MODE_DEVICE);
     cusparseHandle_t cuSparseHandle;
     cusparseCreate(&cuSparseHandle);
 
@@ -611,8 +620,8 @@ int main(){{
     if ({num_els}>std::numeric_limits<int>::max()){{
         throw std::runtime_error("Batch size too huge for num_els");
     }}
-    constexpr int cuSparseBatchSize = 65535;
-    constexpr int cudaStreamsNeeded = {num_els / 65535 + int(num_els % 65535!= 0)};
+    constexpr int cuSparseBatchSize = 65500;
+    constexpr int cudaStreamsNeeded = {num_els // 65500 + int(num_els % 65500!= 0)};
     cudaStream_t streams[cudaStreamsNeeded];
     for (int i = 0; i < cudaStreamsNeeded; i++) {{
         cudaStreamCreate(&streams[i]);
@@ -674,8 +683,7 @@ int main(){{
     // Dense x Dense Matrix Mult
     {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
-    {dense_function_name}(A_dev, 0, B_dense_dev, 0, C1_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
-    cudaDeviceSynchronize(); CHECK_ERR;
+    cudaMemcpy(C1_dev, C, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
     std::cout << "Calling Dense x Dense kernel" << std::endl;
     float elapsedTime1 = 0.0; 
@@ -697,8 +705,7 @@ int main(){{
     // Dense x Sparse Matrix Mult
     {f"{sparse_function_name}(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, num_els, nullptr, nullptr);" if not with_compile_time_values else f"{sparse_function_name}(A_dev, 0, nullptr, 0, C2_dev, 0, num_els, nullptr, nullptr);"} CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
-    {f"{sparse_function_name}(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, num_els, nullptr, nullptr);" if not with_compile_time_values else f"{sparse_function_name}(A_dev, 0, nullptr, 0, C2_dev, 0, num_els, nullptr, nullptr);"} CHECK_ERR;
-    cudaDeviceSynchronize(); CHECK_ERR;
+    cudaMemcpy(C2_dev, C, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
     std::cout << "Calling Dense x Sparse kernel" << std::endl;
     float elapsedTime2 = 0.0;
@@ -749,26 +756,21 @@ int main(){{
     cudaMemcpy((void *)C2_dev_begins, (void *)C2_begins, num_els * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     // First 2 to discard
     cublasStatus_t cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowC}, {colC}, {rowB}, &alpha, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-        &beta, (float **)C2_dev_begins, {rowC}, num_els); CHECK_ERR;
+        {rowC}, {colC}, {rowB}, alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        beta_dev, (float **)C2_dev_begins, {rowC}, num_els); CHECK_ERR;
     cudaDeviceSynchronize(); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "First cuBlas call failed";
     }}
-    cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-            {rowC}, {colC}, {rowB}, &alpha, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-            &beta, (float **)C2_dev_begins, {rowC}, num_els); CHECK_ERR;
-    cudaDeviceSynchronize(); CHECK_ERR;
-    if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
-        std::cout << "Second cuBlas call failed";
-    }}
+    cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+
     cudaEvent_t startCuBlas, stopCuBlas; 
     cudaEventCreate(&startCuBlas); CHECK_ERR;
     cudaEventCreate(&stopCuBlas); CHECK_ERR;
     cudaEventRecord(startCuBlas); CHECK_ERR;
     cuBlasStatus = cublasSgemmBatched(handle, {"CUBLAS_OP_T" if transA else "CUBLAS_OP_N"}, {"CUBLAS_OP_T" if transB else "CUBLAS_OP_N"},
-        {rowC}, {colC}, {rowB}, (const float*)&alpha, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
-        (const float*)&beta, (float **)C2_dev_begins, {rowC}, num_els); CHECK_ERR;
+        {rowC}, {colC}, {rowB}, (const float*)alpha_dev, (const float **)A_dev_begins, {rowA}, (const float **)B_dense_dev_begins, {rowB},
+        (const float*)beta_dev, (float **)C2_dev_begins, {rowC}, num_els); CHECK_ERR;
     if (cuBlasStatus != CUBLAS_STATUS_SUCCESS) {{
         std::cout << "Second cuBlas call failed";
     }}
@@ -879,29 +881,34 @@ int main(){{
     cudaMemcpy((void *)C3_dev_begins, (void *)C3_begins, num_els * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)C4_dev_begins, (void *)C4_begins, num_els * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
     cudaMemcpy((void *)IdMat_dev_begins, (void *)IdMat_begins, num_els * sizeof(float*), cudaMemcpyHostToDevice); CHECK_ERR;
-
+    cublasHandle_t handle2;
+    cublasStatus_t createStatus2 = cublasCreate(&handle2);
+    if (createStatus2 != CUBLAS_STATUS_SUCCESS) {{
+        throw std::runtime_error("UWU");
+    }}
+    cublasSetPointerMode(handle2, CUBLAS_POINTER_MODE_DEVICE);
     for (int i = 0; i < cudaStreamsNeeded; i++){{
         int cuSparse_num_els = cuSparseBatchSize;
         if (i == cudaStreamsNeeded - 1){{
             cuSparse_num_els = num_els - i*cuSparseBatchSize;
         }}
-        CHECK_CUSPARSE( cusparseCreateCsr(&matB[i], {rowBT}, {colBT}, {len(B_sparse_data)},
+        CHECK_CUSPARSE( cusparseCreateCsr(&matB[i], {rowB}, {colB}, {len(B_sparse_data)},
                                         B_indptr_dev + i * cuSparseBatchSize * {len(B_sparse_indptr)},  
                                         B_indices_dev + i * cuSparseBatchSize * {len(B_sparse_indices)}, 
                                         B_data_dev + i * cuSparseBatchSize * {len(B_sparse_data)},
                                         CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                         CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F) )
-        CHECK_CUSPARSE( cusparseCsrSetStridedBatch(matB[i], cuSparse_num_els, 0, {len(B_sparse_data)}))
+        CHECK_CUSPARSE( cusparseCsrSetStridedBatch(matB[i], cuSparse_num_els, {len(B_sparse_indptr)}, {len(B_sparse_data)}))
 
         CHECK_CUSPARSE( cusparseCreateDnMat(&matA[i], {rowA}, {colA}, {rowA}, 
                                             A_dev + i * cuSparseBatchSize * {rowA} * {colA},
                                             CUDA_R_32F, CUSPARSE_ORDER_COL) )
         CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matA[i], cuSparse_num_els, {rowA} * {colA}) )
         // Create dense matrix C
-        CHECK_CUSPARSE( cusparseCreateDnMat(&matC[i], {rowC}, {colC}, {rowC}, 
-                                            C3_dev + i * cuSparseBatchSize * {rowC} * {colC},
+        CHECK_CUSPARSE( cusparseCreateDnMat(&matC[i], {rowCT}, {colCT}, {rowCT}, 
+                                            C3_dev + i * cuSparseBatchSize * {rowCT} * {colCT},
                                             CUDA_R_32F, CUSPARSE_ORDER_COL) )
-        CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matC[i], cuSparse_num_els, {rowC} * {colC}) )
+        CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(matC[i], cuSparse_num_els, {rowCT} * {colCT}) )
 
         // allocate an external buffer if needed
         CHECK_CUSPARSE( cusparseSpMM_bufferSize(
@@ -912,7 +919,7 @@ int main(){{
                                     CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
         CHECK_CUDA( cudaMalloc(&dBuffers[i], bufferSize) )
     }}
-    cudaDeviceSynchronize(); CHECK_ERR;
+    //cudaDeviceSynchronize(); CHECK_ERR;
 
     //cudaDeviceSynchronize(); CHECK_ERR;
     // execute SpMM
@@ -928,9 +935,12 @@ int main(){{
                                     &alpha, matB[i], matA[i], &beta, matC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG2, dBuffers[i]) )
     }}
-    cublasSgemmBatched(handle, CUBLAS_OP_T, CUBLAS_OP_N,
-        {rowCT}, {colCT}, {rowCT}, &transpose_alpha, (const float **)C3_dev_begins, {rowCT}, (const float **)IdMat_dev_begins, {rowCT},
-        &transpose_beta, (float **)C4_dev_begins, {rowCT}, num_els); CHECK_ERR;
+    for (int i = 0; i < cudaStreamsNeeded; i++){{
+        cudaStreamSynchronize(streams[i]);
+    }}
+    cublasSgemmBatched(handle2, CUBLAS_OP_T, CUBLAS_OP_N,
+        {rowCT}, {colCT}, {rowCT}, transpose_alpha_dev, (const float **)C3_dev_begins, {rowCT}, (const float **)IdMat_dev_begins, {colC},
+        transpose_beta_dev, (float**)C4_dev_begins, {rowC}, num_els); CHECK_ERR;
     cudaEventRecord(stopcuSparse); CHECK_ERR;
     cudaEventSynchronize(stopcuSparse); CHECK_ERR;
     float elapsedTime4 = 0.0f;
@@ -951,17 +961,30 @@ int main(){{
     CHECK_CUSPARSE( cusparseDestroy(cuSparseHandle) )
 
     bool wrongcuSparse = false;
-    for (int i = 0; i < {rowC}*{colC}*num_els; i++){{
-        if (std::abs(R1[i] - RcuSparse[i]) >= 0.1) {{
-            std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
-                std::to_string(R1[i]) + " and " + std::to_string(RcuSparse[i]) + " | " + std::to_string(R1[{rowC}*{colC}*num_els-1]) + " and " + std::to_string(RcuSparse[{rowC}*{colC}*num_els - 1]);
-            //throw std::runtime_error(s);
-            std::cout << "Gemmforge Dense x Dense and cuSparse Dense x Sparse Resutlts DONT MATCH!" << std::endl;
-            std::cout << s << std::endl;
-            wrongcuSparse = true;
-            break;
+    for (int k = 0; k < num_els; k++){{
+        for (int i = 0; i < {rowC}; i++){{
+            for (int j = 0; j < {colC}; j++){{
+                if (std::abs(R1[k*{rowC}*{colC} + i*{rowC} + j] - RcuSparse[k*{rowC}*{colC} + i*{rowC} + j]) >= 10) {{
+                    std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at offset " + std::to_string(k*{rowC}*{colC} + i*{rowC} + j) + " ->" + 
+                        std::to_string(R1[k*{rowC}*{colC} + i*{rowC} + j]) + " and " + std::to_string(RcuSparse[k*{rowC}*{colC} + i*{rowC} + j]) + " | " + std::to_string(R1[num_els*{rowC}*{colC} - 1]) + " and " + std::to_string(RcuSparse[num_els*{rowC}*{colC} - 1]);
+                    //throw std::runtime_error(s);
+                    if (debug_print){{
+                        std::cout << "Gemmforge Dense x Dense and cuSparse Dense x Sparse Resutlts DONT MATCH!" << std::endl;
+                        std::cout << s << std::endl;
+                    }}
+                    wrongcuSparse = true;
+                    break;
+                }}
+                if (wrongcuSparse)
+                    break;
+            }}
+            if (wrongcuSparse)
+                break;
         }}
+        if (wrongcuSparse)
+            break;
     }}
+
     if (!wrongcuSparse){{
         std::cout << "Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!" << std::endl;
     }}
@@ -991,6 +1014,7 @@ int main(){{
     delete[] IdMat_begins;
     delete[] RcuSparse;
     delete[] R1;
+    delete[] C;
     {f"cudaFree(B_sparse_dev); CHECK_ERR;" if not with_compile_time_values else ""}
 
 

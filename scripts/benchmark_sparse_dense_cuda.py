@@ -137,10 +137,6 @@ def gen_matrix_a(rowA, colA, transposed, atype):
             coords = np.unravel_index(i, (rowA, colA), "F")
             print(coords)
 
-            #if transposed:
-            #    coo["coordinates"].append([coords[1], coords[0]])
-            #    coo["entries"].append([coords[1], coords[0], el])
-            #else:
             coo["coordinates"].append([coords[0], coords[1]])
             coo["entries"].append([coords[0], coords[1], el])
         i += 1
@@ -393,7 +389,7 @@ int main(){{
     throw std::runtime_error("Batch size too huge for num_els");
   }}
   constexpr int cuSparseBatchSize = 65535;
-  constexpr int cudaStreamsNeeded = {num_els / 65535 + int(num_els % 65535!= 0)};
+  constexpr int cudaStreamsNeeded = {num_els // 65535 + int(num_els % 65535!= 0)};
   cudaStream_t streams[cudaStreamsNeeded];
   for (int i = 0; i < cudaStreamsNeeded; i++) {{
       cudaStreamCreate(&streams[i]);
@@ -420,8 +416,8 @@ int main(){{
   float* R1 = new float[{rowC}*{colC}*num_els];
   float* R2 = new float[{rowC}*{colC}*num_els];
   float* A_data = new float[{len(A_data)}*num_els];
-  float* A_indices = new float[{len(A_indices)}*num_els];
-  float* A_indptr = new float[{len(A_indptr)}*num_els];
+  int* A_indices = new float[{len(A_indices)}*num_els];
+  int* A_indptr = new float[{len(A_indptr)}*num_els];
 
   // Copy the Element Matrices N times into Element Buffers
   std::cout << "Copying core matrices to buffers" << std::endl;
