@@ -416,8 +416,8 @@ int main(){{
   float* R1 = new float[{rowC}*{colC}*num_els];
   float* R2 = new float[{rowC}*{colC}*num_els];
   float* A_data = new float[{len(A_data)}*num_els];
-  int* A_indices = new float[{len(A_indices)}*num_els];
-  int* A_indptr = new float[{len(A_indptr)}*num_els];
+  int* A_indices = new int[{len(A_indices)}*num_els];
+  int* A_indptr = new int[{len(A_indptr)}*num_els];
 
   // Copy the Element Matrices N times into Element Buffers
   std::cout << "Copying core matrices to buffers" << std::endl;
@@ -642,8 +642,8 @@ int main(){{
     CHECK_CUSPARSE( cusparseSpMM(cuSparseHandle,
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
-                                    (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, (void*)dBuffers[i]) )
+                                    &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
+                                    CUSPARSE_SPMM_CSR_ALG2, dBuffers[i]) )
   }}
   cudaEventRecord(stopcuSparse); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
