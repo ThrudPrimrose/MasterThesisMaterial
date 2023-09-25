@@ -352,13 +352,13 @@ void checkErr(const std::string &File, int Line) {{
 // Dense x Dense Kernel
 {dense_gen.get_kernel()}
 
-// Dense x Sparse Kernel
+// Sparse x Dense Kernel
 {sparse_gen.get_kernel()}
 
 // Dense x Dense Kernel Launcher
 {dense_gen.get_launcher()}
 
-// Dense x Sparse Kernel Launcher
+// Sparse x Dense Kernel Launcher
 {sparse_gen.get_launcher()}
 
 
@@ -493,7 +493,7 @@ int main(){{
     if (std::abs(R1[i] - R2[i]) >= 0.1) {{
       std::string s = "{transA} Dense x {transB} Dense and {transA} Sparse x {transB} Matrix Mismatch in Multiplication at " + std::to_string(i) + "!";
       std::cout << " " << std::to_string(R1[i]) + " and " + std::to_string(R2[i]) << std::endl;
-      std::cout << "Dense x Dense Gemmforge and Dense x Sparse Gemmforge results don't match!" << std::endl;
+      std::cout << "Dense x Dense Gemmforge and Sparse x Dense Gemmforge results don't match!" << std::endl;
       std::cout << s << std::endl;
       wrong_results = true;
       break;
