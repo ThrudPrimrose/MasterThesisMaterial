@@ -633,6 +633,7 @@ int main(){{
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
+    CHECK_CUDA( cudaMalloc(&dBuffers[i], bufferSize) )
   }}
   cudaDeviceSynchronize(); CHECK_ERR;
 
