@@ -198,10 +198,16 @@ try:
                                                 coordinates=coo["coordinates"],
                                                 values=matrix_a_non_zeros_flat if with_compile_time_values else None)
 
-                    mat_a_csr = csr_matrix(npA)
-                    #if tA:
-                    #    mat_a_csr = csc_matrix(npA)
-                    mat_a_csr.sort_indices()
+                    if tA:
+                        #npAT = np.transpose(npA)
+                        mat_a_csr = csr_matrix(npA)
+                        #print(npA.shape)
+                        #print(npAT.shape)
+                        #print(npAT)
+                        #print(npA)
+                    else:
+                        mat_a_csr = csr_matrix(npA)
+
                     A_data = mat_a_csr.data
                     A_indices = mat_a_csr.indices
                     A_indptr = mat_a_csr.indptr
@@ -607,13 +613,15 @@ int main(){{
     if (i == cudaStreamsNeeded - 1){{
         cuSparse_num_els = num_els - i*cuSparseBatchSize;
     }}
-    CHECK_CUSPARSE( cusparseCreateCsr(&cuA[i], {rowA}, {colA}, {len(A_data)},
+    CHECK_CUSPARSE( cusparseCreateCsr(&cuA[i], 
+                                        //{rowA}, {colA}, {len(A_data)},
+                                        {rowA if not tA else colA}, {colA if not tA else rowA}, {len(A_data)},
                                         (void*)(A_indptr_dev + i * cuSparseBatchSize * {len(A_indptr)}),
                                         (void*)(A_indices_dev + i * cuSparseBatchSize * {len(A_indices)}),
                                         (void*)(A_data_dev + i * cuSparseBatchSize * {len(A_data)}),
                                         CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                         CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F) )
-    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els, 0, {len(A_data)}))
+    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els, {len(A_indptr)}, {len(A_data)}))
 
     CHECK_CUSPARSE( cusparseCreateDnMat(&cuB[i], {rowB}, {colB}, {rowB},
                                         (void*)(B_dev + i * cuSparseBatchSize * {rowB} * {colB}),
@@ -629,10 +637,11 @@ int main(){{
     // allocate an external buffer if needed
     CHECK_CUSPARSE( cusparseSpMM_bufferSize(
                                     cuSparseHandle,
-                                    {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                    CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                    //{"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
+                                    CUSPARSE_SPMM_ALG_DEFAULT, &bufferSize) )
     CHECK_CUDA( cudaMalloc((void**)&dBuffers[i], bufferSize) )
     cudaDeviceSynchronize(); CHECK_ERR;
   }}
@@ -645,10 +654,11 @@ int main(){{
   for (int i =0; i<cudaStreamsNeeded; i++){{
     cusparseSetStream(cuSparseHandle, streams[i]);
     CHECK_CUSPARSE( cusparseSpMM(cuSparseHandle,
-                                    {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                    CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                    //{"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, (void*)dBuffers[i]) )
+                                    CUSPARSE_SPMM_ALG_DEFAULT, (void*)dBuffers[i]) )
   }}
   cudaEventRecord(stopcuSparse); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
@@ -658,6 +668,24 @@ int main(){{
 
   cudaMemcpy(R2, C_dev, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
   bool cuSparseWrong = false;
+  /*
+  for (int i = 0; i < {rowC}; i++){{
+      std::cout << "[";
+      for (int j = 0; j < {colC}; j++){{
+          std::cout << R1[i + j * {rowC}] << ",\t";
+      }}
+      std::cout << "X ]" << std::endl;
+  }}
+  std::cout << "================" << std::endl;
+  for (int i = 0; i < {rowC}; i++){{
+      std::cout << "[";
+      for (int j = 0; j < {colC}; j++){{
+          //std::cout << R2[i * {colC} + j] << ",\t";
+          std::cout << R2[i + j * {rowC} ] << ",\t";
+      }}
+      std::cout << "X ]" << std::endl;
+  }}
+  */
   for (int i = 0; i < {rowC}*{colC}*num_els; i++){{
       if (std::abs(R1[i] - R2[i]) >= 0.1) {{
           std::string s = "{transA} Dense x {transB} Dense and {transA} Sparse x {transB} Dense CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
