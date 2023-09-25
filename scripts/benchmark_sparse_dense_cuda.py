@@ -23,11 +23,11 @@ def get_suggested_num_elements(MatBSize, MatADenseSize, MatASparseSize, MatCSize
     # On host we need A, BD, BS, C, R1, R2
     # On device we need A, BD, BS, C1, C2
     per_el_size = (MatBSize + MatADenseSize +
-                   MatASparseSize + MatCSize) * SizeOfFloat
+                   MatASparseSize + 2*MatCSize) * SizeOfFloat
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
-    at80 = int(0.8 * can_fit_els)
+    at80 = int(0.60 * can_fit_els)
     return (can_fit_els, at80)
 
 
@@ -43,26 +43,53 @@ def gen_matrix_a(rowA, colA, transposed, atype):
     elif atype == "band":
         block_size = min([rowA, colA])
         block_count = int(max([rowA, colA]) / block_size)
-        for b in range(block_count):
-            for i in range(block_size):
-                r1 = random.randint(1, 9)
-                A[i + block_size*b, i + block_size*b] = r1
-                if i > 0:
-                    r2 = random.randint(1, 9)
-                    A[i + block_size*b - 1, i + block_size*b] = r2
-                if i < block_size - 1:
+        block_direction = "x" if colA > rowA else "y"
+        if block_direction == "y":
+            for b in range(block_count):
+                for i in range(block_size):
+                    r1 = random.randint(1, 9)
+                    A[i + block_size*b, i] = r1
+                    if i > 0:
+                        r2 = random.randint(1, 9)
+                        A[i + block_size*b - 1, i] = r2
+                    if i < block_size - 1:
+                        r3 = random.randint(1, 9)
+                        A[i + block_size*b + 1, i] = r3
+            b = block_count
+            j = 0
+            for i in range(block_size*block_count, max([rowA, colA])):
+                if i > block_size*block_count:
+                    r1 = random.randint(1, 9)
+                    A[i - 1, j] = r1
+                r2 = random.randint(1, 9)
+                A[i, j] = r2
+                if i < max([rowA, colA]) - 1:
                     r3 = random.randint(1, 9)
-                    A[i + block_size*b + 1, i + block_size*b] = r3
-        b = block_count
-        for i in range(block_size*block_count, max([rowA, colA])):
-            if i > 0 and i > block_size*block_count:
-                r1 = random.randint(1, 9)
-                A[i - 1, i] = r1
-            r2 = random.randint(1, 9)
-            A[i, i] = r2
-            if i < max([rowA, colA]) - 1:
-                r3 = random.randint(1, 9)
-                A[i + 1, ] = r3
+                    A[i + 1, j] = r3
+                j += 1
+        elif block_direction == "x":
+            for b in range(block_count):
+                for i in range(block_size):
+                    r1 = random.randint(1, 9)
+                    A[i, i + block_size*b] = r1
+                    if i > 0:
+                        r2 = random.randint(1, 9)
+                        A[i - 1, i + block_size*b ] = r2
+                    if i < block_size - 1:
+                        r3 = random.randint(1, 9)
+                        A[i + 1, i + block_size*b ] = r3
+            b = block_count
+            i = 0
+            for j in range(block_size*block_count, max([rowA, colA])):
+                if i > 0:
+                    r1 = random.randint(1, 9)
+                    A[i - 1, j] = r1
+                r2 = random.randint(1, 9)
+                A[i, j] = r2
+                if i < max([rowA, colA]) - 1:
+                    r3 = random.randint(1, 9)
+                    A[i + 1, j] = r3
+                i += 1
     elif atype == "random":
         entry_count = int(non_zero_ratio * rowA * colA)
         a_el_count = entry_count
@@ -101,18 +128,21 @@ def gen_matrix_a(rowA, colA, transposed, atype):
     A = npA.flatten("F")
     A_nonzeros = []
     i = 0
+    #print(npA)
+    #print(A)
     for el in A:
         if el > 0.00001 or el < -0.00001:
             assert (el != 0 and el != 0.0)
             A_nonzeros.append(el)
             coords = np.unravel_index(i, (rowA, colA), "F")
+            print(coords)
 
-            if transposed:
-                coo["coordinates"].append([coords[1], coords[0]])
-                coo["entries"].append([coords[1], coords[0], el])
-            else:
-                coo["coordinates"].append([coords[0], coords[1]])
-                coo["entries"].append([coords[0], coords[1], el])
+            #if transposed:
+            #    coo["coordinates"].append([coords[1], coords[0]])
+            #    coo["entries"].append([coords[1], coords[0], el])
+            #else:
+            coo["coordinates"].append([coords[0], coords[1]])
+            coo["entries"].append([coords[0], coords[1], el])
         i += 1
     a_el_count = len(coo["coordinates"])
     return (coo, A, A_nonzeros, a_el_count, npA)
@@ -153,7 +183,9 @@ try:
 
                     coo, matrix_a, matrix_a_non_zeros_flat, a_el_count, npA = gen_matrix_a(
                         rowA, colA, tA, a_type)
-                    # print(npA)
+                    #print(npA)
+                    #print(matrix_a_non_zeros_flat)
+                    #print(coo["coordinates"])
 
                     mat_a_dense = DenseMatrix(num_rows=rowA,
                                               num_cols=colA,
@@ -166,6 +198,9 @@ try:
                                                 coordinates=coo["coordinates"],
                                                 values=matrix_a_non_zeros_flat if with_compile_time_values else None)
 
+                    #if tA:
+                    #    mat_a_csr = csr_matrix(npA.T)
+                    #else:
                     mat_a_csr = csr_matrix(npA)
                     mat_a_csr.sort_indices()
                     A_data = mat_a_csr.data
@@ -578,7 +613,7 @@ int main(){{
                                         A_data_dev + i * cuSparseBatchSize * {len(A_data)},
                                         CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                         CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F) )
-    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els,{len(A_indptr)}, {len(A_data)}))
+    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els, {len(A_indptr)}, {len(A_data)}))
 
     CHECK_CUSPARSE( cusparseCreateDnMat(&cuB[i], {rowB}, {colB}, {rowB},
                                         B_dev + i * cuSparseBatchSize * {rowB} * {colB},
@@ -597,11 +632,15 @@ int main(){{
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
+                                    CUSPARSE_SPMM_CSR_ALG1, &bufferSize) )
     CHECK_CUDA( cudaMalloc((void**)&dBuffers[i], bufferSize) )
+    CHECK_CUSPARSE( cusparseSpMM_preprocess(cuSparseHandle,
+                                    {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                    {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
+                                    (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
+                                    CUSPARSE_SPMM_CSR_ALG1, (void*)dBuffers[i]) )
     cudaDeviceSynchronize(); CHECK_ERR;
   }}
-
 
   cudaEvent_t startcuSparse, stopcuSparse;
   cudaEventCreate(&startcuSparse); CHECK_ERR;
@@ -613,7 +652,7 @@ int main(){{
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, (void*)dBuffers[i]) )
+                                    CUSPARSE_SPMM_CSR_ALG1, (void*)dBuffers[i]) )
   }}
   cudaEventRecord(stopcuSparse); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
