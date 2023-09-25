@@ -28,12 +28,12 @@ def get_suggested_num_elements(MatASize, MatBDenseSize, MatBSparseSize, MatCSize
     # On host we need A, BD, BS, C, R1, R2
     # On device we need A, BD, BS, C1, C2
     per_el_size = (MatASize + MatBDenseSize +
-                   MatBSparseSize + MatCSize * 5 + MatBCSCSize) * SizeOfFloat
+                   MatBSparseSize + MatCSize * 2 + MatBCSCSize) * SizeOfFloat
     # 3 extra Matrix C because of cuSparse...
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
-    at95 = int(0.80 * can_fit_els)
+    at95 = int(0.60 * can_fit_els)
     # print(f"Can fit {can_fit_els} matrices of given sizes, at 80% capacity {at80}")
     return (can_fit_els, at95)
     # return (1,1)
@@ -928,9 +928,8 @@ int main(){{
                                     &alpha, matB[i], matA[i], &beta, matC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG2, dBuffers[i]) )
     }}
-    cudaDeviceSynchronize();
     cublasSgemmBatched(handle, CUBLAS_OP_T, CUBLAS_OP_N,
-        {rowC}, {colCT}, {rowCT}, &transpose_alpha, (const float **)C3_dev_begins, {rowCT}, (const float **)IdMat_dev_begins, {rowCT},
+        {rowCT}, {colCT}, {rowCT}, &transpose_alpha, (const float **)C3_dev_begins, {rowCT}, (const float **)IdMat_dev_begins, {rowCT},
         &transpose_beta, (float **)C4_dev_begins, {rowCT}, num_els); CHECK_ERR;
     cudaEventRecord(stopcuSparse); CHECK_ERR;
     cudaEventSynchronize(stopcuSparse); CHECK_ERR;
@@ -941,6 +940,7 @@ int main(){{
 
     float* RcuSparse = new float[{rowC} * {colC} * num_els];
     cudaMemcpy(RcuSparse, C4_dev, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+    //cudaMemcpy(RcuSparse, C3_dev, sizeof(float) * {rowC} * {colC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     // destroy matrix/vector descriptors
     for (int i = 0; i < cudaStreamsNeeded; i++){{
@@ -956,10 +956,8 @@ int main(){{
             std::string s = "{transA} Dense x {transB} Dense and {transA} Dense x {transB} Sparse CuSparse Matrix Mismatch in Multiplication at " + std::to_string(i) + " ->" + 
                 std::to_string(R1[i]) + " and " + std::to_string(RcuSparse[i]) + " | " + std::to_string(R1[{rowC}*{colC}*num_els-1]) + " and " + std::to_string(RcuSparse[{rowC}*{colC}*num_els - 1]);
             //throw std::runtime_error(s);
-            if (debug_print){{
-                std::cout << "RESULTS DONT MATCH" << std::endl;
-                std::cout << s << std::endl;
-            }}
+            std::cout << "Gemmforge Dense x Dense and cuSparse Dense x Sparse Resutlts DONT MATCH!" << std::endl;
+            std::cout << s << std::endl;
             wrongcuSparse = true;
             break;
         }}
@@ -970,31 +968,32 @@ int main(){{
     std::cout << "Freeing device memory" << std::endl;
 
 
-    
-    delete[] A_begins;
-    delete[] B_dense_begins;
     cudaFree(A_dev_begins); CHECK_ERR;
     cudaFree(B_dense_dev_begins); CHECK_ERR;
-    delete[] A;
-    delete[] B_dense;
-    delete[] R2;
-    
-    delete[] IdMat;
-    delete[] C3_begins;
-    delete[] C4_begins;
+    cudaFree(B_dense_dev);
+    cudaFree(C1_dev);
+    cudaFree(A_dev);
     cudaFree(C3_dev_begins); CHECK_ERR;
     cudaFree(C4_dev_begins); CHECK_ERR;
-    delete[] IdMat_begins;
     cudaFree(IdMat_dev_begins); CHECK_ERR;
     cudaFree(IdMat_dev); CHECK_ERR;
     cudaFree(C3_dev); CHECK_ERR;
     cudaFree(C4_dev); CHECK_ERR;
+
+    delete[] A_begins;
+    delete[] B_dense_begins;
+    delete[] A;
+    delete[] B_dense;
+    delete[] R2;
+    delete[] IdMat;
+    delete[] C3_begins;
+    delete[] C4_begins;
+    delete[] IdMat_begins;
     delete[] RcuSparse;
     delete[] R1;
     {f"cudaFree(B_sparse_dev); CHECK_ERR;" if not with_compile_time_values else ""}
-    cudaFree(A_dev);
-    cudaFree(B_dense_dev);
-    cudaFree(C1_dev);
+
+
     
     for (int i = 0; i < cudaStreamsNeeded; i++){{
         cudaFree(dBuffers[i]);
