@@ -634,6 +634,7 @@ int main(){{
                                     &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG1, &bufferSize) )
     CHECK_CUDA( cudaMalloc((void**)&dBuffers[i], bufferSize) )
+    cudaDeviceSynchronize(); CHECK_ERR;
     CHECK_CUSPARSE( cusparseSpMM_preprocess(cuSparseHandle,
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
