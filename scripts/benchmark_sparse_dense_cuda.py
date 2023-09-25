@@ -135,8 +135,12 @@ def gen_matrix_a(rowA, colA, transposed, atype):
             assert (el != 0 and el != 0.0)
             A_nonzeros.append(el)
             coords = np.unravel_index(i, (rowA, colA), "F")
-            print(coords)
+            #print(coords)
 
+            #if transposed:
+            #    coo["coordinates"].append([coords[1], coords[0]])
+            #    coo["entries"].append([coords[1], coords[0], el])
+            #else:
             coo["coordinates"].append([coords[0], coords[1]])
             coo["entries"].append([coords[0], coords[1], el])
         i += 1
@@ -194,10 +198,9 @@ try:
                                                 coordinates=coo["coordinates"],
                                                 values=matrix_a_non_zeros_flat if with_compile_time_values else None)
 
-                    #if tA:
-                    #    mat_a_csr = csr_matrix(npA.T)
-                    #else:
                     mat_a_csr = csr_matrix(npA)
+                    #if tA:
+                    #    mat_a_csr = csc_matrix(npA)
                     mat_a_csr.sort_indices()
                     A_data = mat_a_csr.data
                     A_indices = mat_a_csr.indices
@@ -352,13 +355,13 @@ void checkErr(const std::string &File, int Line) {{
 // Dense x Dense Kernel
 {dense_gen.get_kernel()}
 
-// Sparse x Dense Kernel
+// Dense x Sparse Kernel
 {sparse_gen.get_kernel()}
 
 // Dense x Dense Kernel Launcher
 {dense_gen.get_launcher()}
 
-// Sparse x Dense Kernel Launcher
+// Dense x Sparse Kernel Launcher
 {sparse_gen.get_launcher()}
 
 
@@ -388,8 +391,8 @@ int main(){{
   if ({num_els}>std::numeric_limits<int>::max()){{
     throw std::runtime_error("Batch size too huge for num_els");
   }}
-  constexpr int cuSparseBatchSize = 65535;
-  constexpr int cudaStreamsNeeded = {num_els // 65535 + int(num_els % 65535!= 0)};
+  constexpr int cuSparseBatchSize = 65500;
+  constexpr int cudaStreamsNeeded = {num_els // 65500 + int(num_els % 65500!= 0)};
   cudaStream_t streams[cudaStreamsNeeded];
   for (int i = 0; i < cudaStreamsNeeded; i++) {{
       cudaStreamCreate(&streams[i]);
@@ -581,6 +584,7 @@ int main(){{
   std::cout << "Calling cuSparse SxD Kernels" << std::endl;
   cusparseHandle_t cuSparseHandle;
   CHECK_CUSPARSE( cusparseCreate(&cuSparseHandle) )
+  //CHECK_CUSPARSE( cusparseSetPointerMode(cuSparseHandle, CUSPARSE_POINTER_MODE_DEVICE) )
 
   cusparseSpMatDescr_t cuA[cudaStreamsNeeded];
   cusparseDnMatDescr_t cuB[cudaStreamsNeeded];
@@ -604,20 +608,20 @@ int main(){{
         cuSparse_num_els = num_els - i*cuSparseBatchSize;
     }}
     CHECK_CUSPARSE( cusparseCreateCsr(&cuA[i], {rowA}, {colA}, {len(A_data)},
-                                        A_indptr_dev + i * cuSparseBatchSize * {len(A_indptr)},
-                                        A_indices_dev + i * cuSparseBatchSize * {len(A_indices)},
-                                        A_data_dev + i * cuSparseBatchSize * {len(A_data)},
+                                        (void*)(A_indptr_dev + i * cuSparseBatchSize * {len(A_indptr)}),
+                                        (void*)(A_indices_dev + i * cuSparseBatchSize * {len(A_indices)}),
+                                        (void*)(A_data_dev + i * cuSparseBatchSize * {len(A_data)}),
                                         CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                         CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F) )
-    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els, {len(A_indptr)}, {len(A_data)}))
+    CHECK_CUSPARSE( cusparseCsrSetStridedBatch(cuA[i], cuSparse_num_els, 0, {len(A_data)}))
 
     CHECK_CUSPARSE( cusparseCreateDnMat(&cuB[i], {rowB}, {colB}, {rowB},
-                                        B_dev + i * cuSparseBatchSize * {rowB} * {colB},
+                                        (void*)(B_dev + i * cuSparseBatchSize * {rowB} * {colB}),
                                         CUDA_R_32F, CUSPARSE_ORDER_COL) )
     CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(cuB[i], cuSparse_num_els, {rowB} * {colB}) )
 
     CHECK_CUSPARSE( cusparseCreateDnMat(&cuC[i], {rowC}, {colC}, {rowC}, 
-                                        C_dev + i * cuSparseBatchSize * {rowC} * {colC},
+                                        (void*)(C_dev + i * cuSparseBatchSize * {rowC} * {colC}),
                                         CUDA_R_32F, CUSPARSE_ORDER_COL) )
     CHECK_CUSPARSE( cusparseDnMatSetStridedBatch(cuC[i], cuSparse_num_els, {rowC} * {colC}) )
 
@@ -627,9 +631,10 @@ int main(){{
                                     cuSparseHandle,
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
-                                    &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
+                                    (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
                                     CUSPARSE_SPMM_CSR_ALG2, &bufferSize) )
-    CHECK_CUDA( cudaMalloc(&dBuffers[i], bufferSize) )
+    CHECK_CUDA( cudaMalloc((void**)&dBuffers[i], bufferSize) )
+    cudaDeviceSynchronize(); CHECK_ERR;
   }}
   cudaDeviceSynchronize(); CHECK_ERR;
 
@@ -642,8 +647,8 @@ int main(){{
     CHECK_CUSPARSE( cusparseSpMM(cuSparseHandle,
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tA else "CUSPARSE_OPERATION_TRANSPOSE"},
                                     {"CUSPARSE_OPERATION_NON_TRANSPOSE" if not tB else "CUSPARSE_OPERATION_TRANSPOSE"},
-                                    &alpha, cuA[i], cuB[i], &beta, cuC[i], CUDA_R_32F,
-                                    CUSPARSE_SPMM_CSR_ALG2, dBuffers[i]) )
+                                    (const void*)&alpha, cuA[i], cuB[i], (const void*)&beta, cuC[i], CUDA_R_32F,
+                                    CUSPARSE_SPMM_CSR_ALG2, (void*)dBuffers[i]) )
   }}
   cudaEventRecord(stopcuSparse); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
