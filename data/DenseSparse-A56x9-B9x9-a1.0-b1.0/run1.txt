@@ -1,672 +1,640 @@
 Gemm-Type: At_B_full_DenseXSparse_ctv
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.811583996 ms
+Dense x Dense kernel took 7.648032188 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 2.582432032 ms
+Dense x Sparse kernel took 7.28681612 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.77961636 ms
+cuBlas DxD kernel took 54.05120087 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 143.6124725 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 126.9093094 ms
 Freeing device memory
 Gemm-Type: At_Bt_chequered_DenseXSparse
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.848703861 ms
+Dense x Dense kernel took 8.168064117 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.092576027 ms
+Dense x Sparse kernel took 7.983391762 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.72099113 ms
+cuBlas DxD kernel took 56.52799988 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 64.95772552 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.17596817 ms
 Freeing device memory
 Gemm-Type: At_B_random_DenseXSparse_ctv
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.978079796 ms
+Dense x Dense kernel took 8.601951599 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.055903912 ms
+Dense x Sparse kernel took 8.188832283 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.72438431 ms
+cuBlas DxD kernel took 61.175457 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 57.32547379 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 66.45142365 ms
 Freeing device memory
 Gemm-Type: A_B_band_DenseXSparse_ctv
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.200416088 ms
+Dense x Dense kernel took 8.393759727 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.200287819 ms
+Dense x Sparse kernel took 8.426624298 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 25.48512077 ms
+cuBlas DxD kernel took 16.87660789 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 59.79769516 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 79.20985413 ms
 Freeing device memory
 Gemm-Type: At_Bt_random_DenseXSparse_ctv
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.981919765 ms
+Dense x Dense kernel took 8.627615929 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.057151794 ms
+Dense x Sparse kernel took 8.192416191 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.63868713 ms
+cuBlas DxD kernel took 59.43369675 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 46.03132629 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.62441635 ms
 Freeing device memory
 Gemm-Type: At_B_chequered_DenseXSparse_ctv
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.83734417 ms
+Dense x Dense kernel took 8.172736168 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.268543959 ms
+Dense x Sparse kernel took 7.782336235 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 20.03286362 ms
+cuBlas DxD kernel took 56.70566559 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 102.8273621 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 93.63005066 ms
 Freeing device memory
 Gemm-Type: At_Bt_chequered_DenseXSparse_ctv
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.843967915 ms
+Dense x Dense kernel took 8.166784286 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.271840096 ms
+Dense x Sparse kernel took 7.787072182 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.71427155 ms
+cuBlas DxD kernel took 56.45267105 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 64.88598633 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.56662369 ms
 Freeing device memory
 Gemm-Type: At_B_band_DenseXSparse_ctv
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.209472179 ms
+Dense x Dense kernel took 8.427583694 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.219327927 ms
+Dense x Sparse kernel took 7.992671967 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 29.31001663 ms
+cuBlas DxD kernel took 58.01337433 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 54.46982574 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 79.01337433 ms
 Freeing device memory
 Gemm-Type: A_B_full_DenseXSparse_ctv
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.806655884 ms
+Dense x Dense kernel took 7.637951851 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 2.561248064 ms
+Dense x Sparse kernel took 7.633503914 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.60630417 ms
+cuBlas DxD kernel took 16.09049606 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 142.9017639 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 127.0609283 ms
 Freeing device memory
 Gemm-Type: A_Bt_random_DenseXSparse
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.977791786 ms
+Dense x Dense kernel took 8.595999718 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.323167801 ms
+Dense x Sparse kernel took 7.396768093 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 25.29017639 ms
+cuBlas DxD kernel took 57.90819168 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 37.72694397 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.54415894 ms
 Freeing device memory
 Gemm-Type: A_Bt_band_DenseXSparse_ctv
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.213247776 ms
+Dense x Dense kernel took 8.399968147 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.192480087 ms
+Dense x Sparse kernel took 8.442879677 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 25.36976051 ms
+cuBlas DxD kernel took 58.83500671 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 40.1431694 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 63.38883209 ms
 Freeing device memory
 Gemm-Type: At_Bt_full_DenseXSparse
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.814624071 ms
+Dense x Dense kernel took 7.630527973 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.826719999 ms
+Dense x Sparse kernel took 7.632160187 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.72399998 ms
+cuBlas DxD kernel took 56.27353668 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 83.80989075 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 58.86969757 ms
 Freeing device memory
 Gemm-Type: At_B_chequered_DenseXSparse
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.837632179 ms
+Dense x Dense kernel took 8.16975975 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.053984165 ms
+Dense x Sparse kernel took 7.976448059 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.80700874 ms
+cuBlas DxD kernel took 56.62537766 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 101.9304352 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 93.64854431 ms
 Freeing device memory
 Gemm-Type: A_B_random_DenseXSparse
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.953887939 ms
+Dense x Dense kernel took 8.598079681 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.314367771 ms
+Dense x Sparse kernel took 7.384736061 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.85123253 ms
+cuBlas DxD kernel took 18.15027237 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 58.1449585 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 66.71619415 ms
 Freeing device memory
 Gemm-Type: A_B_chequered_DenseXSparse
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.829311848 ms
+Dense x Dense kernel took 8.167488098 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.045375824 ms
+Dense x Sparse kernel took 7.978335857 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.54272079 ms
+cuBlas DxD kernel took 16.31558418 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 103.5347214 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 93.45922852 ms
 Freeing device memory
 Gemm-Type: At_Bt_random_DenseXSparse
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.982816219 ms
+Dense x Dense kernel took 8.60144043 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.328159809 ms
+Dense x Sparse kernel took 8.252384186 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.63833618 ms
+cuBlas DxD kernel took 59.41823959 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 46.06703949 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.69628906 ms
 Freeing device memory
 Gemm-Type: At_B_random_DenseXSparse
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.979680061 ms
+Dense x Dense kernel took 8.610431671 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.327680111 ms
+Dense x Sparse kernel took 8.27977562 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 28.1828804 ms
+cuBlas DxD kernel took 59.47737503 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 56.30076981 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 66.6995163 ms
 Freeing device memory
 Gemm-Type: A_Bt_random_DenseXSparse_ctv
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.97232008 ms
+Dense x Dense kernel took 8.599743843 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.968287945 ms
+Dense x Sparse kernel took 7.854879856 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.71689606 ms
+cuBlas DxD kernel took 57.97983932 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 37.68281555 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 61.92550278 ms
 Freeing device memory
 Gemm-Type: At_B_full_DenseXSparse
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.799328089 ms
+Dense x Dense kernel took 7.636127949 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.80272007 ms
+Dense x Sparse kernel took 7.636288166 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.74412823 ms
+cuBlas DxD kernel took 57.42448044 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 142.4375305 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 127.0318756 ms
 Freeing device memory
 Gemm-Type: At_B_band_DenseXSparse
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.208992004 ms
+Dense x Dense kernel took 8.404512405 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.405183792 ms
+Dense x Sparse kernel took 8.122559547 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 29.30345535 ms
+cuBlas DxD kernel took 58.21715164 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 54.41078568 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 79.16969299 ms
 Freeing device memory
 Gemm-Type: At_Bt_band_DenseXSparse_ctv
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.217184067 ms
+Dense x Dense kernel took 8.428832054 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.217023849 ms
+Dense x Sparse kernel took 8.004511833 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 29.18579292 ms
+cuBlas DxD kernel took 58.26144028 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 42.19059372 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 63.6023674 ms
 Freeing device memory
 Gemm-Type: At_Bt_full_DenseXSparse_ctv
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.814624071 ms
+Dense x Dense kernel took 7.640736103 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 2.583647966 ms
+Dense x Sparse kernel took 7.293248177 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.73033619 ms
+cuBlas DxD kernel took 52.78239822 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 83.82160187 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 58.98092651 ms
 Freeing device memory
 Gemm-Type: A_Bt_full_DenseXSparse
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.806368113 ms
+Dense x Dense kernel took 7.736800194 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.797503948 ms
+Dense x Sparse kernel took 7.625984192 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.5098877 ms
+cuBlas DxD kernel took 51.40041733 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 40.4046402 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 58.79350281 ms
 Freeing device memory
 Gemm-Type: A_B_band_DenseXSparse
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.199168205 ms
+Dense x Dense kernel took 8.397824287 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.362368107 ms
+Dense x Sparse kernel took 8.131872177 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 28.96163177 ms
+cuBlas DxD kernel took 17.23187256 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 59.71023941 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 78.98348999 ms
 Freeing device memory
 Gemm-Type: A_B_full_DenseXSparse
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.797375917 ms
+Dense x Dense kernel took 7.630239964 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.791136026 ms
+Dense x Sparse kernel took 7.634272099 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.57158375 ms
+cuBlas DxD kernel took 15.23910427 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 142.8157196 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 127.0104294 ms
 Freeing device memory
 Gemm-Type: At_Bt_band_DenseXSparse
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.211071968 ms
+Dense x Dense kernel took 8.400863647 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.407167912 ms
+Dense x Sparse kernel took 8.218079567 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 25.62272072 ms
+cuBlas DxD kernel took 58.10163116 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 42.30688095 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 62.98163223 ms
 Freeing device memory
 Gemm-Type: A_Bt_chequered_DenseXSparse
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.838463783 ms
+Dense x Dense kernel took 8.165951729 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.068031788 ms
+Dense x Sparse kernel took 7.977600098 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 19.70639992 ms
+cuBlas DxD kernel took 54.9564476 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 37.53104019 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 66.0355835 ms
 Freeing device memory
 Gemm-Type: A_Bt_band_DenseXSparse
-Number of elements: 349153
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 917829
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.218624115 ms
+Dense x Dense kernel took 8.401920319 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 4.363840103 ms
+Dense x Sparse kernel took 8.129183769 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 28.81612778 ms
+cuBlas DxD kernel took 56.48329544 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 39.62377548 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 63.22403336 ms
 Freeing device memory
 Gemm-Type: A_B_random_DenseXSparse_ctv
-Number of elements: 335683
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 939669
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.95855999 ms
+Dense x Dense kernel took 8.605471611 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.959359884 ms
+Dense x Sparse kernel took 7.870816231 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.45993614 ms
+cuBlas DxD kernel took 18.07145691 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 57.03580856 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 66.80818939 ms
 Freeing device memory
 Gemm-Type: A_B_chequered_DenseXSparse_ctv
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.83536005 ms
+Dense x Dense kernel took 8.165856361 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.256799936 ms
+Dense x Sparse kernel took 8.196127892 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.66038322 ms
+cuBlas DxD kernel took 16.32998466 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 101.6757736 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 93.58313751 ms
 Freeing device memory
 Gemm-Type: A_Bt_chequered_DenseXSparse_ctv
-Number of elements: 271865
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 892305
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 4.841536045 ms
+Dense x Dense kernel took 8.171263695 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 3.251712084 ms
+Dense x Sparse kernel took 8.18121624 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 20.53743935 ms
+cuBlas DxD kernel took 55.03760147 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 37.56742477 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 65.52812958 ms
 Freeing device memory
 Gemm-Type: A_Bt_full_DenseXSparse_ctv
-Number of elements: 213875
-Dense FLOP/s per element from gemmforge: 63488
+Number of elements: 834300
+Dense FLOP/s per element from gemmforge: 8568
 Instantiating core matrices
 Instantiating buffer matrices
 Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 3.809439898 ms
+Dense x Dense kernel took 7.638783932 ms
 Calling Dense x Sparse kernel
-Dense x Sparse kernel took 2.561952114 ms
+Dense x Sparse kernel took 7.643839836 ms
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 15.52044773 ms
+cuBlas DxD kernel took 51.32624054 ms
 Gemmforge and cuBlas results match!
 Instantiating transposed buffer matrices
 Copying transposed core matrices to buffers
 Calling cuSparse DxS Kernels
-cuSparse DxS kernel took 41.04668808 ms
-Gemmforge Dense x Dense and cuSparse Dense x Sparse results match!
+cuSparse DxS kernel took 58.21583939 ms
 Freeing device memory
