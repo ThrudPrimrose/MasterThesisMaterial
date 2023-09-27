@@ -30,17 +30,17 @@ if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
 
-def get_load_store_size(b_el_count, ctv):
+def get_load_store_size(a_el_count, ctv):
     load_store = 0
 
     # If adressing is none then the matrix is loaded only 1 time in the whole batch
     # Read A
     if adressingA != "none" and not ctv:
-        load_store += row_a * col_a
+        load_store += a_el_count
 
     # Read B
     if adressingB != "none":
-        load_store += b_el_count
+        load_store += row_b * col_b
 
     # Write C
     if adressingC != "none":
@@ -96,23 +96,18 @@ def calculate_ops_dense():
 
 def calculate_ops_sparse_dense(typestr, ctv):
     if typestr == "band":
-        ops = 0
-        block_count = row_a // col_a
+        block_count = int(row_a // col_a)
         elcount = 0
         for i in range(block_count):
-            ops += 2 * col_a * 2 * 2  # first and last row
-            ops += (row_a - 2) * col_a * 3 * 2  # for every other row
             elcount += 2 * 2
-            elcount += 3 * (row_a - 2)
+            elcount += 3 * (col_a - 2)
         remainder = row_a - block_count*col_a
         if remainder > 2:
-            ops += 2 * col_a * 2 * 2
-            ops += (remainder - 2) * col_a * 3 * 2
             elcount += 2 * 2
             elcount += 3 * (remainder - 2)
         else:
-            ops += remainder * col_a * 2 * 2
             elcount += 2 * remainder
+        ops = col_b * elcount * 2
         if Alpha != 1.0:
             ops += row_c * col_c
         if Beta != 0.0:
@@ -139,7 +134,7 @@ def calculate_ops_sparse_dense(typestr, ctv):
         b = row_a // 2
         c = col_a // 2 + (col_a % 2)
         d = col_a // 2
-        el_count = a * b + c * d
+        el_count = a * c + b * d
         ops = col_b * el_count * 2
         if Alpha != 1.0:
             ops += row_c * col_c
@@ -510,16 +505,39 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
                     if m == 0:
                         if txt[i] != "":
                             ctv = ""
-                            txt[i] = txt[i] + ctv + " " + str(round(avg / n, 2)) + "%"
+                            if addname == "-ctv":
+                                ctv = "(ctv)"
+                            txt[i] = txt[i] + ctv + " " + str(round(avg / n, 1)) + "%"
                     else:
                         if txt2[i] != "":
                             ctv = "(ctv)"
-                            txt2[i] = txt2[i] + ctv + " " + str(round(avg / n, 2)) + "%"
+                            txt2[i] = txt2[i] + ctv + " " + str(round(avg / n, 1)) + "%"
                     if m == 0:
-                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(8, -2), ha='left',
+                        o = 6
+                        if "(ctv)" in txt[i]:
+                            if "Full" in txt[i]:
+                                o = -86
+                            if "Chequered" in txt[i]:
+                                o = -126
+                        if row_a == 56 and not "(ctv)" in txt[i]:
+                            if "Full" in txt[i]:
+                                if (len(l) == 1):
+                                    o = 56
+                                else:
+                                    o = 36
+                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(o, -2), ha='left',
                                      size=9 if len(l) == 1 else 7)
                     else:
-                        plt.annotate(txt2[i], (xi, yi), textcoords="offset points", xytext=(12, 7), ha='left',
+                        o = 6
+                        if "(ctv)" in txt2[i]:
+                            if "Full" in txt2[i]:
+                                o = -56
+                            if "Chequered" in txt2[i]:
+                                o = -86
+                        if not "(ctv)" in txt2[i]:
+                            if "Full" in txt2[i]:
+                                o = +56
+                        plt.annotate(txt2[i], (xi, yi), textcoords="offset points", xytext=(o, 7), ha='left',
                                      size=9 if len(l) == 1 else 7)
         avg = 0.0
         n = 0
@@ -531,17 +549,19 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
             n += 1
         xi = dd_points["DD Flop/b"][0]
         yi = dd_points["DD GFlop/s"][0]
-        t = "Dense" + " " + str(round(avg / n, 2)) + "%"
+        t = "Dense" + " " + str(round(avg / n, 1)) + "%"
         if m == 0:
             if len(l) == 1:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8, -9), ha='left', size=9)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(-86, -2), ha='left', size=9)
             else:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8, -9), ha='left', size=7)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(6, -2), ha='left', size=7)
 
         plt.scatter(x=dd_points["DD Flop/b"],
                     y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
         ymax = max(max(dd_points["DD GFlop/s"]), max(sd_points["SD GFlop/s"]))
         xmax = max(max(dd_points["DD Flop/b"]), max(sd_points["SD Flop/b"]))
+        if m == 0:
+            plt.legend(loc="lower right")
     plt.yscale("log")
     plt.xscale("log")
     plt.ylim((0, round_up_to_power_of_ten(ymax)))
@@ -551,7 +571,6 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
     plt.xlabel('Operational Intensity (Flop/byte)')
     plt.ylabel('Performance (GFlops/second)')
     # Show the plot
-    plt.legend(loc="lower right")
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/sparse-dense{addname}-roofline-A{row_a}x{col_a}-B{row_b}x{col_b}-C{row_c}x{col_c}-alpha{Alpha}-beta{Beta}.pdf.pdf")
@@ -673,11 +692,11 @@ def plot_in_a_grid(p_sd, p_sd_var, addname, plot_relative_speed_up=True):
                     labels = groups[i].columns.tolist()[1:]
                     labels = [deepcopy(x).split(" Time")[0] for x in labels]
                     labels = ["Dense-Dense" if "DD" in x else x for x in labels]
-                    labels = ["Dense-Sparse" if "SD" in x else x for x in labels]
+                    labels = ["Sparse-Dense" if "SD" in x else x for x in labels]
                     print("Row-Labels:", labels)
                     print("Row-Data:", row_data)
                     colors = [
-                        nvidia_green if "cuBlas" in x or "cuSparse" in x else sparse_rose if "Dense-Sparse" in x else dense_blue
+                        nvidia_green if "cuBlas" in x or "cuSparse" in x else sparse_rose if "Sparse-Dense" in x else dense_blue
                         for x in labels]
                     # colors = [sparse_rose if "Dense-Sparse" in x else deepcopy(str(x)) for x in colors]
                     print(colors)
