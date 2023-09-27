@@ -525,7 +525,13 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
                                     o = 56
                                 else:
                                     o = 36
-                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(o, -2), ha='left',
+                        yadd = 0
+                        if not "(ctv)" in txt[i]:
+                            if "Random" in txt[i]:
+                                yadd = 7
+                            if "Band" in txt[i]:
+                                yadd = -7
+                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(o, yadd -2), ha='left',
                                      size=9 if len(l) == 1 else 7)
                     else:
                         o = 6
@@ -537,6 +543,8 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
                         if not "(ctv)" in txt2[i]:
                             if "Full" in txt2[i]:
                                 o = +56
+                        if "(ctv)" in txt2[i] and "Band" in txt2[i]:
+                            o = -56
                         plt.annotate(txt2[i], (xi, yi), textcoords="offset points", xytext=(o, 7), ha='left',
                                      size=9 if len(l) == 1 else 7)
         avg = 0.0
@@ -554,7 +562,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, sd_poi
             if len(l) == 1:
                 plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(-86, -2), ha='left', size=9)
             else:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(6, -2), ha='left', size=7)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(6, -9), ha='left', size=7)
 
         plt.scatter(x=dd_points["DD Flop/b"],
                     y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
