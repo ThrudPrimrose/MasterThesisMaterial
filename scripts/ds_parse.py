@@ -142,8 +142,8 @@ def calculate_ops_dense_sparse(typestr, ctv):
 pd_ds_dataframes = list()
 pd_ds_ctv_dataframes = list()
 
-for i in range(runs):
-    path = f"{stdout_dir}/run{i}.txt"
+for r in range(runs):
+    path = f"{stdout_dir}/run{r}.txt"
     report_dense_sparse = []
     with open(path, "r") as file:
         identifier = ""
@@ -555,16 +555,40 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
                     if m == 0:
                         if txt[i] != "":
                             ctv = ""
-                            txt[i] = txt[i] + ctv + " " + str(round(avg / n, 2)) + "%"
+                            if addname == "-ctv":
+                                ctv = "(ctv)"
+                                if "Chequered" in txt[i]:
+                                    txt[i] = txt[i] + ctv + "\n" + (" "*(len(txt[i])+5)) + str(round(avg / n, 1)) + "%"
+                                else:
+                                    txt[i] = txt[i] + ctv + " " + str(round(avg / n, 1)) + "%"
+                            else:
+                                txt[i] = txt[i] + ctv + " " + str(round(avg / n, 1)) + "%"
                     else:
                         if txt2[i] != "":
                             ctv = "(ctv)"
-                            txt2[i] = txt2[i] + ctv + " " + str(round(avg / n, 2)) + "%"
+                            if "Chequered" in txt2[i]:
+                                txt2[i] = txt2[i] + ctv + "\n" + (" "*(len(txt2[i])+5)) + str(round(avg / n, 1)) + "%"
+                            else:
+                                txt2[i] = txt2[i] + ctv + " " + str(round(avg / n, 1)) + "%"
                     if m == 0:
-                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(8, -2), ha='left',
+                        o = 8
+                        if "Dense" in txt[i]:
+                            o = -92
+                        if "Full" in txt[i]:
+                            o = -76
+                        if "Chequered" in txt[i]:
+                            o = 2
+                        plt.annotate(txt[i], (xi, yi), textcoords="offset points", xytext=(o, -2), ha='left',
                                      size=9 if len(l) == 1 else 7)
                     else:
-                        plt.annotate(txt2[i], (xi, yi), textcoords="offset points", xytext=(12, 7), ha='left',
+                        o = 12
+                        if "Dense" in txt2[i]:
+                            o = -86
+                        if "Full" in txt2[i]:
+                            o = -56
+                        if "Chequered" in txt2[i]:
+                            o = 26
+                        plt.annotate(txt2[i], (xi, yi), textcoords="offset points", xytext=(o, 4 if len(l) == 1 else 7), ha='left',
                                      size=9 if len(l) == 1 else 7)
         avg = 0.0
         n = 0
@@ -576,12 +600,12 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
             n += 1
         xi = dd_points["DD Flop/b"][0]
         yi = dd_points["DD GFlop/s"][0]
-        t = "Dense" + " " + str(round(avg / n, 2)) + "%"
+        t = "Dense" + " " + str(round(avg / n, 1)) + "%"
         if m == 0:
             if len(l) == 1:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8, -9), ha='left', size=9)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(-92, -9), ha='left', size=9)
             else:
-                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(8, -9), ha='left', size=7)
+                plt.annotate(t, (xi, yi), textcoords="offset points", xytext=(-96, -9), ha='left', size=7)
 
         plt.scatter(x=dd_points["DD Flop/b"],
                     y=dd_points["DD GFlop/s"], c=dense_blue, s=10, label="Dense-Dense")
@@ -682,10 +706,15 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
     for i in range(len(groups)):
         for j in range(len(groups[i])):
             row_data = groups[i].iloc[j].tolist()[1:]
-            if max(row_data) > y_max:
-                y_max = max(row_data)
+            print(groups[i].iloc[j].tolist()[0])
+            if max(row_data[:-1]) > y_max:
+                y_max = max(row_data[:-1])
+            print(row_data[:-1])
+            #if max(row_data) > y_max:
+            #    y_max = max(row_data)
     y_max += 0.3
     plt.rcParams["text.usetex"] = True
+    #raise Exception("A")
 
     for i in range(len(groups)):
         if i == 0:
@@ -720,6 +749,12 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
                         for x in labels]
                     # colors = [sparse_rose if "Dense-Sparse" in x else deepcopy(str(x)) for x in colors]
                     print(colors)
+                    if orderr == "A_Bt_" or orderr == "At_Bt_":
+                        for m, label in enumerate(labels):
+                            if "cuSparse" in label:
+                                row_data[m] = 0.0
+                                if not plot_relative_speed_up:
+                                    yerr[m] = 0.0
                     if not plot_relative_speed_up:
                         bars = axarr[i, j].bar(labels, row_data, color=colors)
                         # axarr[i, j].errorbar(labels, row_data, yerr=yerr, fmt='-o')
@@ -743,16 +778,24 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
                     axarr[i, j].yaxis.set_major_locator(MaxNLocator(nbins=11))
                     for bar in bars:
                         height = bar.get_height()
-                        axarr[i, j].axhline(y=height, color='gray', linestyle='--', alpha=0.6,
+                        if height > 0.0:
+                            plot_line = True
+                            val = height
+                            if height > y_max:
+                                plot_line = False
+                                height = y_max - 0.5
+                            if plot_line:
+                                axarr[i, j].axhline(y=height, color='gray', linestyle='--', alpha=0.6,
                                             zorder=-1)  # Add dashed line
 
-                        # Annotate text
-                        axarr[i, j].annotate(str(round(height, 2)),
+                            # Annotate text
+                            axarr[i, j].annotate(str(round(val, 2)),
                                              xy=(bar.get_x() + bar.get_width() * 0.80, height - 0.08),
                                              xytext=(0, 3),  # 3 points vertical offset
                                              textcoords="offset points",
                                              ha='center', va='bottom')
 
+    """
     print(plotted)
     for i in range(len(groups)):
         for j in range(max_group_len):
@@ -777,6 +820,7 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
                 # axarr[i, j].set_title(f'Plot {4*i + j + 1}')
                 axarr[i, j].set_ylim((0.0, y_max))
                 axarr[i, j].yaxis.set_major_locator(MaxNLocator(nbins=11))
+    """
 
     # for ax in axarr[0]:  # Only adjust titles for the first row
     #    ax.title.set(y=1.05)  # Adjust as necessary
