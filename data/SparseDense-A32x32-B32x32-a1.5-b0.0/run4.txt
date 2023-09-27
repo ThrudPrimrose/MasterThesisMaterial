@@ -6,16 +6,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.95232 ms
+Dense x Dense kernel took 5.9465 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.98723 ms
+Sparse x Dense kernel took 3.98243 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.2379 ms
+cuBlas DxD kernel took 24.23 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 20.9241 ms
+cuSparse SxD kernel took 20.9184 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_band_Bt_SparseXDense_ctv
@@ -26,17 +26,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.5423 ms
+Dense x Dense kernel took 6.54346 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.39229 ms
+Sparse x Dense kernel took 4.39677 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.9775 ms
+cuBlas DxD kernel took 26.965 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 35.7556 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 14.5706 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 1 ->1344.000000 and 2112.000000 | 42102.000000 and 33183.000000
 Freeing device memory
 Gemm-Type: A_random_B_SparseXDense
 Number of elements: 362466
@@ -46,16 +47,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.43565 ms
+Dense x Dense kernel took 6.43309 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.66826 ms
+Sparse x Dense kernel took 6.57558 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 30.0603 ms
+cuBlas DxD kernel took 26.3977 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 22.3592 ms
+cuSparse SxD kernel took 22.3674 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: A_band_Bt_SparseXDense_ctv
@@ -66,16 +67,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.53024 ms
+Dense x Dense kernel took 6.53997 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.3897 ms
+Sparse x Dense kernel took 4.3984 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.6302 ms
+cuBlas DxD kernel took 26.6322 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 14.5573 ms
+cuSparse SxD kernel took 14.5583 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_chequered_Bt_SparseXDense_ctv
@@ -86,17 +87,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.95123 ms
+Dense x Dense kernel took 5.94851 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.9903 ms
+Sparse x Dense kernel took 3.98646 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.5356 ms
+cuBlas DxD kernel took 27.9506 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 101.13 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 20.9265 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->133824.000000 and 118656.000000 | 132027.000000 and 135888.000000
 Freeing device memory
 Gemm-Type: A_band_Bt_SparseXDense
 Number of elements: 367569
@@ -106,16 +108,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.54374 ms
+Dense x Dense kernel took 6.54058 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.62016 ms
+Sparse x Dense kernel took 4.59898 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.6337 ms
+cuBlas DxD kernel took 26.631 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 14.5717 ms
+cuSparse SxD kernel took 14.5674 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_full_B_SparseXDense_ctv
@@ -126,17 +128,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35555 ms
+Dense x Dense kernel took 5.35181 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.60109 ms
+Sparse x Dense kernel took 3.60038 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.1502 ms
+cuBlas DxD kernel took 22.1482 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 177.941 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 95.4799 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->8814.000000 and 7200.000000 | 407844.000000 and 480864.000000
 Freeing device memory
 Gemm-Type: A_random_Bt_SparseXDense_ctv
 Number of elements: 362466
@@ -146,16 +149,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.4497 ms
+Dense x Dense kernel took 6.44973 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.33008 ms
+Sparse x Dense kernel took 4.33078 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.4675 ms
+cuBlas DxD kernel took 26.2654 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 14.4327 ms
+cuSparse SxD kernel took 14.2971 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_band_B_SparseXDense
@@ -166,17 +169,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.54448 ms
+Dense x Dense kernel took 6.54486 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.59712 ms
+Sparse x Dense kernel took 4.59299 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.2752 ms
+cuBlas DxD kernel took 27.065 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 30.3781 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 17.1317 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->18.000000 and 6.000000 | 30681.000000 and 27615.000000
 Freeing device memory
 Gemm-Type: At_full_Bt_SparseXDense
 Number of elements: 300804
@@ -186,17 +190,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35766 ms
+Dense x Dense kernel took 5.35536 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 7.19715 ms
+Sparse x Dense kernel took 5.36227 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.0654 ms
+cuBlas DxD kernel took 22.0717 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 177.792 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 34.8444 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->283200.000000 and 263328.000000 | 277980.000000 and 236550.000000
 Freeing device memory
 Gemm-Type: At_random_B_SparseXDense
 Number of elements: 362466
@@ -206,17 +211,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.45578 ms
+Dense x Dense kernel took 6.44669 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.6944 ms
+Sparse x Dense kernel took 6.54243 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 28.6702 ms
+cuBlas DxD kernel took 26.691 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.2082 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 22.3636 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->618.000000 and 1707.000000 | 67299.000000 and 160077.000000
 Freeing device memory
 Gemm-Type: A_random_B_SparseXDense_ctv
 Number of elements: 362466
@@ -226,16 +232,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.42877 ms
+Dense x Dense kernel took 6.43014 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.33846 ms
+Sparse x Dense kernel took 4.33334 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 29.0426 ms
+cuBlas DxD kernel took 26.3988 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 22.5305 ms
+cuSparse SxD kernel took 22.5927 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_full_Bt_SparseXDense_ctv
@@ -246,17 +252,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35453 ms
+Dense x Dense kernel took 5.35677 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.6039 ms
+Sparse x Dense kernel took 3.59965 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.231 ms
+cuBlas DxD kernel took 22.0679 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 179.53 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 34.6472 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->239616.000000 and 196992.000000 | 244821.000000 and 298020.000000
 Freeing device memory
 Gemm-Type: A_chequered_B_SparseXDense
 Number of elements: 334227
@@ -266,16 +273,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.93552 ms
+Dense x Dense kernel took 5.92934 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 5.0321 ms
+Sparse x Dense kernel took 4.98275 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.5408 ms
+cuBlas DxD kernel took 24.3576 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 55.4068 ms
+cuSparse SxD kernel took 55.0009 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_random_Bt_SparseXDense
@@ -286,17 +293,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.45472 ms
+Dense x Dense kernel took 6.4489 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.67821 ms
+Sparse x Dense kernel took 5.12838 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.792 ms
+cuBlas DxD kernel took 29.9133 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.5225 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 13.5453 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->32256.000000 and 30432.000000 | 49635.000000 and 45231.000000
 Freeing device memory
 Gemm-Type: At_band_Bt_SparseXDense
 Number of elements: 367569
@@ -306,17 +314,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.54614 ms
+Dense x Dense kernel took 6.54301 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.61651 ms
+Sparse x Dense kernel took 4.59574 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.1652 ms
+cuBlas DxD kernel took 26.9625 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 35.4571 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 14.5536 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 1 ->1824.000000 and 2016.000000 | 33183.000000 and 24264.000000
 Freeing device memory
 Gemm-Type: A_band_B_SparseXDense_ctv
 Number of elements: 367569
@@ -326,16 +335,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.52227 ms
+Dense x Dense kernel took 6.53226 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.39946 ms
+Sparse x Dense kernel took 4.3969 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.6199 ms
+cuBlas DxD kernel took 28.7396 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 17.286 ms
+cuSparse SxD kernel took 17.1176 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_random_Bt_SparseXDense_ctv
@@ -346,17 +355,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.45066 ms
+Dense x Dense kernel took 6.44435 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.31789 ms
+Sparse x Dense kernel took 4.31811 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.9231 ms
+cuBlas DxD kernel took 26.6008 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.8096 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 14.3099 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->35040.000000 and 29952.000000 | 46479.000000 and 19947.000000
 Freeing device memory
 Gemm-Type: A_full_Bt_SparseXDense
 Number of elements: 300804
@@ -366,16 +376,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35158 ms
+Dense x Dense kernel took 5.35962 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 6.22074 ms
+Sparse x Dense kernel took 5.36554 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 21.9667 ms
+cuBlas DxD kernel took 24.8269 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.7522 ms
+cuSparse SxD kernel took 34.5121 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_chequered_B_SparseXDense_ctv
@@ -386,17 +396,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.94976 ms
+Dense x Dense kernel took 5.9471 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.00429 ms
+Sparse x Dense kernel took 3.99702 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.8153 ms
+cuBlas DxD kernel took 24.6217 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 101.266 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 55.0945 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->4608.000000 and 3390.000000 | 248268.000000 and 238797.000000
 Freeing device memory
 Gemm-Type: At_band_B_SparseXDense_ctv
 Number of elements: 367569
@@ -406,17 +417,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.54253 ms
+Dense x Dense kernel took 6.53661 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.40173 ms
+Sparse x Dense kernel took 4.39878 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 27.2712 ms
+cuBlas DxD kernel took 27.2063 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 30.3032 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 17.107 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->27.000000 and 12.000000 | 30687.000000 and 33753.000000
 Freeing device memory
 Gemm-Type: A_chequered_B_SparseXDense_ctv
 Number of elements: 334227
@@ -426,16 +438,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.93462 ms
+Dense x Dense kernel took 5.93834 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.00304 ms
+Sparse x Dense kernel took 4.0079 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.5472 ms
+cuBlas DxD kernel took 24.3596 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 55.422 ms
+cuSparse SxD kernel took 55.0067 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: A_full_B_SparseXDense_ctv
@@ -446,16 +458,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.34234 ms
+Dense x Dense kernel took 5.34163 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.60672 ms
+Sparse x Dense kernel took 3.60096 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 22.0868 ms
+cuBlas DxD kernel took 21.9085 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 96.1985 ms
+cuSparse SxD kernel took 95.4755 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_random_B_SparseXDense_ctv
@@ -466,17 +478,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.45501 ms
+Dense x Dense kernel took 6.45171 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.33843 ms
+Sparse x Dense kernel took 4.33744 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.8951 ms
+cuBlas DxD kernel took 26.6876 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.2319 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 22.6852 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->1698.000000 and 663.000000 | 54294.000000 and 66189.000000
 Freeing device memory
 Gemm-Type: A_full_Bt_SparseXDense_ctv
 Number of elements: 300804
@@ -486,16 +499,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35226 ms
+Dense x Dense kernel took 5.35526 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 3.60394 ms
+Sparse x Dense kernel took 3.5985 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 21.9667 ms
+cuBlas DxD kernel took 21.8052 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 34.7562 ms
+cuSparse SxD kernel took 34.8745 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: A_random_Bt_SparseXDense
@@ -506,16 +519,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.44826 ms
+Dense x Dense kernel took 6.44346 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.67434 ms
+Sparse x Dense kernel took 5.24899 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 26.4805 ms
+cuBlas DxD kernel took 26.2631 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 13.3006 ms
+cuSparse SxD kernel took 13.9679 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_chequered_B_SparseXDense
@@ -526,17 +539,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.95635 ms
+Dense x Dense kernel took 6.0049 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.97734 ms
+Sparse x Dense kernel took 4.98701 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.8127 ms
+cuBlas DxD kernel took 24.6244 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 100.979 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 55.0035 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->3900.000000 and 3678.000000 | 245295.000000 and 265866.000000
 Freeing device memory
 Gemm-Type: A_full_B_SparseXDense
 Number of elements: 300804
@@ -546,16 +560,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.34224 ms
+Dense x Dense kernel took 5.3439 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 6.56154 ms
+Sparse x Dense kernel took 5.35853 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.9448 ms
+cuBlas DxD kernel took 21.9056 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 95.4715 ms
+cuSparse SxD kernel took 95.4799 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_chequered_Bt_SparseXDense
@@ -566,17 +580,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.94234 ms
+Dense x Dense kernel took 5.94858 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 5.55824 ms
+Sparse x Dense kernel took 4.97885 ms
 Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.5339 ms
+cuBlas DxD kernel took 24.5369 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 99.6697 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 20.9223 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x Transposed Dense and Transposed Sparse x Transposed Dense CuSparse Matrix Mismatch in Multiplication at 0 ->115392.000000 and 81792.000000 | 131454.000000 and 121308.000000
 Freeing device memory
 Gemm-Type: A_band_B_SparseXDense
 Number of elements: 367569
@@ -586,16 +601,16 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 6.52682 ms
+Dense x Dense kernel took 6.52896 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.59536 ms
+Sparse x Dense kernel took 4.59651 ms
  Dense x  Dense and  Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 30.4838 ms
+cuBlas DxD kernel took 26.7721 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 17.1115 ms
+cuSparse SxD kernel took 17.098 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
 Gemm-Type: At_full_B_SparseXDense
@@ -606,17 +621,18 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.35267 ms
+Dense x Dense kernel took 5.34928 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 6.47645 ms
+Sparse x Dense kernel took 5.36304 ms
 Transposed Dense x  Dense and Transposed Sparse x  Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 25.2355 ms
+cuBlas DxD kernel took 22.148 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 177.545 ms
-Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
+cuSparse SxD kernel took 95.4752 ms
+Gemmforge Dense x Dense and cuSparse RESULTS DONT MATCH
+Transposed Dense x  Dense and Transposed Sparse x  Dense CuSparse Matrix Mismatch in Multiplication at 0 ->7629.000000 and 7869.000000 | 486447.000000 and 483090.000000
 Freeing device memory
 Gemm-Type: A_chequered_Bt_SparseXDense
 Number of elements: 334227
@@ -626,15 +642,15 @@ Copying core matrices to buffers
 Allocating device memory
 Copying buffers to device
 Calling Dense x Dense kernel
-Dense x Dense kernel took 5.93574 ms
+Dense x Dense kernel took 5.94304 ms
 Calling Sparse x Dense kernel
-Sparse x Dense kernel took 4.95728 ms
+Sparse x Dense kernel took 4.99075 ms
  Dense x Transposed Dense and  Sparse x Transposed Dense Matrix Multiplications Match!
 Calling cuBlas DxD Kernels
-cuBlas DxD kernel took 24.2319 ms
+cuBlas DxD kernel took 24.3436 ms
 Gemmforge Dense x Dense and cuBlas Dense x Dense results match
 Freeing device-memory needed by cuBLAS-only
 Calling cuSparse SxD Kernels
-cuSparse SxD kernel took 20.9241 ms
+cuSparse SxD kernel took 20.9153 ms
 Gemmforge Dense x Dense and cuSparse Sparse x Dense results match!
 Freeing device memory
