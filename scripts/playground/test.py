@@ -83,8 +83,8 @@ generator = Generator(arch)
 # add_matrix(generator, "gpu")
 add_simple_tensor(generator, "cpu")
 add_simple_tensor(generator, "gpu")
-# add_example_tensor(generator, "cpu")
-#add_example_tensor(generator, "gpu")
+add_example_tensor(generator, "cpu")
+add_example_tensor(generator, "gpu")
 
 directory = os.path.dirname(os.path.abspath(__file__))
 generator.generate(outputDir=directory,

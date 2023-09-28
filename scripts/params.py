@@ -10,12 +10,12 @@ import os
 runs = 10
 
 # Change if wanted
-row_a = 32
-col_a = 32
-row_b = 32
-col_b = 32
-row_c = 32
-col_c = 32
+row_a = 56
+col_a = 9
+row_b = 9
+col_b = 9
+row_c = 56
+col_c = 9
 
 # Change if wanted
 Alpha = 1.5
@@ -34,7 +34,8 @@ adressingC = "strided"
 debug = False
 
 # Change if wanted
-b_matrix_types = ["band", "chequered", "full", "random"]
+#b_matrix_types = ["band", "chequered", "full", "random"]
+b_matrix_types = ["full"]
 a_matrix_types = b_matrix_types
 # b_matrix_types = ["random"]
 
@@ -49,12 +50,13 @@ nvidia_green = "#76b900"
 my_blue = "#6ab2ca"
 sparse_rose = "#c74375"
 dense_blue = my_blue
+pre = "SparseDense"
 
 # Change always
 workaround = False
 scripts_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = f"{scripts_dir}/../data"
-stdout_dir = f"{data_dir}/A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
+stdout_dir = f"{data_dir}/{pre}-A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
 save_plots = True
 debug_print = False
 
