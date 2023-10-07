@@ -7,7 +7,7 @@ import os
 # row_c = 56
 # col_c = 9
 
-runs = 10
+runs = 1
 
 # Change if wanted
 row_a = 56
@@ -18,8 +18,8 @@ row_c = 56
 col_c = 9
 
 # Change if wanted
-Alpha = 1.5
-Beta = 0.0
+Alpha = 1.0
+Beta = 1.0
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -34,8 +34,8 @@ adressingC = "strided"
 debug = False
 
 # Change if wanted
-#b_matrix_types = ["band", "chequered", "full", "random"]
-b_matrix_types = ["full"]
+b_matrix_types = ["band", "chequered", "full", "random"]
+#b_matrix_types = ["full", "random"]
 a_matrix_types = b_matrix_types
 # b_matrix_types = ["random"]
 
@@ -58,7 +58,7 @@ scripts_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = f"{scripts_dir}/../data"
 stdout_dir = f"{data_dir}/{pre}-A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
 save_plots = True
-debug_print = False
+debug_print = True
 
 ld_library_path = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64:/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/11.8/lib64"
 nvcc = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/11.8/bin/nvcc"

@@ -12,7 +12,6 @@ from params import *
 from scipy.sparse import csr_matrix, csc_matrix
 
 def get_available_mem_on_gpu():
-    gpus = cuda.gpus.lst
     meminfo = cuda.current_context().get_memory_info()
     return meminfo[0]
 
