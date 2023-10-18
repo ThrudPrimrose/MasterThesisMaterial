@@ -7,19 +7,26 @@ from tensor_params import *
 from numba import cuda
 
 N = 32
-shapeA = (N, N)
-shapeB = (N, N, N)
-shapew = (N, )
+shapeA = (N, N, N)
+shapeB = (N, )
 shapeC = (N, N)
+shapeD = (N, N)
+shapeE = (N, N, N)
+shapeF = (N, N)
 A = Tensor('A', shapeA)
 B = Tensor('B', shapeB)
-w = Tensor('w', shapew)
 C = Tensor('C', shapeC)
+D = Tensor('D', shapeD)
+E = Tensor('E', shapeE)
+F = Tensor('F', shapeF)
 sizeA = reduce(operator.mul, shapeA, 1)
 sizeB = reduce(operator.mul, shapeB, 1)
-sizew = reduce(operator.mul, shapew, 1)
 sizeC = reduce(operator.mul, shapeC, 1)
-maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), len(shapew))
+sizeD = reduce(operator.mul, shapeD, 1)
+sizeE = reduce(operator.mul, shapeE, 1)
+sizeF = reduce(operator.mul, shapeF, 1)
+maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), 
+                  len(shapeD), len(shapeE), len(shapeF))
 
 def get_available_mem_on_gpu():
     meminfo = cuda.current_context().get_memory_info()
@@ -28,78 +35,17 @@ def get_available_mem_on_gpu():
 
 def get_suggested_num_elements():
     # 1 pointer extra needed per element
-    per_el_size = (sizeA + sizeB + sizew + sizeC) * 4 + 16
+    per_el_size = (sizeA + sizeB + sizeC + sizeD + sizeE + sizeF) * 4 + (6 * 4)
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
     lower = int(0.90 * can_fit_els)
     return lower
 
-FLOAT_SIZE = 4
-def get_load_store_size(row_a, col_a, row_b, col_b, row_c, col_c, addressingA = "strided",
-                        addressingB = "strided", addressingC = "strided"):
-    load_store = 0
-
-    # If adressing is none then the matrix is loaded only 1 time in the whole batch
-    # Read A
-    if addressingA != "none":
-        load_store += row_a * col_a
-    # Read B
-    if addressingB != "none":
-        load_store += row_b * col_b
-
-    # Write C
-    if addressingC != "none":
-        load_store += row_c * col_c
-
-    # If Beta is not 0 then we need to read C
-    if Beta != 0.0:
-        load_store += row_c * col_c
-
-    load_store *= FLOAT_SIZE
-    return load_store
-
-
-def calculate_ops_dense(row_a, col_a, row_b, col_b, row_c, col_c, alpha, beta, addressingA = "strided",
-                        addressingB = "strided", addressingC = "strided"):
-    # Flops = (col_a + (row_a - 1)) * col_a * col_b;
-    # FMA of 1 row = (2 * col_a * col_b)
-    # Done for every row (row_a) *
-
-    Flops = (col_b) * (2 * row_a * row_b)
-    # Flops -= col_a * col_b # First row
-
-    if Alpha != 1.0:
-        Flops += row_c * col_c
-
-    # Flops += row_a * col_a
-
-    # Adding C to end result, row_c = row_a, col_c = col_b
-    if Beta != 0.0:
-        Flops += 2 * row_c * col_c
-
-    load_store = get_load_store_size(row_a, col_a, row_b, col_b, row_c, col_c)
-
-    return Flops, load_store
-
-
-fp_per_el = 0
-fp_per_el += 32*32*32*2 # Comp loop first kernel
-fp_per_el += 32*32*32*2 # Comp loop second kernel
-fp_per_el += 32*32 # C += second kernel
-ls_per_el = 0
-ls_per_el += 32*32 # load w first kernel
-ls_per_el += 32*32*32 # load B first kernel
-ls_per_el += 32*32 # load A second kernel
-ls_per_el += 32*32*2 # load and write C second kernel
-ls_per_el *= FLOAT_SIZE
-
-peakBandwidthGiven = 176.032
-peakFLOPGiven = 4329.47
 
 num_els = get_suggested_num_elements()
 
-kernel = C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k']
+kernel = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
 
 arch = useArchitectureIdentifiedBy(
     host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
@@ -141,6 +87,7 @@ print(function_args)
 a = A.memoryLayout
 print(a)
 
+"""
 taco_command = \
   f'taco "C(i, j, b) = C(i, j, b) + A(l, j, b) * B(i, k, l, b) * w(k, b)" -cuda -d=A:{shapeA[0]},{shapeA[1]},{num_els} -d=B:{shapeB[0]},{shapeB[1]},{shapeB[2]},{num_els} -d=C:{shapeC[0]},{shapeC[1]},{num_els} -d=w:{shapew[0]},{num_els} -t=A:float -t=B:float -t=C:float -t=w:float -print-nocolor '
 
@@ -181,6 +128,7 @@ for i, line in enumerate(taco_kernel_lines):
   else:
     taco_kernel += line + "\n"
     continue
+"""
 
 benchmark_str = f"""
 #include <random>
@@ -243,22 +191,28 @@ void checkErr(const std::string &File, int Line) {{
 
 {gpu_kernel}
 
+struct taco_tensor_t {{
+  float* vals;
+  int* dimensions;
+}};
+
 
 int main(){{
-  size_t currentAllocSize = 0;
-
   constexpr size_t num_els = {num_els};
   float* A = new float[{sizeA} * num_els];
   float* B = new float[{sizeB} * num_els];
   float* C = new float[{sizeC} * num_els];
-  float* w = new float[{sizew} * num_els];
+  float* D = new float[{sizeD} * num_els];
+  float* E = new float[{sizeE} * num_els];
+  float* F = new float[{sizeF} * num_els];
   float* R1 = new float[{sizeC} * num_els]{{0.f}};
-  float* R2 = new float[{sizeC} * num_els]{{0.f}};
 
   float coreA[{sizeA}];
   float coreB[{sizeB}];
   float coreC[{sizeC}];
-  float corew[{sizew}];
+  float coreD[{sizeD}];
+  float coreE[{sizeE}];
+  float coreF[{sizeF}];
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -272,70 +226,90 @@ int main(){{
   for (size_t i = 0; i < {sizeC}; i++){{
     coreC[i] = distribution(gen);
   }}
-  for (size_t i = 0; i < {sizew}; i++){{
-    corew[i] = distribution(gen);
+  for (size_t i = 0; i < {sizeD}; i++){{
+    coreD[i] = distribution(gen);
+  }}
+  for (size_t i = 0; i < {sizeE}; i++){{
+    coreE[i] = distribution(gen);
+  }}
+  for (size_t i = 0; i < {sizeF}; i++){{
+    coreF[i] = distribution(gen);
   }}
 
   for (size_t i = 0; i < num_els; i++){{
       std::memcpy(&A[i * {sizeA}], &coreA[0], {sizeA} * sizeof(float));
       std::memcpy(&B[i * {sizeB}], &coreB[0], {sizeB} * sizeof(float));
       std::memcpy(&C[i * {sizeC}], &coreC[0], {sizeC} * sizeof(float));
-      std::memcpy(&w[i * {sizew}], &corew[0], {sizew} * sizeof(float));
+      std::memcpy(&D[i * {sizeD}], &coreD[0], {sizeD} * sizeof(float));
+      std::memcpy(&E[i * {sizeE}], &coreE[0], {sizeE} * sizeof(float));
+      std::memcpy(&F[i * {sizeF}], &coreF[0], {sizeF} * sizeof(float));
   }}
 
   float* A_dev = nullptr;
   float* B_dev = nullptr;
   float* C_dev = nullptr;
-  float* w_dev = nullptr;
+  float* D_dev = nullptr;
+  float* E_dev = nullptr;
+  float* F_dev = nullptr;
 
   float** A_dev_begins = new float*[num_els];
   float** B_dev_begins = new float*[num_els];
   float** C_dev_begins = new float*[num_els];
-  float** w_dev_begins = new float*[num_els];
+  float** D_dev_begins = new float*[num_els];
+  float** E_dev_begins = new float*[num_els];
+  float** F_dev_begins = new float*[num_els];
 
   float** A_dev_begins_dev = nullptr;
   float** B_dev_begins_dev = nullptr;
   float** C_dev_begins_dev = nullptr;
-  float** w_dev_begins_dev = nullptr;
+  float** D_dev_begins_dev = nullptr;
+  float** E_dev_begins_dev = nullptr;
+  float** F_dev_begins_dev = nullptr;
 
   cudaMalloc((void **)&A_dev, sizeof(float) * {sizeA} * num_els); CHECK_ERR;
   cudaMalloc((void **)&B_dev, sizeof(float) * {sizeB} * num_els); CHECK_ERR;
   cudaMalloc((void **)&C_dev, sizeof(float) * {sizeC} * num_els); CHECK_ERR;
-  cudaMalloc((void **)&w_dev, sizeof(float) * {sizew} * num_els); CHECK_ERR;
+  cudaMalloc((void **)&D_dev, sizeof(float) * {sizeD} * num_els); CHECK_ERR;
+  cudaMalloc((void **)&E_dev, sizeof(float) * {sizeE} * num_els); CHECK_ERR;
+  cudaMalloc((void **)&F_dev, sizeof(float) * {sizeF} * num_els); CHECK_ERR;
+
   cudaMalloc((void **)&A_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
   cudaMalloc((void **)&B_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
   cudaMalloc((void **)&C_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
-  cudaMalloc((void **)&w_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
+  cudaMalloc((void **)&D_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
+  cudaMalloc((void **)&E_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
+  cudaMalloc((void **)&F_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
+ 
   cudaDeviceSynchronize(); CHECK_ERR;
-  currentAllocSize += sizeof(float) * {sizeA} * num_els +
-                      sizeof(float) * {sizeB} * num_els +
-                      sizeof(float) * {sizeC} * num_els +
-                      sizeof(float) * {sizew} * num_els +
-                      4 * sizeof(float*) * num_els;
-  std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
 
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeA} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)B_dev, (void *)B, sizeof(float) * {sizeB} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
-  cudaMemcpy((void *)w_dev, (void *)w, sizeof(float) * {sizew} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)D_dev, (void *)D, sizeof(float) * {sizeD} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)E_dev, (void *)E, sizeof(float) * {sizeE} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)F_dev, (void *)F, sizeof(float) * {sizeF} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   for (size_t i = 0; i < num_els; i++){{
     A_dev_begins[i] = A_dev + i * {sizeA};
     B_dev_begins[i] = B_dev + i * {sizeB};
     C_dev_begins[i] = C_dev + i * {sizeC};
-    w_dev_begins[i] = w_dev + i * {sizew};
+    D_dev_begins[i] = D_dev + i * {sizeD};
+    E_dev_begins[i] = E_dev + i * {sizeE};
+    F_dev_begins[i] = F_dev + i * {sizeF};
   }}
 
   cudaMemcpy((void *)A_dev_begins_dev, (void *)A_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)B_dev_begins_dev, (void *)B_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)C_dev_begins_dev, (void *)C_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
-  cudaMemcpy((void *)w_dev_begins_dev, (void *)w_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)D_dev_begins_dev, (void *)D_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)E_dev_begins_dev, (void *)E_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)F_dev_begins_dev, (void *)F_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  {function_name}(A_dev_begins_dev, 0, B_dev_begins_dev, 0, C_dev_begins_dev, 0, w_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  {function_name}(A_dev_begins_dev, 0, B_dev_begins_dev, 0, C_dev_begins_dev, 0, D_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
-  cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  std::cout << "Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge" << std::endl;
+  std::cout << "Will compute the kernel: A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm'], with Gemmforge" << std::endl;
   float elapsedTime = 0.0; 
   cudaEvent_t startT1, stopT1;
   cudaEventCreate(&startT1); CHECK_ERR;
@@ -347,20 +321,11 @@ int main(){{
   cudaEventElapsedTime(&elapsedTime, startT1, stopT1); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
   std::cout << "Gemmforge Tensor Contraction took: " << elapsedTime << " ms" << std::endl; 
-  cudaMemcpy(R1, C_dev, sizeof(float) * {sizeC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-  cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy(R1, A_dev, sizeof(float) * {sizeC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
 
-  std::cout << "Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor" << std::endl;
-  std::cout << "Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor" << std::endl;
-  std::cout <<"Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor" << std::endl;
-  std::cout << "Batched version managed through: C['ijb'] <= C['ijb'] + A['ljb'] * B['iklb'] * w['kb'], with cuTensor" << std::endl;
-
-  float* X_dev = nullptr;
-  cudaMalloc((void **)&X_dev, sizeof(float) * {shapeB[0]} * {shapeB[2]} * num_els); CHECK_ERR;
-  currentAllocSize += sizeof(float) * {shapeB[0]} * {shapeB[2]} * num_els;
-  std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
-
+  /*
   cutensorHandle_t* handle;
   HANDLE_ERROR(cutensorCreate(&handle));
 
@@ -374,9 +339,9 @@ int main(){{
   cudaFree(A_dev_begins_dev); CHECK_ERR;
   cudaFree(B_dev_begins_dev); CHECK_ERR;
   cudaFree(C_dev_begins_dev); CHECK_ERR;
-  cudaFree(w_dev_begins_dev); CHECK_ERR;
-  currentAllocSize -= sizeof(float*) * 4 * num_els;
-  std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
+  cudaFree(D_dev_begins_dev); CHECK_ERR;
+  cudaFree(E_dev_begins_dev); CHECK_ERR;
+  cudaFree(F_dev_begins_dev); CHECK_ERR;
 
   // Kernel 1
   std::cout << "cuTensor Kernel 1" << std::endl;
@@ -489,9 +454,6 @@ int main(){{
             cudaGetLastError(); // Clear last error to save CHECK_ERR;
         }}
     }}
-    currentAllocSize += worksize;
-    std::cout << "Alloc additional buffer: " << static_cast<float>(worksize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
-    std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
 
     cutensorContractionPlan_t plan;
     HANDLE_ERROR(cutensorInitContractionPlan(handle,
@@ -531,9 +493,6 @@ int main(){{
     }}
 
     cudaFree(work);
-    currentAllocSize -= worksize;
-    std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
-
   }}
 
   float elapsedTimeT2 = 0.0f;
@@ -650,10 +609,6 @@ int main(){{
             cudaGetLastError(); // Clear last error to save CHECK_ERR;
         }}
     }}
-    currentAllocSize += worksize;
-    std::cout << "Alloc additional buffer: " << static_cast<float>(worksize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
-    std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
-
 
     cutensorContractionPlan_t plan;
     HANDLE_ERROR(cutensorInitContractionPlan(handle,
@@ -691,8 +646,6 @@ int main(){{
     }}
 
     cudaFree(work);
-    currentAllocSize -= worksize;
-    std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
 
     cudaMemcpy(R2, C_dev, sizeof(float) * {sizeC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
     cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
@@ -715,44 +668,28 @@ int main(){{
   if (!results_wrong){{
     std::cout << "Gemmforge and cuTensor contraction results match! :)" << std::endl;
   }}
-
-  double fp_per_el = {fp_per_el};
-  double ls_per_el = {ls_per_el};
-  fp_per_el *= num_els;
-  ls_per_el *= num_els;
-  std::cout << "Gemmfor GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
-  std::cout << "Operational intensity: " << fp_per_el / ls_per_el << std::endl;
- 
-  double peakFLOPGiven = {peakFLOPGiven};
-  double peakBandwidthGiven = {peakBandwidthGiven};
-
-  if (peakFLOPGiven > 0.1 && peakBandwidthGiven){{
-    double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
-    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved" << std::endl;
-  }}
+  */
 
   delete[] A;
   delete[] B;
   delete[] C;
-  delete[] w;
+  delete[] D;
+  delete[] E;
+  delete[] F;
   delete[] A_dev_begins;
   delete[] B_dev_begins;
   delete[] C_dev_begins;
-  delete[] w_dev_begins;
+  delete[] D_dev_begins;
+  delete[] E_dev_begins;
+  delete[] F_dev_begins;
   delete[] R1;
-  delete[] R2;
 
   cudaFree(A_dev);
-  cudaFree(C_dev);
-  cudaFree(w_dev);
-  cudaFree(X_dev);
   cudaFree(B_dev);
-  currentAllocSize -= sizeof(float) * {sizeA} * num_els +
-                      sizeof(float) * {sizeC} * num_els +
-                      sizeof(float) * {sizew} * num_els +
-                      sizeof(float) * {sizeB} * num_els +
-                      sizeof(float) * {shapeB[0]} * {shapeB[2]} * num_els;
-  std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
+  cudaFree(C_dev);
+  cudaFree(D_dev);
+  cudaFree(E_dev);
+  cudaFree(F_dev);
 
   return 0;
 }}
