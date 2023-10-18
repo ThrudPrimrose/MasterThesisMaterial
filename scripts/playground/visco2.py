@@ -14,6 +14,7 @@ def add_weird_tensor(g):
 
     kernel = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
     g.add(name='kernel', ast=kernel, target="gpu")
+    g.add(name='kernel', ast=kernel, target="cpu")
 
 
 arch = useArchitectureIdentifiedBy(

@@ -10,16 +10,16 @@ import os
 runs = 1
 
 # Change if wanted
-row_a = 56
-col_a = 9
-row_b = 9
-col_b = 9
-row_c = 56
-col_c = 9
+row_a = 32
+col_a = 32
+row_b = 32
+col_b = 32
+row_c = 32
+col_c = 32
 
 # Change if wanted
-Alpha = 1.0
-Beta = 1.0
+Alpha = 1.5
+Beta = 0.0
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -44,6 +44,8 @@ a_matrix_types = b_matrix_types
 # peakFLOPTheo = 4329.47 #29767.7 #4329.47
 peakMemoryBandwidthTheo = 760.08
 peakFLOPTheo = 29767.7
+tensorPeakBandwidth = 760.08
+tensorPeakFLOP = 29767.7
 
 # Dont change
 nvidia_green = "#76b900"
@@ -74,5 +76,6 @@ mat_lib_lib = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64"
 # mat_lib_incl ="."
 
 #flow_generator_list = [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]
-flow_generator_list = [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]
+#flow_generator_list = [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]
+flow_generator_list = [f"{scripts_dir}/benchmark_product.py"]
 write_output = False

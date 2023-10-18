@@ -67,13 +67,13 @@ for i in range(runs):
         debug_identifier = "-G" if debug else ""
 
         advanced_compile_command = f"{nvcc} -ccbin={gcc} -I{cuda_incl} -I{mat_lib_incl} -L{cuda_lib} -L{mat_lib_lib} --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info \
-    --source-in-ptx -lcublas -lcusparse {debug_identifier} {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+    --source-in-ptx -lcublas -lcusparse -lcutensor {debug_identifier} {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
         if workaround:
             compile_command = advanced_compile_command
         else:
             compile_command = f"nvcc --gpu-code=sm_86 --gpu-architecture=compute_86 --generate-line-info {debug_identifier} \
-    --source-in-ptx -lcublas -lcusparse {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
+    --source-in-ptx -lcublas -lcusparse -lcutensor {code_path}/{filename} -o {exec_path}/{benchmark_identifier}"
 
         profile_command = f'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{ld_library_path}; sudo env "PATH=$PATH" ncu -f -o {report_path}/{benchmark_identifier}_rep --set full \
     --import-source yes {exec_path}/{benchmark_identifier}'
