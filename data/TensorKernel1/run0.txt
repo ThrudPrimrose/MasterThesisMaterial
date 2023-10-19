@@ -1,7 +1,7 @@
 Current Device Alloc Size: 6.69354
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(48,144), B(96,16,48), C(96,144), w(16)
-Gemmforge Tensor Contraction took: 29.0789 ms
+Gemmforge Tensor Contraction took: 29.0518 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -13,24 +13,24 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 7.01941
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.01941
-cuTensor sub-kernel 1 took: 19.6096 ms
+cuTensor sub-kernel 1 took: 19.9854 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 7.03503
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.01941
-cuTensor sub-kernel 2 took: 5.57706 ms
-cuTensor Tensor Contraction took: 25.1867 ms
+cuTensor sub-kernel 2 took: 5.5857 ms
+cuTensor Tensor Contraction took: 25.5711 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 878.901
+Gemmforge GFLOPs/s: 879.723
 Operational intensity: 3.10238
-37.2723 % of roof w. respect to operational intensity achieved with Gemmforge
-43.0322 % of roof w. respect to operational intensity achieved with cuTensor
+37.3071 % of roof w. respect to operational intensity achieved with Gemmforge
+42.3853 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
 Current Device Alloc Size: 6.69435
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(32,32), B(32,32,32), C(32,32), w(32)
-Gemmforge Tensor Contraction took: 10.6295 ms
+Gemmforge Tensor Contraction took: 10.634 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -42,24 +42,24 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 6.88948
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.88948
-cuTensor sub-kernel 1 took: 23.1649 ms
+cuTensor sub-kernel 1 took: 23.6759 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 6.90511
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.88948
-cuTensor sub-kernel 2 took: 1.24867 ms
-cuTensor Tensor Contraction took: 24.4136 ms
+cuTensor sub-kernel 2 took: 1.24045 ms
+cuTensor Tensor Contraction took: 24.9164 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 332.762
+Gemmforge GFLOPs/s: 332.622
 Operational intensity: 0.478145
-91.562 % of roof w. respect to operational intensity achieved with Gemmforge
-39.8653 % of roof w. respect to operational intensity achieved with cuTensor
+91.5234 % of roof w. respect to operational intensity achieved with Gemmforge
+39.0609 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
 Current Device Alloc Size: 6.69335
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(53,107), B(101,23,53), C(101,107), w(23)
-Gemmforge Tensor Contraction took: 11.497 ms
+Gemmforge Tensor Contraction took: 11.4811 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -71,24 +71,24 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 6.94958
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.94958
-cuTensor sub-kernel 1 took: 39.2663 ms
+cuTensor sub-kernel 1 took: 39.2243 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 6.9652
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.94958
-cuTensor sub-kernel 2 took: 3.86029 ms
-cuTensor Tensor Contraction took: 43.1266 ms
+cuTensor sub-kernel 2 took: 3.81277 ms
+cuTensor Tensor Contraction took: 43.037 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 1299.44
+Gemmforge GFLOPs/s: 1301.24
 Operational intensity: 1.9295
-88.6038 % of roof w. respect to operational intensity achieved with Gemmforge
-23.6207 % of roof w. respect to operational intensity achieved with cuTensor
+88.7265 % of roof w. respect to operational intensity achieved with Gemmforge
+23.6698 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
 Current Device Alloc Size: 6.69579
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(11,73), B(31,27,11), C(31,73), w(27)
-Gemmforge Tensor Contraction took: 12.1947 ms
+Gemmforge Tensor Contraction took: 12.1897 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -100,24 +100,24 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 6.87694
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.87694
-cuTensor sub-kernel 1 took: 50.3081 ms
+cuTensor sub-kernel 1 took: 50.0931 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 6.89257
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 6.87694
-cuTensor sub-kernel 2 took: 5.24355 ms
-cuTensor Tensor Contraction took: 55.5517 ms
+cuTensor sub-kernel 2 took: 5.23216 ms
+cuTensor Tensor Contraction took: 55.3252 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 633.822
+Gemmforge GFLOPs/s: 634.082
 Operational intensity: 0.908604
-91.777 % of roof w. respect to operational intensity achieved with Gemmforge
-20.1469 % of roof w. respect to operational intensity achieved with cuTensor
+91.8145 % of roof w. respect to operational intensity achieved with Gemmforge
+20.2294 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
 Current Device Alloc Size: 6.82487
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(3,11), B(5,7,3), C(5,11), w(7)
-Gemmforge Tensor Contraction took: 25.1998 ms
+Gemmforge Tensor Contraction took: 25.1485 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -129,24 +129,24 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 7.05455
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.05455
-cuTensor sub-kernel 1 took: 267.783 ms
+cuTensor sub-kernel 1 took: 267.462 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 7.07018
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.05455
-cuTensor sub-kernel 2 took: 222.475 ms
-cuTensor Tensor Contraction took: 490.258 ms
+cuTensor sub-kernel 2 took: 223.094 ms
+cuTensor Tensor Contraction took: 490.556 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 205.169
-Operational intensity: 0.57549
-46.9045 % of roof w. respect to operational intensity achieved with Gemmforge
-2.41094 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge GFLOPs/s: 159.356
+Operational intensity: 0.446078
+47.0001 % of roof w. respect to operational intensity achieved with Gemmforge
+2.40948 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
 Current Device Alloc Size: 6.6994
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
 Shapes and dims: A(16,16), B(16,16,16), C(16,16), w(16)
-Gemmforge Tensor Contraction took: 10.8094 ms
+Gemmforge Tensor Contraction took: 10.811 ms
 Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 1: X['il'] <= B['ikl'] * w['k'], with cuTensor
 Need to split into 2 kernels, 2: C['ij'] <=  A['lj'] * X['il'], with cuTensor
@@ -158,17 +158,17 @@ Alloc additional buffer: 0
 Current Device Alloc Size: 7.05809
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.05809
-cuTensor sub-kernel 1 took: 21.2941 ms
+cuTensor sub-kernel 1 took: 21.4221 ms
 cuTensor Kernel 2
 Alloc additional buffer: 0.0156252
 Current Device Alloc Size: 7.07371
 Sub-kernel 1 succeeded.
 Current Device Alloc Size: 7.05809
-cuTensor sub-kernel 2 took: 3.90144 ms
-cuTensor Tensor Contraction took: 25.1955 ms
+cuTensor sub-kernel 2 took: 3.9383 ms
+cuTensor Tensor Contraction took: 25.3604 ms
 Gemmforge and cuTensor contraction results match! :)
-Gemmforge GFLOPs/s: 321.821
+Gemmforge GFLOPs/s: 321.773
 Operational intensity: 0.459016
-92.2416 % of roof w. respect to operational intensity achieved with Gemmforge
-39.5735 % of roof w. respect to operational intensity achieved with cuTensor
+92.228 % of roof w. respect to operational intensity achieved with Gemmforge
+39.3162 % of roof w. respect to operational intensity achieved with cuTensor
 Current Device Alloc Size: 0
