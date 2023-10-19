@@ -3,186 +3,202 @@ from functools import reduce
 import operator
 import subprocess
 from yateto import *
-from tensor_params import *
+from params import *
 from numba import cuda
 
-N = 32
-shapeA = (N, N)
-shapeB = (N, N, N)
-shapew = (N, )
-shapeC = (N, N)
-A = Tensor('A', shapeA)
-B = Tensor('B', shapeB)
-w = Tensor('w', shapew)
-C = Tensor('C', shapeC)
-sizeA = reduce(operator.mul, shapeA, 1)
-sizeB = reduce(operator.mul, shapeB, 1)
-sizew = reduce(operator.mul, shapew, 1)
-sizeC = reduce(operator.mul, shapeC, 1)
-maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), len(shapew))
 
-def get_available_mem_on_gpu():
-    meminfo = cuda.current_context().get_memory_info()
-    return meminfo[0]
+dims = [[(11, 73), 
+         (31, 27, 11),
+         (27,),
+         (31, 73)],
+        [(48, 144), 
+         (96, 16, 48),
+         (16,),
+         (96, 144)],
+        [(32, 32), 
+         (32, 32, 32),
+         (32,),
+         (32, 32)],
+        [(16, 16), 
+         (16, 16, 16),
+         (16,),
+         (16, 16)],
+        [(3, 11), 
+         (5, 7, 3),
+         (7,),
+         (5, 11)],
+        [(53, 107), 
+         (101, 23, 53),
+         (23,),
+         (101, 107)]]
 
+for dimId in range(6):
+  shapeA = dims[dimId][0]
+  shapeB = dims[dimId][1]
+  shapew = dims[dimId][2]
+  shapeC = dims[dimId][3]
+  A = Tensor('A', shapeA)
+  B = Tensor('B', shapeB)
+  w = Tensor('w', shapew)
+  C = Tensor('C', shapeC)
+  sizeA = reduce(operator.mul, shapeA, 1)
+  sizeB = reduce(operator.mul, shapeB, 1)
+  sizew = reduce(operator.mul, shapew, 1)
+  sizeC = reduce(operator.mul, shapeC, 1)
+  maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), len(shapew))
 
-def get_suggested_num_elements():
-    # 1 pointer extra needed per element
-    per_el_size = (sizeA + sizeB + sizew + sizeC) * 4 + 16
+  a_tuple = ",".join(str(item) for item in shapeA)
+  b_tuple = ",".join(str(item) for item in shapeB)
+  c_tuple = ",".join(str(item) for item in shapeC)
+  w_tuple = ",".join(str(item) for item in shapew)
+  shape_str = ""
+  shape_str += f"A({a_tuple}), B({b_tuple}), C({c_tuple}), w({w_tuple})"
 
-    available_mem = get_available_mem_on_gpu()
-    can_fit_els = available_mem // per_el_size
-    lower = int(0.90 * can_fit_els)
-    return lower
+  kernel = C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k']
 
-FLOAT_SIZE = 4
-def get_load_store_size(row_a, col_a, row_b, col_b, row_c, col_c, addressingA = "strided",
-                        addressingB = "strided", addressingC = "strided"):
-    load_store = 0
-
-    # If adressing is none then the matrix is loaded only 1 time in the whole batch
-    # Read A
-    if addressingA != "none":
-        load_store += row_a * col_a
-    # Read B
-    if addressingB != "none":
-        load_store += row_b * col_b
-
-    # Write C
-    if addressingC != "none":
-        load_store += row_c * col_c
-
-    # If Beta is not 0 then we need to read C
-    if Beta != 0.0:
-        load_store += row_c * col_c
-
-    load_store *= FLOAT_SIZE
-    return load_store
-
-
-def calculate_ops_dense(row_a, col_a, row_b, col_b, row_c, col_c, alpha, beta, addressingA = "strided",
-                        addressingB = "strided", addressingC = "strided"):
-    # Flops = (col_a + (row_a - 1)) * col_a * col_b;
-    # FMA of 1 row = (2 * col_a * col_b)
-    # Done for every row (row_a) *
-
-    Flops = (col_b) * (2 * row_a * row_b)
-    # Flops -= col_a * col_b # First row
-
-    if Alpha != 1.0:
-        Flops += row_c * col_c
-
-    # Flops += row_a * col_a
-
-    # Adding C to end result, row_c = row_a, col_c = col_b
-    if Beta != 0.0:
-        Flops += 2 * row_c * col_c
-
-    load_store = get_load_store_size(row_a, col_a, row_b, col_b, row_c, col_c)
-
-    return Flops, load_store
+  def get_available_mem_on_gpu():
+      meminfo = cuda.current_context().get_memory_info()
+      return meminfo[0]
 
 
-fp_per_el = 0
-fp_per_el += 32*32*32*2 # Comp loop first kernel
-fp_per_el += 32*32*32*2 # Comp loop second kernel
-fp_per_el += 32*32 # C += second kernel
-ls_per_el = 0
-ls_per_el += 32*32 # load w first kernel
-ls_per_el += 32*32*32 # load B first kernel
-ls_per_el += 32*32 # load A second kernel
-ls_per_el += 32*32*2 # load and write C second kernel
-ls_per_el *= FLOAT_SIZE
+  def get_suggested_num_elements():
+      # 1 pointer extra needed per element
+      per_el_size = (sizeA + sizeB + sizew + sizeC) * 4 + 16
 
-peakBandwidthGiven = 176.032
-peakFLOPGiven = 4329.47
+      available_mem = get_available_mem_on_gpu()
+      can_fit_els = available_mem // per_el_size
+      lower = int(0.70 * can_fit_els)
+      return lower
 
-num_els = get_suggested_num_elements()
+  fp_per_el_0 = 0
+  fp_per_el_0 += 32*27*2 # Comp loop first kernel
+  fp_per_el_0 += 32*12*64*2 # Comp loop second kernel
+  fp_per_el_0 += 32*64 # C += second kernel
 
-kernel = C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k']
+  fp_per_el_1 = 0
+  fp_per_el_1 += 96*16*2 # Comp loop first kernel
+  fp_per_el_1 += 96*48*144*2 # Comp loop second kernel
+  fp_per_el_1 += 96*144 # C += second kernel
 
-arch = useArchitectureIdentifiedBy(
-    host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
-generator = Generator(arch)
+  fp_per_el_2 = 0
+  fp_per_el_2 += 32*32*2 # Comp loop first kernel
+  fp_per_el_2 += 32*32*32*2 # Comp loop second kernel
+  fp_per_el_2 += 32*32 # C += second kernel
 
-generator.add(name='kernel', ast=kernel, target="gpu")
+  fp_per_el_3 = 0
+  fp_per_el_3 += 16*16*2 # Comp loop first kernel
+  fp_per_el_3 += 16*16*16*2 # Comp loop second kernel
+  fp_per_el_3 += 16*16 # C += second kernel
 
-directory = os.path.dirname(os.path.abspath(__file__))
-generator.generate(outputDir="/tmp",
-                   gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
+  fp_per_el_4 = 0
+  fp_per_el_4 += 5*7*2 # Comp loop first kernel
+  fp_per_el_4 += 7*3*11*2 # Comp loop second kernel
+  fp_per_el_4 += 5*11 # C += second kernel
 
-assert (len(generator.kernels()) == 1)
+  fp_per_el_5 = 0
+  fp_per_el_5 += 101*23*2 # Comp loop first kernel
+  fp_per_el_5 += 101*53*107*2 # Comp loop second kernel
+  fp_per_el_5 += 101*107 # C += second kernel
 
-gpu_kernel = generator.kernels()[0]
-gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
-gpu_kernel = gpu_subroutine_file.read()
-gpu_subroutine_file.close()
+  fp_per_els = [fp_per_el_0, fp_per_el_1, fp_per_el_2, fp_per_el_3, fp_per_el_4, fp_per_el_5]
+  fp_per_el = fp_per_els[dimId]
 
-gemmforge_kernel_lines = gpu_kernel.split('\n')
+  ls_per_el = 0
+  ls_per_el += sizeA # load w first kernel
+  ls_per_el += sizeB # load B first kernel
+  ls_per_el += sizeC*2 # load A second kernel
+  ls_per_el += sizew # load and write C second kernel
+  ls_per_el *= 4
 
-function_name = ""
-function_args = ""
+  peakBandwidthGiven = tensorPeakBandwidth
+  peakFLOPGiven = tensorPeakFLOP
 
-filtered_kernel = ""
-for line in gemmforge_kernel_lines:
-    if '#include "gemmforge_aux.h"' in line:
-        continue
-    filtered_kernel += line + "\n"
-    if line.startswith("void sloopOverGEMM"):
-        fun_split = line.split("(")
-        function_name = fun_split[0].split("void ")[1]
-        function_args = fun_split[1].split(")")[0]
+  num_els = get_suggested_num_elements()
 
-gpu_kernel = filtered_kernel
 
-print(function_name)
-print(function_args)
 
-a = A.memoryLayout
-print(a)
+  arch = useArchitectureIdentifiedBy(
+      host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
+  generator = Generator(arch)
 
-taco_command = \
-  f'taco "C(i, j, b) = C(i, j, b) + A(l, j, b) * B(i, k, l, b) * w(k, b)" -cuda -d=A:{shapeA[0]},{shapeA[1]},{num_els} -d=B:{shapeB[0]},{shapeB[1]},{shapeB[2]},{num_els} -d=C:{shapeC[0]},{shapeC[1]},{num_els} -d=w:{shapew[0]},{num_els} -t=A:float -t=B:float -t=C:float -t=w:float -print-nocolor '
+  generator.add(name='kernel', ast=kernel, target="gpu")
 
-print(taco_command)
+  directory = os.path.dirname(os.path.abspath(__file__))
+  generator.generate(outputDir="/tmp",
+                    gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
 
-result = subprocess.run(taco_command, shell=True, stdout=subprocess.PIPE, text=True)
-taco_kernel = result.stdout
+  assert (len(generator.kernels()) == 1)
 
-taco_kernel_lines = taco_kernel.split("\n")
-taco_kernel = ""
-launcher_line = 99999999999999
-for i, line in enumerate(taco_kernel_lines):
-  if "int compute" in line:
-    args = line.split("(")[1].split(")")[0]
-    args = args.split(",")
-    args = [s.strip() for s in args]
-    args_unique = sorted(list(set(args)))
-    taco_kernel += "int compute(" + ", ".join(args_unique) + ") {" + "\n"
-    launcher_line = i
-    continue
-  elif "_dimension" in line and i > launcher_line:
-    launcher_line = 9999999999999999
-    assert("->dimensions" in line)
-    tensorName = line.split("->dimensions")[0][-1]
-    offset = int(line.split("->dimensions")[1][1])
-    if tensorName == "A":
-      dim = shapeA[offset]
-    elif tensorName == "B":
-      dim = shapeB[offset]
-    elif tensorName == "C":
-      dim = shapeC[offset]
-    elif tensorName == "w":
-      dim = shapew[offset]
-    line_f = line.split("=")[0]
-    line_f += " = " + str(dim) + ";\n"
-    taco_kernel += line_f
-    continue 
-  else:
-    taco_kernel += line + "\n"
-    continue
+  gpu_kernel = generator.kernels()[0]
+  gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
+  gpu_kernel = gpu_subroutine_file.read()
+  gpu_subroutine_file.close()
 
-benchmark_str = f"""
+  gemmforge_kernel_lines = gpu_kernel.split('\n')
+
+  function_name = ""
+  function_args = ""
+
+  filtered_kernel = ""
+  for line in gemmforge_kernel_lines:
+      if '#include "gemmforge_aux.h"' in line:
+          continue
+      filtered_kernel += line + "\n"
+      if line.startswith("void sloopOverGEMM"):
+          fun_split = line.split("(")
+          function_name = fun_split[0].split("void ")[1]
+          function_args = fun_split[1].split(")")[0]
+
+  gpu_kernel = filtered_kernel
+
+  print(function_name)
+  print(function_args)
+
+  a = A.memoryLayout
+  print(a)
+
+  taco_command = \
+    f'taco "C(i, j, b) = C(i, j, b) + A(l, j, b) * B(i, k, l, b) * w(k, b)" -cuda -d=A:{shapeA[0]},{shapeA[1]},{num_els} -d=B:{shapeB[0]},{shapeB[1]},{shapeB[2]},{num_els} -d=C:{shapeC[0]},{shapeC[1]},{num_els} -d=w:{shapew[0]},{num_els} -t=A:float -t=B:float -t=C:float -t=w:float -print-nocolor '
+
+  print(taco_command)
+
+  result = subprocess.run(taco_command, shell=True, stdout=subprocess.PIPE, text=True)
+  taco_kernel = result.stdout
+
+  taco_kernel_lines = taco_kernel.split("\n")
+  taco_kernel = ""
+  launcher_line = 99999999999999
+  for i, line in enumerate(taco_kernel_lines):
+    if "int compute" in line:
+      args = line.split("(")[1].split(")")[0]
+      args = args.split(",")
+      args = [s.strip() for s in args]
+      args_unique = sorted(list(set(args)))
+      taco_kernel += "int compute(" + ", ".join(args_unique) + ") {" + "\n"
+      launcher_line = i
+      continue
+    elif "_dimension" in line and i > launcher_line:
+      launcher_line = 9999999999999999
+      assert("->dimensions" in line)
+      tensorName = line.split("->dimensions")[0][-1]
+      offset = int(line.split("->dimensions")[1][1])
+      if tensorName == "A":
+        dim = shapeA[offset]
+      elif tensorName == "B":
+        dim = shapeB[offset]
+      elif tensorName == "C":
+        dim = shapeC[offset]
+      elif tensorName == "w":
+        dim = shapew[offset]
+      line_f = line.split("=")[0]
+      line_f += " = " + str(dim) + ";\n"
+      taco_kernel += line_f
+      continue 
+    else:
+      taco_kernel += line + "\n"
+      continue
+
+  benchmark_str = f"""
 #include <random>
 #include <iostream>
 #include <cstring>
@@ -336,6 +352,7 @@ int main(){{
   cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   std::cout << "Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge" << std::endl;
+  std::cout << "Shapes and dims: " << "{shape_str}" << std::endl;
   float elapsedTime = 0.0; 
   cudaEvent_t startT1, stopT1;
   cudaEventCreate(&startT1); CHECK_ERR;
@@ -377,6 +394,7 @@ int main(){{
   cudaFree(w_dev_begins_dev); CHECK_ERR;
   currentAllocSize -= sizeof(float*) * 4 * num_els;
   std::cout << "Current Device Alloc Size: " << static_cast<float>(currentAllocSize) / (1024.0 * 1024.0 * 1024.0) << std::endl;
+
 
   // Kernel 1
   std::cout << "cuTensor Kernel 1" << std::endl;
@@ -720,7 +738,7 @@ int main(){{
   double ls_per_el = {ls_per_el};
   fp_per_el *= num_els;
   ls_per_el *= num_els;
-  std::cout << "Gemmfor GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
+  std::cout << "Gemmforge GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
   std::cout << "Operational intensity: " << fp_per_el / ls_per_el << std::endl;
  
   double peakFLOPGiven = {peakFLOPGiven};
@@ -728,7 +746,8 @@ int main(){{
 
   if (peakFLOPGiven > 0.1 && peakBandwidthGiven){{
     double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
-    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved" << std::endl;
+    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved with Gemmforge" << std::endl;
+    std::cout << 100.0*(fp_per_el * 1e-6 / (elapsedTimeT2+elapsedTimeT3)) / obtainable_peak << " % of roof w. respect to operational intensity achieved with cuTensor" << std::endl;
   }}
 
   delete[] A;
@@ -759,7 +778,7 @@ int main(){{
 
 """
 
-code_file = open(f"{scripts_dir}/cuda_code/benchmark_tensor1.cu", "w")
-code_file.write(benchmark_str)
-code_file.flush()
-code_file.close()
+  code_file = open(f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_kernel_1_variant_{dimId}.cu", "w")
+  code_file.write(benchmark_str)
+  code_file.flush()
+  code_file.close()

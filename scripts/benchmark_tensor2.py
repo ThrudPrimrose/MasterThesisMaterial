@@ -45,6 +45,7 @@ def get_suggested_num_elements():
 
 num_els = get_suggested_num_elements()
 
+# Taken from addLocal viscoelastic2.py
 kernel = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
 
 arch = useArchitectureIdentifiedBy(

@@ -47,19 +47,19 @@ permutations = [("ijk", "ijk")]
 test_case_count = 1
 """
 
-fp_ld_per_els = [(N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE),
-                 (N*N*N*2, N*N*N*3*FLOAT_SIZE)]
+fp_ld_per_els = [(N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE),
+                 (N*N*N, N*N*N*3*FLOAT_SIZE)]
 
 permutations = [("ijk", "kji"), ("ijk", "ikj"),
                 ("kji", "ikj"), ("kji", "jik"),
