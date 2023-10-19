@@ -682,7 +682,7 @@ def plot_in_a_grid(p_sd, p_sd_var, addname, plot_relative_speed_up=True):
                 x = x.replace("t", "^T")
                 xs = x.split()
                 s = r"$" + r"C \leftarrow \alpha \cdot " + xs[0] + r" \times " + xs[1] + r" + \beta \cdot C" + r"$"
-                axarr[0, j].set_title(s)
+                axarr[0, j].set_title(s, fontsize=22)
         # plt.xticks(rotation=75)
         for orderr in order:
             order_found = False
@@ -722,7 +722,7 @@ def plot_in_a_grid(p_sd, p_sd_var, addname, plot_relative_speed_up=True):
                             axarr[i, j].errorbar(pos, y, err, lw=1, capsize=5, capthick=1, color=color)
                     else:
                         bars = axarr[i, j].bar(labels, row_data, color=colors)
-                    axarr[i, j].tick_params(axis='x', rotation=20, labelsize=9, pad=-2)
+                    axarr[i, j].tick_params(axis='x', rotation=20, labelsize=13, pad=-3)
                     # axarr[i, j].set_title(f'Plot {4*i + j + 1}')
                     axarr[i, j].set_ylim((0.0, y_max + 0.05 * y_max))
 
@@ -732,7 +732,7 @@ def plot_in_a_grid(p_sd, p_sd_var, addname, plot_relative_speed_up=True):
                             g += "\n(" + str(round(sparsity, 2)) + ")"
                         axarr[i, j].annotate(g, xy=(0, 0.5), xytext=(-axarr[i, j].yaxis.labelpad - 10, 0),
                                              xycoords=axarr[i, j].yaxis.label, textcoords='offset points',
-                                             size='large', ha='right', va='center')
+                                              ha='right', va='center', fontsize=20)
                     axarr[i, j].set_ylim((0.0, y_max + 0.05 * y_max))
                     axarr[i, j].yaxis.set_major_locator(MaxNLocator(nbins=11))
                     for bar in bars:

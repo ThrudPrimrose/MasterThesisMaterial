@@ -10,16 +10,16 @@ import os
 runs = 10
 
 # Change if wanted
-row_a = 32
-col_a = 32
-row_b = 32
-col_b = 32
-row_c = 32
-col_c = 32
+row_a = 56
+col_a = 9
+row_b = 9
+col_b = 9
+row_c = 56
+col_c = 9
 
 # Change if wanted
-Alpha = 1.5
-Beta = 0.0
+Alpha = 1.0
+Beta = 1.0
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -44,7 +44,7 @@ a_matrix_types = b_matrix_types
 # peakFLOPTheo = 4329.47 #29767.7 #4329.47
 peakMemoryBandwidthTheo = 760.08
 peakFLOPTheo = 29767.7
-tensorPeakBandwidth = 760.08
+tensorPeakBandwidth =  760.08
 tensorPeakFLOP = 29767.7
 
 # Dont change
@@ -52,13 +52,15 @@ nvidia_green = "#76b900"
 my_blue = "#6ab2ca"
 sparse_rose = "#c74375"
 dense_blue = my_blue
-pre = "TensorKernel1"
+pre = "SparseDense"
 
 # Change always
 workaround = False
 scripts_dir = os.path.dirname(os.path.realpath(__file__))
+
 data_dir = f"{scripts_dir}/../data"
-stdout_dir = f"{data_dir}/{pre}"
+
+stdout_dir = f"{data_dir}/{pre}-A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
 save_plots = True
 debug_print = True
 

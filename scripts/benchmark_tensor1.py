@@ -92,7 +92,7 @@ for dimId in range(6):
 
   fp_per_el_4 = 0
   fp_per_el_4 += 5*7*2 # Comp loop first kernel
-  fp_per_el_4 += 7*3*11*2 # Comp loop second kernel
+  fp_per_el_4 += 5*3*11*2 # Comp loop second kernel
   fp_per_el_4 += 5*11 # C += second kernel
 
   fp_per_el_5 = 0
