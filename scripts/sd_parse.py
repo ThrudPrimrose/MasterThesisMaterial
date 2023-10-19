@@ -787,6 +787,7 @@ def plot_in_a_grid(p_sd, p_sd_var, addname, plot_relative_speed_up=True):
 
 if save_plots:
     plot_in_a_grid(p_sd=p_sd, p_sd_var=p_sd_var, addname="", plot_relative_speed_up=False)
+    plot_in_a_grid(p_sd=p_sd, p_sd_var=p_sd_var, addname="", plot_relative_speed_up=False)
     plot_in_a_grid(p_sd=p_sd_ctv, p_sd_var=p_sd_ctv_var, addname="-ctv", plot_relative_speed_up=False)
     plot_in_a_grid(p_sd=p_sd, p_sd_var=p_sd_var, addname="", plot_relative_speed_up=True)
     plot_in_a_grid(p_sd=p_sd_ctv, p_sd_var=p_sd_ctv_var, addname="-ctv", plot_relative_speed_up=True)

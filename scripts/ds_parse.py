@@ -629,6 +629,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, title, ds_poi
 
 # plot_roofline(peakMemoryBandwidth, peakFLOP,
 #              "Experimental from Nsight Compute")
+"""
 if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "Roofline Model for Dense-Dense and Dense-Sparse Kernels", ds_points=ds_points, dd_points=dd_points,
@@ -642,7 +643,7 @@ if save_plots:
                   ds_points=ds_points,
                   dd_points=dd_points, p_ds=p_ds, addname="-both", second_values=True, ds_points_2=ds_points_ctv,
                   dd_points_2=dd_points_ctv, p_ds_2=p_ds_ctv)
-
+"""
 
 # plot_roofline(lookupPeakMemoryBandwidth,
 #              lookupPeakFLOP, "Theoretical from Web")
@@ -834,9 +835,10 @@ def plot_in_a_grid(p_ds, p_ds_var, addname, plot_relative_speed_up=True):
 
 if save_plots:
     plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=False)
+    plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=False)
     plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=False)
-    plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=True)
-    plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=True)
+    #plot_in_a_grid(p_ds=p_ds, p_ds_var=p_ds_var, addname="", plot_relative_speed_up=True)
+    #plot_in_a_grid(p_ds=p_ds_ctv, p_ds_var=p_ds_ctv_var, addname="-ctv", plot_relative_speed_up=True)
 
 l1 = list()
 l2 = list()
