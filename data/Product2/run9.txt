@@ -1,0 +1,168 @@
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(12,9,23), B(23,9,12), C(12,9,23)
+Gemmforge Tensor Contraction took: 8.85584 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 35.5297 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.893
+Operational intensity: 0.166667
+91.4848 % of roof w. respect to operational intensity achieved with Gemmforge
+22.8027 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(14,14,4), B(4,14,14), C(14,14,4)
+Gemmforge Tensor Contraction took: 8.83139 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 37.1896 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.113
+Operational intensity: 0.166667
+91.6582 % of roof w. respect to operational intensity achieved with Gemmforge
+21.766 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(19,19,17), B(17,19,19), C(19,19,17)
+Gemmforge Tensor Contraction took: 8.92883 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 52.4503 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 114.973
+Operational intensity: 0.166667
+90.7584 % of roof w. respect to operational intensity achieved with Gemmforge
+15.4502 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(18,6,6), B(6,6,18), C(18,6,6)
+Gemmforge Tensor Contraction took: 8.84288 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 39.7148 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.931
+Operational intensity: 0.166667
+91.5148 % of roof w. respect to operational intensity achieved with Gemmforge
+20.3766 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(7,5,14), B(14,5,7), C(7,5,14)
+Gemmforge Tensor Contraction took: 8.88902 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 39.3697 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.272
+Operational intensity: 0.166667
+90.9946 % of roof w. respect to operational intensity achieved with Gemmforge
+20.545 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(6,4,13), B(13,4,6), C(6,4,13)
+Gemmforge Tensor Contraction took: 8.88339 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 47.7686 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.211
+Operational intensity: 0.166667
+90.9466 % of roof w. respect to operational intensity achieved with Gemmforge
+16.9131 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(14,10,12), B(12,10,14), C(14,10,12)
+Gemmforge Tensor Contraction took: 8.8415 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 29.8045 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.059
+Operational intensity: 0.166667
+91.6157 % of roof w. respect to operational intensity achieved with Gemmforge
+27.1778 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(11,10,12), B(12,10,11), C(11,10,12)
+Gemmforge Tensor Contraction took: 8.83571 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 35.1827 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.116
+Operational intensity: 0.166667
+91.6609 % of roof w. respect to operational intensity achieved with Gemmforge
+23.0195 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(21,4,23), B(23,4,21), C(21,4,23)
+Gemmforge Tensor Contraction took: 8.86138 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 37.7723 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.807
+Operational intensity: 0.166667
+91.4173 % of roof w. respect to operational intensity achieved with Gemmforge
+21.4465 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(22,12,3), B(3,12,22), C(22,12,3)
+Gemmforge Tensor Contraction took: 8.83347 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 62.6627 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.087
+Operational intensity: 0.166667
+91.6379 % of roof w. respect to operational intensity achieved with Gemmforge
+12.9181 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(7,8,10), B(10,8,7), C(7,8,10)
+Gemmforge Tensor Contraction took: 8.83376 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 52.1103 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.023
+Operational intensity: 0.166667
+91.5871 % of roof w. respect to operational intensity achieved with Gemmforge
+15.5259 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(17,5,11), B(11,5,17), C(17,5,11)
+Gemmforge Tensor Contraction took: 8.84781 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 39.4465 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.921
+Operational intensity: 0.166667
+91.5071 % of roof w. respect to operational intensity achieved with Gemmforge
+20.5249 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(16,6,5), B(5,6,16), C(16,6,5)
+Gemmforge Tensor Contraction took: 8.89162 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 27.0868 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 115.233
+Operational intensity: 0.166667
+90.9641 % of roof w. respect to operational intensity achieved with Gemmforge
+29.8602 % of roof w. respect to operational intensity achieved with cuTensor
+Will compute the kernel: C['ijk'] <= A['ijk'] * B['kji'], with Gemmforge
+Shapes and dims: A(18,10,20), B(20,10,18), C(18,10,20)
+Gemmforge Tensor Contraction took: 8.83763 ms
+Will compute the kernel: C[ijk] <= A[ijk] * B[kji], with cuTensor
+cuTensor Kernel 1
+Sub-kernel 1 succeeded.
+cuTensor Tensor Contraction took: 46.8531 ms
+Gemmforge and cuTensor contraction results match! :)
+Gemmfor GFLOPs/s: 116.146
+Operational intensity: 0.166667
+91.6844 % of roof w. respect to operational intensity achieved with Gemmforge
+17.2939 % of roof w. respect to operational intensity achieved with cuTensor
