@@ -71,32 +71,32 @@ for dimId in range(6):
       return lower
 
   fp_per_el_0 = 0
-  fp_per_el_0 += 32*27*2 # Comp loop first kernel
-  fp_per_el_0 += 32*12*64*2 # Comp loop second kernel
-  fp_per_el_0 += 32*64 # C += second kernel
+  fp_per_el_0 += 11*31*27*2 # Comp loop first kernel
+  fp_per_el_0 += 31*11*73*2 # Comp loop second kernel
+  fp_per_el_0 += 31*73 # C += second kernel
 
   fp_per_el_1 = 0
-  fp_per_el_1 += 96*16*2 # Comp loop first kernel
+  fp_per_el_1 += 48*96*16*2 # Comp loop first kernel
   fp_per_el_1 += 96*48*144*2 # Comp loop second kernel
   fp_per_el_1 += 96*144 # C += second kernel
 
   fp_per_el_2 = 0
-  fp_per_el_2 += 32*32*2 # Comp loop first kernel
+  fp_per_el_2 += 32*32*32*2 # Comp loop first kernel
   fp_per_el_2 += 32*32*32*2 # Comp loop second kernel
   fp_per_el_2 += 32*32 # C += second kernel
 
   fp_per_el_3 = 0
-  fp_per_el_3 += 16*16*2 # Comp loop first kernel
+  fp_per_el_3 += 16*16*16*2 # Comp loop first kernel
   fp_per_el_3 += 16*16*16*2 # Comp loop second kernel
   fp_per_el_3 += 16*16 # C += second kernel
 
   fp_per_el_4 = 0
-  fp_per_el_4 += 5*7*2 # Comp loop first kernel
+  fp_per_el_4 += 3*5*7*2 # Comp loop first kernel
   fp_per_el_4 += 5*3*11*2 # Comp loop second kernel
   fp_per_el_4 += 5*11 # C += second kernel
 
   fp_per_el_5 = 0
-  fp_per_el_5 += 101*23*2 # Comp loop first kernel
+  fp_per_el_5 += 53*101*23*2 # Comp loop first kernel
   fp_per_el_5 += 101*53*107*2 # Comp loop second kernel
   fp_per_el_5 += 101*107 # C += second kernel
 
