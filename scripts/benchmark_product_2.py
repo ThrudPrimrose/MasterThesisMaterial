@@ -7,10 +7,10 @@ from params import *
 from numba import cuda
 import random
 
+
+"""
 shrmem_limit = 48*1024
 ijk_s = list()
-
-
 while len(ijk_s) < 14:
   random_integer_i = random.randint(1, 24)
   random_integer_j = random.randint(1, 24)
@@ -21,10 +21,14 @@ while len(ijk_s) < 14:
   if element_count // random_integer_i > 1024:
     continue
   ijk_s.append((random_integer_i, random_integer_j, random_integer_k))
+"""
 
-#ijk_s.append((14,1,16))
-#ijk_s.append((15,11,16))
-#raise Exception(ijk_s)
+#Tthe following dimensions were generated:
+ijk_s = [(21, 4, 23), (12, 9, 23), (11, 10, 12), 
+          (14, 10, 12), (7, 8, 10), (7, 5, 14), 
+          (22, 12, 3), (17, 5, 11), (18, 10, 20), 
+          (18, 6, 6), (19, 19, 17), (16, 6, 5), 
+          (14, 14, 4), (6, 4, 13)]
 
 for v, (I, J, K) in enumerate(ijk_s):
 
