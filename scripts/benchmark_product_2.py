@@ -10,21 +10,20 @@ import random
 shrmem_limit = 48*1024
 ijk_s = list()
 
-"""
+
 while len(ijk_s) < 14:
   random_integer_i = random.randint(1, 24)
   random_integer_j = random.randint(1, 24)
   random_integer_k = random.randint(2, 24)
   element_count = random_integer_i * random_integer_j * random_integer_k
-  if element_count * 2 > shrmem_limit:
+  if element_count * 8 > shrmem_limit:
     continue
   if element_count // random_integer_i > 1024:
     continue
   ijk_s.append((random_integer_i, random_integer_j, random_integer_k))
-"""
 
-ijk_s.append((14,1,16))
-ijk_s.append((15,11,16))
+#ijk_s.append((14,1,16))
+#ijk_s.append((15,11,16))
 #raise Exception(ijk_s)
 
 for v, (I, J, K) in enumerate(ijk_s):
