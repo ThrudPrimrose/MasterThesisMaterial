@@ -110,6 +110,26 @@ for dimId in range(6):
   ls_per_el += sizew # load and write C second kernel
   ls_per_el *= 4
 
+  ls_per_el_1 = 0
+  ls_per_el_1 += 72*96 # load w first kernel
+  ls_per_el_1 += 16*48*96 # load B first kernel
+  ls_per_el_1 += 96*144*2 # load A second kernel
+  ls_per_el_1 += 16 # load and write C second kernel
+  ls_per_el_1 *= 4
+
+  ls_per_els = list()
+  for j in dims:
+    _shapeA = j[0]
+    _shapeB = j[1]
+    _shapew = j[2]
+    _shapeC = j[3]
+    _sizeA = reduce(operator.mul, _shapeA, 1)
+    _sizeB = reduce(operator.mul, _shapeB, 1)
+    _sizew = reduce(operator.mul, _shapew, 1)
+    _sizeC = reduce(operator.mul, _shapeC, 1)
+    ls_per_els.append(_sizeA + _sizeB + _sizew + _sizeC*2)
+
+
   peakBandwidthGiven = tensorPeakBandwidth
   peakFLOPGiven = tensorPeakFLOP
 
