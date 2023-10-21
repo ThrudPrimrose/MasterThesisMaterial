@@ -270,7 +270,7 @@ int main(){{
   cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * 13824 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   std::cout << "Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge" << std::endl;
-  std::cout << "Shapes and dims: " << "A(48,144), B(96,16,48), C(96,144), w(16)" << std::endl;
+  std::cout << "Unroll parameters: " << {l1}-{l2}-{l3}  << std::endl;
   float elapsedTime = 0.0; 
   cudaEvent_t startT1, stopT1;
   cudaEventCreate(&startT1); CHECK_ERR;
