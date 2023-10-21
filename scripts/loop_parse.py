@@ -184,15 +184,16 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
       #kernel_strs.append(s.replace(" ", ""))
       kernel_strs.append(s)
 
-    gf_points = sorted(gemmforge_points["Gemmforge GFLOP/s"])
-    combined_list = list(zip(kernel_strs, gemmforge_points["Gemmforge GFLOP/s"]))
-    sorted_combined_list = sorted(combined_list, key=lambda x: x[1])
-    kernel_strs, gf_points = zip(*sorted_combined_list)
+    gf_points = gemmforge_points["Gemmforge GFLOP/s"]
+    #combined_list = list(zip(kernel_strs, gemmforge_points["Gemmforge GFLOP/s"]))
+    #raise Exception(combined_list)
+    #sorted_combined_list = sorted(combined_list, key=lambda x: x[1])
+    #kernel_strs, gf_points = zip(*sorted_combined_list)
 
-    x_positions1 = np.arange(len(gemmforge_points["Kernel"]), dtype=float)
+    x_positions1 = np.arange(len(kernel_strs), dtype=float)
     x_positions2 = x_positions1 + bar_width
     x_positions = x_positions1 + bar_width 
-    x_positions_f = np.arange(len(gemmforge_points["Kernel"]) + 1, dtype=float) - 0.5
+    x_positions_f = np.arange(len(kernel_strs) + 1, dtype=float) - 0.5
 
     xpts = np.linspace(0, 40, 250)
     #plt.plot(xpts, [roof(x) for x in xpts], label="Roofline")
