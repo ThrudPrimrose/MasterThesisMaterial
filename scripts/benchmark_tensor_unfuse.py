@@ -442,6 +442,7 @@ int main(){{
   fp_per_el *= num_els;
   ls_per_el *= num_els;
   std::cout << "Gemmforge GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime0 << std::endl;
+  std::cout << "Unfused GFLOPs/s: " << fp_per_el * 1e-6 / (elapsedTime1 + elapsedTime2) << std::endl;
   std::cout << "Operational intensity: " << fp_per_el / ls_per_el << std::endl;
  
   double peakFLOPGiven = {peakFLOPGiven};
