@@ -52,10 +52,9 @@ for r in range(runs):
             kernel = tokens[0].split("kernel: ")[-1]
             print(kernel)
           if state == "check-shape"  and "Unroll parameters:" in line:
-            tokens = line.split("parameters:")
+            tokens = line.split("parameters:")[-1]
             #t = tokens.split("-")
             t = tokens
-            raise Exception(t)
             sizeStr = " ".join(t)
             state = "check-gemmforge"
             print(sizeStr)
@@ -166,7 +165,7 @@ def round_up_to_power_of_ten(n):
 def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, 
                   title, gemmforge_points, cutensor_points, pd_avg):
     plt.clf()
-    fig, ax = plt.subplots(figsize=(9, 7))  # Adjust the width and height as needed
+    fig, ax = plt.subplots(figsize=(9, 6))  # Adjust the width and height as needed
 
     def roof(val):
         return min(peak_floating_point_perf,
@@ -176,7 +175,19 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     bar_width = 0.4
     bar_separation = 0.2
     # Calculate the positions for the bars
+    kernel_strs = list()
+    for kernel_str in gemmforge_points["Kernel"]:
+      s = kernel_str.replace(" ", "")
+      #toks = s.split(",B(")[0].split("A(")[1]
+      #print(toks[:-1])
+      #s = toks[:-1].replace(",","-")
+      #kernel_strs.append(s.replace(" ", ""))
+      kernel_strs.append(s)
+
     gf_points = sorted(gemmforge_points["Gemmforge GFLOP/s"])
+    combined_list = list(zip(kernel_strs, gemmforge_points["Gemmforge GFLOP/s"]))
+    sorted_combined_list = sorted(combined_list, key=lambda x: x[1])
+    kernel_strs, gf_points = zip(*sorted_combined_list)
 
     x_positions1 = np.arange(len(gemmforge_points["Kernel"]), dtype=float)
     x_positions2 = x_positions1 + bar_width
@@ -185,7 +196,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
     xpts = np.linspace(0, 40, 250)
     #plt.plot(xpts, [roof(x) for x in xpts], label="Roofline")
-    plt.plot(x_positions1,
+    plt.plot(x_positions1 + 1,
             gf_points, color=dense_blue, 
             label="Gemmfogre") #width = bar_width,
     #plt.bar(x_positions2,
@@ -196,15 +207,6 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     theo_roof_for_intensity = roof(max(gemmforge_points["Operational Intensity"]))
     line_values = np.full(len(gemmforge_points["Kernel"]) + 1, theo_roof_for_intensity)
     plt.plot(x_positions_f, line_values, marker='', color='gray', linestyle='--', label='Roofline')
-
-    kernel_strs = list()
-    for kernel_str in gemmforge_points["Kernel"]:
-      s = kernel_str.replace(" ", "")
-      #toks = s.split(",B(")[0].split("A(")[1]
-      #print(toks[:-1])
-      #s = toks[:-1].replace(",","-")
-      #kernel_strs.append(s.replace(" ", ""))
-      kernel_strs.append(s)
 
     std_dev_data = np.sqrt(gf_points)
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
@@ -239,7 +241,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('Kernel Type', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1 + 1, kernel_strs,  rotation=70, ha='center', fontsize=12)
+    plt.xticks(x_positions1 + 1, kernel_strs,  rotation=70, ha='center', fontsize=7)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/component-wise-product-roofline.pdf")
