@@ -199,7 +199,7 @@ def plot_roofline_2(peak_memory_bandwidth, peak_floating_point_perf,
                 label=gemmforge_points["Kernel"].iloc[i].replace(" ", ""), s=120 if i != 2 else 70)
         plt.scatter(cutensor_points["Operational Intensity"].iloc[i],
                 cutensor_points["Unfused GFLOP/s"].iloc[i], 
-                color=nvidia_green,
+                color=sparse_rose,
                 marker=shapes[i],
                 label = "_nolabel_", s=120 if i != 2 else 70)
     ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["Unfused GFLOP/s"]))
@@ -265,10 +265,10 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     #plt.plot(xpts, [roof(x) for x in xpts], label="Roofline")
     plt.bar(x_positions1,
             gemmforge_points["Gemmforge GFLOP/s"], color=dense_blue, width = bar_width,
-            label="Gemmforge")
+            label="Fused")
     plt.bar(x_positions2,
-            cutensor_points["Unfused GFLOP/s"], color=nvidia_green, width = bar_width,
-            label = "cuTensor")
+            cutensor_points["Unfused GFLOP/s"], color=sparse_rose, width = bar_width,
+            label = "Non-fused")
     ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["Unfused GFLOP/s"]))
     xmax = max(max(gemmforge_points["Operational Intensity"]), max(cutensor_points["Operational Intensity"]))
     theo_roof_for_intensity = roof(max(gemmforge_points["Operational Intensity"]))
