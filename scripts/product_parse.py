@@ -224,7 +224,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     #plt.xlim((0, round_up_to_power_of_ten(xmax)))
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Kernel Type', fontsize=12)
+    plt.xlabel('Index Permutations', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
     plt.xticks(x_positions1 + (bar_width) / 2, kernel_strs, rotation=70, ha='right', fontsize=14)
     plt.tight_layout()
@@ -235,7 +235,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
 if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
-                  "Roofline Model for Dense Component-wise Product Kernels", 
+                  "", 
                   gemmforge_points=gemmforge_points,
                   cutensor_points=cutensor_points,
                   pd_avg=pd_avg)

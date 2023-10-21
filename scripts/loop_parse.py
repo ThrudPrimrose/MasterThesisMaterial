@@ -239,18 +239,18 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     #plt.xlim((0, round_up_to_power_of_ten(xmax)))
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Kernel Type', fontsize=12)
+    plt.xlabel('Loop Unrolling Parameters', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
     plt.xticks(x_positions1 + 1, kernel_strs,  rotation=70, ha='center', fontsize=7)
     plt.tight_layout()
     plt.savefig(
-        f"{stdout_dir}/plots/component-wise-product-roofline.pdf")
+        f"{stdout_dir}/plots/kernel5loopunrolling.pdf")
     plt.clf()
 
 
 if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
-                  "Roofline Model for Dense Component-wise Product Kernels", 
+                  "", 
                   gemmforge_points=gemmforge_points,
                   cutensor_points=cutensor_points,
                   pd_avg=pd_avg)

@@ -44,15 +44,15 @@ a_matrix_types = b_matrix_types
 # peakFLOPTheo = 4329.47 #29767.7 #4329.47
 peakMemoryBandwidthTheo = 760.08
 peakFLOPTheo = 29767.7
-tensorPeakBandwidth =  760.08
-tensorPeakFLOP = 29767.7
+tensorPeakBandwidth =  176.032 
+tensorPeakFLOP = 4329.47
 
 # Dont change
 nvidia_green = "#76b900"
 my_blue = "#6ab2ca"
 sparse_rose = "#c74375"
 dense_blue = my_blue
-pre = "SparseDense"
+pre = "Product2"
 
 # Change always
 workaround = False
@@ -60,7 +60,7 @@ scripts_dir = os.path.dirname(os.path.realpath(__file__))
 
 data_dir = f"{scripts_dir}/../data"
 
-stdout_dir = f"{data_dir}/{pre}-A{row_a}x{col_a}-B{row_b}x{col_b}-a{Alpha}-b{Beta}"
+stdout_dir = f"{data_dir}/{pre}"
 save_plots = True
 debug_print = True
 
@@ -80,5 +80,7 @@ mat_lib_lib = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64"
 #flow_generator_list = [f"{scripts_dir}/benchmark_dense_sparse_cuda.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_sparse_dense_cuda.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_product.py"]
-flow_generator_list = [f"{scripts_dir}/benchmark_tensor1.py"]
+#flow_generator_list = [f"{scripts_dir}/benchmark_tensor1.py"]
+#flow_generator_list = [f"{scripts_dir}/benchmark_product_2.py"]
+flow_generator_list = [f"{scripts_dir}/benchmark_loop.py"]
 write_output = True
