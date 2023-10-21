@@ -658,9 +658,9 @@ int main(){{
   ls_per_el *= num_els;
   std::cout << "Gemmforge GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
   std::cout << "Operational intensity: " << fp_per_el / ls_per_el << std::endl;
- 
-  double peakFLOPGiven = 4329.47;
-  double peakBandwidthGiven = 176.032;
+
+  double peakFLOPGiven = 29767.7;
+  double peakBandwidthGiven = 760.08;
 
   if (peakFLOPGiven > 0.1 && peakBandwidthGiven){{ 
     double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
