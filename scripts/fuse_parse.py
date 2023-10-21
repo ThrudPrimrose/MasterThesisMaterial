@@ -24,6 +24,8 @@ from params import *
 # Peak Memory Bandwidth: 176.032GB/s
 # Peak Floating-Point Performance: 270385 GFLOPS
 
+stdout_dir = f"{data_dir}/FuseUnfuse"
+
 FLOAT_SIZE = 4
 
 if not os.path.exists(f"{stdout_dir}/plots"):
@@ -37,7 +39,8 @@ for r in range(runs):
     report = []
     with open(path, "r") as file:
         state = "initial"
-        cutensor = 0.0
+        f1 = 0.0
+        f2 = 0.0
         gemmforge = 0.0
         cutensor_efficiency = 0.0
         gemmforge_efficiency = 0.0
@@ -58,21 +61,31 @@ for r in range(runs):
             sizeStr = " ".join(t)
             state = "check-gemmforge"
             print(sizeStr)
-          if state == "check-gemmforge" and  "Gemmforge Tensor Contraction took" in line:
-            state = "check-cutensor"
+          if state == "check-gemmforge" and  "Gemmforge Fused Tensor Contraction took" in line:
+            state = "check-f1"
             runtime = line.split("ms")[0].split("took: ")[-1]
             gemmforge = float(runtime)
             print(gemmforge)
-          if state == "check-cutensor" and  "cuTensor Tensor Contraction took" in line:
+          if state == "check-f1" and  "Gemmforge Unfused Tensor Contraction Part 1 took" in line:
+            state = "check-f2"
+            runtime = line.split("ms")[0].split("took: ")[-1]
+            f1 = float(runtime)
+            print(f1)
+          if state == "check-f2" and  "Gemmforge Unfused Tensor Contraction Part 2 took" in line:
             state = "check-gflops"
             runtime = line.split("ms")[0].split("took: ")[-1]
-            cutensor = float(runtime)
-            print(cutensor)
-          if state == "check-gflops" and "GFLOPs/s" in line:
-            state = "check-operational-intensity"
+            f2 = float(runtime)
+            print(f2)
+          if state == "check-gflops" and "Gemmforge GFLOPs/s" in line:
+            state = "check-unfused-gflops"
             flops = line.split()[-1]
             gflops = float(flops)
             print(gflops)
+          if state == "check-unfused-gflops" and "Unfused GFLOPs/s" in line:
+            state = "check-operational-intensity"
+            flops = line.split()[-1]
+            unfused_gflops = float(flops)
+            print(unfused_gflops)
           if state == "check-operational-intensity" and "intensity:" in line:
             state = "check-gemmforge-eff"
             intensity = line.split("intensity:")[-1]
@@ -83,7 +96,7 @@ for r in range(runs):
             eff = line.split()[0]
             gemmforge_efficiency = float(eff)
             print(gemmforge_efficiency)
-          if state == "check-cutensor-eff" and "roof w. respect to operational intensity achieved with cuTensor" in line:
+          if state == "check-cutensor-eff" and "roof w. respect to operational intensity achieved with Unfused" in line:
             state = "final"
             eff = line.split()[0]
             eff = float(eff)
@@ -91,14 +104,16 @@ for r in range(runs):
             print(cutensor_efficiency)
           if state == "final":
             report.append([sizeStr, gemmforge, 
-                           cutensor, gemmforge_efficiency, 
-                           cutensor_efficiency, gflops, gflops*gemmforge/cutensor,
+                           f1, f2, gemmforge_efficiency, 
+                           cutensor_efficiency, gflops, unfused_gflops,
                            operational_intensity])
             state = "initial"
             cutensor = 0.0
             gemmforge = 0.0
-            cutensor_efficiency = 0.0
+            f1 = 0.0
+            f2 = 0.0
             gemmforge_efficiency = 0.0
+            unfused_gflops = 0.0
             gflops = 0.0
             operational_intensity = 0.0
             sizeStr = ""
@@ -108,11 +123,12 @@ for r in range(runs):
     tmp1 = pd.DataFrame(data=deepcopy(report), columns=[
         "Kernel",
         "Gemmforge Time",
-        "cuTensor Timer",
+        "Unfused Time1",
+        "Unfused Time2",
         "Gemmforge Efficiency",
-        "cuTensor efficiency",
+        "Unfused efficiency",
         "Gemmforge GFLOP/s",
-        "cuTensor GFLOP/s",
+        "Unfused GFLOP/s",
         "Operational Intensity"
     ])
     tmp1 = tmp1.sort_values(by="Kernel").copy()
@@ -147,10 +163,10 @@ pd_var["Kernel"] = pd_avg["Kernel"]
 
 
 gemmforge_points = pd_avg[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
-cutensor_points = pd_avg[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
+cutensor_points = pd_avg[["Kernel", "Operational Intensity", "Unfused GFLOP/s"]]
 
 gemmforge_var = pd_var[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
-cutensor_var = pd_var[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
+cutensor_var = pd_var[["Kernel", "Operational Intensity", "Unfused GFLOP/s"]]
 
 def round_up_to_power_of_ten(n):
     if n == 0:
@@ -182,11 +198,11 @@ def plot_roofline_2(peak_memory_bandwidth, peak_floating_point_perf,
                 marker=shapes[i],
                 label=gemmforge_points["Kernel"].iloc[i].replace(" ", ""), s=120 if i != 2 else 70)
         plt.scatter(cutensor_points["Operational Intensity"].iloc[i],
-                cutensor_points["cuTensor GFLOP/s"].iloc[i], 
+                cutensor_points["Unfused GFLOP/s"].iloc[i], 
                 color=nvidia_green,
                 marker=shapes[i],
                 label = "_nolabel_", s=120 if i != 2 else 70)
-    ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["cuTensor GFLOP/s"]))
+    ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["Unfused GFLOP/s"]))
     xmax = max(max(gemmforge_points["Operational Intensity"]), max(cutensor_points["Operational Intensity"]))
     #cutensor_points["Kernel"].iloc[i].replace(" ", "")
     kernel_strs = list()
@@ -223,7 +239,7 @@ def plot_roofline_2(peak_memory_bandwidth, peak_floating_point_perf,
 
     plt.tight_layout()
     plt.savefig(
-        f"{stdout_dir}/plots/Log-Kernel-1-roofline.pdf")
+        f"{stdout_dir}/plots/fused-unfused.pdf")
     plt.clf()
 
 def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, 
@@ -251,9 +267,9 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
             gemmforge_points["Gemmforge GFLOP/s"], color=dense_blue, width = bar_width,
             label="Gemmforge")
     plt.bar(x_positions2,
-            cutensor_points["cuTensor GFLOP/s"], color=nvidia_green, width = bar_width,
+            cutensor_points["Unfused GFLOP/s"], color=nvidia_green, width = bar_width,
             label = "cuTensor")
-    ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["cuTensor GFLOP/s"]))
+    ymax = max(max(gemmforge_points["Gemmforge GFLOP/s"]), max(cutensor_points["Unfused GFLOP/s"]))
     xmax = max(max(gemmforge_points["Operational Intensity"]), max(cutensor_points["Operational Intensity"]))
     theo_roof_for_intensity = roof(max(gemmforge_points["Operational Intensity"]))
     line_values = np.full(len(gemmforge_points["Kernel"]) + 1, theo_roof_for_intensity)
@@ -275,9 +291,9 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     plt.errorbar(x_positions1, gemmforge_points["Gemmforge GFLOP/s"], 
                  yerr=yerr, fmt='none', ecolor='black', capsize=5, 
                  capthick=2, label='_nolegend_')
-    std_dev_data = np.sqrt(cutensor_var["cuTensor GFLOP/s"])
+    std_dev_data = np.sqrt(cutensor_var["Unfused GFLOP/s"])
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
-    plt.errorbar(x_positions2, cutensor_points["cuTensor GFLOP/s"], 
+    plt.errorbar(x_positions2, cutensor_points["Unfused GFLOP/s"], 
                  yerr=yerr, fmt='none', ecolor='black', 
                  capsize=5, capthick=2,
                  label='_nolegend_')
@@ -290,8 +306,8 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
             yloc = value + (100-float_number) + 25
         plt.text(x_positions1[i] + bar_width/2, yloc, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
 
-    for i, value in enumerate(cutensor_points["cuTensor GFLOP/s"]):
-        float_number = 100*cutensor_points["cuTensor GFLOP/s"].iloc[i] /  roof(gemmforge_points["Operational Intensity"].iloc[i])
+    for i, value in enumerate(cutensor_points["Unfused GFLOP/s"]):
+        float_number = 100*cutensor_points["Unfused GFLOP/s"].iloc[i] /  roof(gemmforge_points["Operational Intensity"].iloc[i])
         formatted_number = f"{float_number:.1f}%"
         plt.text(x_positions2[i] + bar_width/2, value + 1, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
 
@@ -310,7 +326,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     plt.xticks(x_positions1 + (bar_width) / 2, kernel_strs, rotation=70, ha='right', fontsize=9)
     plt.tight_layout()
     plt.savefig(
-        f"{stdout_dir}/plots/LoG-Kernel-1-bar-roofline.pdf")
+        f"{stdout_dir}/plots/LoG-fused-unfused-bar.pdf")
     plt.clf()
 
 if save_plots:

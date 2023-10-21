@@ -42,17 +42,18 @@ a_matrix_types = b_matrix_types
 # Change when GPU changes in GB/s and GFLOP/s
 # peakMemoryBandwidthTheo = 176.032 #760.08 #176.032
 # peakFLOPTheo = 4329.47 #29767.7 #4329.47
-peakMemoryBandwidthTheo = 760.08
-peakFLOPTheo = 29767.7
-tensorPeakBandwidth =  176.032 
-tensorPeakFLOP = 4329.47
+peakMemoryBandwidthTheo = 760.08 
+peakFLOPTheo = 29767.7 
+tensorPeakBandwidth =  760.08
+tensorPeakFLOP = 29767.7 
 
 # Dont change
 nvidia_green = "#76b900"
 my_blue = "#6ab2ca"
 sparse_rose = "#c74375"
 dense_blue = my_blue
-pre = "Product2"
+#pre = "TensorKernel1-NewLoopHeuristics"
+pre = "TensorKernel1"
 
 # Change always
 workaround = False
@@ -82,5 +83,6 @@ mat_lib_lib = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64"
 #flow_generator_list = [f"{scripts_dir}/benchmark_product.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_tensor1.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_product_2.py"]
-flow_generator_list = [f"{scripts_dir}/benchmark_loop.py"]
+#flow_generator_list = [f"{scripts_dir}/benchmark_loop.py"]
+flow_generator_list = [f"{scripts_dir}/benchmark_tensor_unfuse.py"]
 write_output = True
