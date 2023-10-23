@@ -66,9 +66,9 @@ for r in range(runs):
           if state == "initial" and "Dimensions" in line:
             state = "gemmforge-time"
             tokens = line.split("Dimensions:")
-            sizeStr = tokens[-1]
+            sizeStr = ",".join(tokens[-1].split(",")[:-1])
             print(sizeStr)
-            dims = sizeStr[:-1].split(", ")
+            dims = sizeStr.split(", ")
             k = int(dims[0])
             l = int(dims[1])
             m = int(dims[2])
