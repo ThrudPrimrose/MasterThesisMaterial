@@ -201,6 +201,7 @@ void checkErr(const std::string &File, int Line) {{
 
 int main(){{
   std::cout << "Kernel {dimId}, N: {N}" << std::endl;
+  std::cout << "FileName: " << "benchmark_cuda_tensor_3_variant_0{dimId}_N_{N}.cu" << std::endl;
   constexpr size_t num_els = {num_els};
   float* A = new float[{sizeA} * num_els]{{0.f}};
   float* B = new float[{sizeB} * num_els]{{0.f}};
@@ -272,6 +273,7 @@ int main(){{
   cudaMemcpy((void *)C_dev, (void *)C, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   std::cout << "Dimensions: " << {N} << ", " << {N} << ", " << {N} << std::endl;
+  std::cout << "Indices: " << "{yC}" << "-" << "{yA}" << "-" << "{yB}" << std::endl;
 
   float elapsedTimeT1 = 0.0; 
   cudaEvent_t startT1, stopT1;
