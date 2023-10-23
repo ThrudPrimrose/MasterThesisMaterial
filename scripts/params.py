@@ -84,5 +84,6 @@ mat_lib_lib = "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/math_libs/11.8/lib64"
 #flow_generator_list = [f"{scripts_dir}/benchmark_tensor1.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_product_2.py"]
 #flow_generator_list = [f"{scripts_dir}/benchmark_loop.py"]
-flow_generator_list = [f"{scripts_dir}/benchmark_tensor_unfuse.py"]
+#flow_generator_list = [f"{scripts_dir}/benchmark_tensor_unfuse.py"]
+flow_generator_list = [f"{scripts_dir}/benchmark_tensor2.py"]
 write_output = True

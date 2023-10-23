@@ -5,133 +5,211 @@ import subprocess
 from yateto import *
 from params import *
 from numba import cuda
-
-N = 32
-shapeA = (N, N, N)
-shapeB = (N, )
-shapeC = (N, N)
-shapeD = (N, N)
-shapeE = (N, N, N)
-shapeF = (N, N)
-A = Tensor('A', shapeA)
-B = Tensor('B', shapeB)
-C = Tensor('C', shapeC)
-D = Tensor('D', shapeD)
-E = Tensor('E', shapeE)
-F = Tensor('F', shapeF)
-sizeA = reduce(operator.mul, shapeA, 1)
-sizeB = reduce(operator.mul, shapeB, 1)
-sizeC = reduce(operator.mul, shapeC, 1)
-sizeD = reduce(operator.mul, shapeD, 1)
-sizeE = reduce(operator.mul, shapeE, 1)
-sizeF = reduce(operator.mul, shapeF, 1)
-maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), 
-                  len(shapeD), len(shapeE), len(shapeF))
-
-def get_available_mem_on_gpu():
-    meminfo = cuda.current_context().get_memory_info()
-    return meminfo[0]
-
-
-def get_suggested_num_elements():
-    # 1 pointer extra needed per element
-    per_el_size = (sizeA + sizeB + sizeC + sizeD + sizeE + sizeF) * 4 + (6 * 4)
-
-    available_mem = get_available_mem_on_gpu()
-    can_fit_els = available_mem // per_el_size
-    lower = int(0.90 * can_fit_els)
-    return lower
-
-
-num_els = get_suggested_num_elements()
-
-# Taken from addLocal viscoelastic2.py
-kernel = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
-
-arch = useArchitectureIdentifiedBy(
-    host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
-generator = Generator(arch)
-
-generator.add(name='kernel', ast=kernel, target="gpu")
-
-directory = os.path.dirname(os.path.abspath(__file__))
-generator.generate(outputDir="/tmp",
-                   gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
-
-assert (len(generator.kernels()) == 1)
-
-gpu_kernel = generator.kernels()[0]
-gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
-gpu_kernel = gpu_subroutine_file.read()
-gpu_subroutine_file.close()
-
-gemmforge_kernel_lines = gpu_kernel.split('\n')
-
-function_name = ""
-function_args = ""
-
-filtered_kernel = ""
-for line in gemmforge_kernel_lines:
-    if '#include "gemmforge_aux.h"' in line:
-        continue
-    filtered_kernel += line + "\n"
-    if line.startswith("void sloopOverGEMM"):
-        fun_split = line.split("(")
-        function_name = fun_split[0].split("void ")[1]
-        function_args = fun_split[1].split(")")[0]
-
-gpu_kernel = filtered_kernel
-
-print(function_name)
-print(function_args)
-
-a = A.memoryLayout
-print(a)
+import random
 
 """
-taco_command = \
-  f'taco "C(i, j, b) = C(i, j, b) + A(l, j, b) * B(i, k, l, b) * w(k, b)" -cuda -d=A:{shapeA[0]},{shapeA[1]},{num_els} -d=B:{shapeB[0]},{shapeB[1]},{shapeB[2]},{num_els} -d=C:{shapeC[0]},{shapeC[1]},{num_els} -d=w:{shapew[0]},{num_els} -t=A:float -t=B:float -t=C:float -t=w:float -print-nocolor '
+dims = [(32,32,32,32,32),
+        (3,11,5,7,13),
+]
 
-print(taco_command)
-
-result = subprocess.run(taco_command, shell=True, stdout=subprocess.PIPE, text=True)
-taco_kernel = result.stdout
-
-taco_kernel_lines = taco_kernel.split("\n")
-taco_kernel = ""
-launcher_line = 99999999999999
-for i, line in enumerate(taco_kernel_lines):
-  if "int compute" in line:
-    args = line.split("(")[1].split(")")[0]
-    args = args.split(",")
-    args = [s.strip() for s in args]
-    args_unique = sorted(list(set(args)))
-    taco_kernel += "int compute(" + ", ".join(args_unique) + ") {" + "\n"
-    launcher_line = i
+shrmem_limit = 48*1024
+while len(dims) < 30:
+  k = random.randint(8, 100)
+  p = random.randint(8, 100)
+  m = random.randint(8, 100)
+  q = random.randint(8, 100)
+  l = random.randint(8, 100)
+  #Loaded at the same time: B, X -> M + K*P
+  #F -> L*M
+  #D -> Q*P
+  mem_needed = max(m + k*p, l*m, q*p)
+  max_thread = max(m*k, k*p)
+  if mem_needed * 4 > shrmem_limit:
     continue
-  elif "_dimension" in line and i > launcher_line:
-    launcher_line = 9999999999999999
-    assert("->dimensions" in line)
-    tensorName = line.split("->dimensions")[0][-1]
-    offset = int(line.split("->dimensions")[1][1])
-    if tensorName == "A":
-      dim = shapeA[offset]
-    elif tensorName == "B":
-      dim = shapeB[offset]
-    elif tensorName == "C":
-      dim = shapeC[offset]
-    elif tensorName == "w":
-      dim = shapew[offset]
-    line_f = line.split("=")[0]
-    line_f += " = " + str(dim) + ";\n"
-    taco_kernel += line_f
-    continue 
-  else:
-    taco_kernel += line + "\n"
+  if max_thread > 1024:
     continue
+  dims.append((k,p,m,q,l))
+
+print(",\n".join([str(el) for el in dims]))
+raise Exception(",\n".join([str(el) for el in dims]))
 """
 
-benchmark_str = f"""
+dims = [
+  (32, 32, 32, 32, 32),
+  (16, 16, 16, 16, 16),
+  (3, 11, 5, 7, 13),
+  (52, 19, 17, 99, 13),
+  (23, 13, 11, 37, 93),
+  (8, 17, 26, 35, 48),
+  (16, 36, 52, 57, 23),
+  (13, 24, 30, 16, 95),
+  (13, 8, 75, 22, 19),
+  (21, 24, 41, 97, 53),
+  (10, 79, 54, 93, 75),
+  (32, 10, 15, 39, 35),
+  (15, 29, 56, 8, 70),
+  (11, 47, 52, 78, 84),
+  (14, 73, 34, 37, 11),
+  (24, 32, 42, 77, 8),
+  (11, 26, 41, 91, 37),
+  (18, 27, 47, 69, 60),
+  (18, 28, 8, 48, 19),
+  (46, 22, 13, 38, 46),
+  (15, 35, 31, 87, 37),
+  (11, 77, 35, 27, 97),
+  (50, 8, 17, 41, 29),
+  (64, 8, 12, 26, 39),
+  (15, 61, 47, 43, 29),
+  (29, 24, 26, 8, 95),
+  (10, 72, 48, 28, 16),
+  (11, 11, 22, 38, 16),
+  (24, 26, 42, 83, 68),
+  (10, 44, 83, 48, 26),
+  (56, 17, 15, 35, 73)
+]
+
+open_bracket = "{"
+close_bracket = "}"
+
+
+for dimId, (K,P,M,Q,L) in enumerate(dims):
+  #M*K < 1024
+  #M + K*P < 48*1024/4
+
+  #K = 4
+  #P = 8
+  #M = 12
+  #Q = 16
+  #L = 20
+  shapeA = (K, P, M)
+  shapeB = (M, )
+  shapeC = (K, Q)
+  shapeD = (Q, P)
+  shapeE = (K, P, L)
+  shapeF = (L, M)
+  shapeX = (K, P)
+  A = Tensor('A', shapeA)
+  B = Tensor('B', shapeB)
+  C = Tensor('C', shapeC)
+  D = Tensor('D', shapeD)
+  E = Tensor('E', shapeE)
+  F = Tensor('F', shapeF)
+  X = Tensor('X', shapeX)
+  a_vector_init = "'k', 'p', 'm', 'b'"
+  b_vector_init = "'m', 'b'"
+  c_vector_init = "'k', 'q', 'b'"
+  d_vector_init = "'q', 'p', 'b'"
+  e_vector_init = "'k', 'p', 'l', 'b'"
+  f_vector_init = "'l', 'm', 'b'"
+  x_vector_init = "'k', 'p', 'b'"
+
+
+  kernel1 = X['kp'] <= C['kq']  * D['qp']
+  kernel2 = A['kpm'] <= A['kpm'] + F['lm'] * E['kpl']
+  kernel3 = A['kpm'] <= A['kpm'] + B['m']  * X['kp']
+
+
+  sizeA = reduce(operator.mul, shapeA, 1)
+  sizeB = reduce(operator.mul, shapeB, 1)
+  sizeC = reduce(operator.mul, shapeC, 1)
+  sizeD = reduce(operator.mul, shapeD, 1)
+  sizeE = reduce(operator.mul, shapeE, 1)
+  sizeF = reduce(operator.mul, shapeF, 1)
+  sizeX = reduce(operator.mul, shapeX, 1)
+  maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC), 
+                    len(shapeD), len(shapeE), len(shapeF), len(shapeX))
+
+  def get_available_mem_on_gpu():
+      meminfo = cuda.current_context().get_memory_info()
+      return meminfo[0]
+
+
+  def get_suggested_num_elements():
+      # 1 pointer extra needed per element
+      per_el_size = (sizeA + sizeB + sizeC + sizeD + sizeE + sizeF + sizeX) * 4 + (7 * 4)
+
+      available_mem = get_available_mem_on_gpu()
+      can_fit_els = available_mem // per_el_size
+      lower = int(0.90 * can_fit_els)
+      return lower
+
+
+  num_els = get_suggested_num_elements()
+
+  # Taken from addLocal viscoelastic2.py
+  # kernel0 = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
+
+
+  gpu_kernels = list()
+  function_names = list()
+  function_argss = list()
+
+  peakFLOPGiven = tensorPeakFLOP
+  peakBandwidthGiven = tensorPeakBandwidth 
+
+  ls_per_el = sizeA*2 + sizeB + sizeC + sizeD + sizeE + sizeF
+  ls_per_el *= 4
+  ls_unfused_per_el = sizeX + sizeC + sizeD \
+                    + sizeA*2 + sizeF + sizeE \
+                    + sizeA*2 + sizeB + sizeX
+  ls_unfused_per_el *= 4
+
+  k0 = K*Q*P*2
+  k1 = L*M*K*P*2 + K*P*M
+  k2 = K*M*P*2 + K*M*P
+  fp_per_el = k0 + k1 + k2
+  fp_unfused_per_el = fp_per_el
+  fp_per_k1 = k0
+  fp_per_k2 = k1
+  fp_per_k3 = k2
+  ls_per_k1 = (sizeX   + sizeC + sizeD) * 4
+  ls_per_k2 = (sizeA*2 + sizeF + sizeE) * 4
+  ls_per_k3 = (sizeA*2 + sizeB + sizeX) * 4
+
+  for kernel in [kernel1, kernel2, kernel3]:
+  #for kernel in [kernel1, kernel2, kernel3]:
+    arch = useArchitectureIdentifiedBy(
+        host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
+    generator = Generator(arch)
+
+    generator.add(name='kernel', ast=kernel, target="gpu")
+
+    directory = os.path.dirname(os.path.abspath(__file__))
+    generator.generate(outputDir="/tmp",
+                      gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
+
+    assert (len(generator.kernels()) == 1)
+
+    gpu_kernel = generator.kernels()[0]
+    gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
+    gpu_kernel = gpu_subroutine_file.read()
+    gpu_subroutine_file.close()
+
+    gemmforge_kernel_lines = gpu_kernel.split('\n')
+
+    function_name = ""
+    function_args = ""
+
+    filtered_kernel = ""
+    for line in gemmforge_kernel_lines:
+        if '#include "gemmforge_aux.h"' in line:
+            continue
+        filtered_kernel += line + "\n"
+        if line.startswith("void sloopOverGEMM") or line.startswith("void sproduct"):
+            fun_split = line.split("(")
+            function_name = fun_split[0].split("void ")[1]
+            function_args = fun_split[1].split(")")[0]
+
+    gpu_kernel = filtered_kernel
+
+    print(function_name)
+    print(function_args)
+
+    function_names.append(function_name)
+    function_argss.append(function_args)
+    gpu_kernels.append(gpu_kernel)
+
+  benchmark_str = f"""
 #include <random>
 #include <iostream>
 #include <cstring>
@@ -147,7 +225,7 @@ benchmark_str = f"""
   if( err != CUTENSOR_STATUS_SUCCESS )                                   \\
   {{                                                                      \\
     std::cout << "Error: " << cutensorGetErrorString(err) << std::endl;  \\
-    return err;                                                          \\
+    std::cout << __FILE__ << " " << __LINE__ << std::endl;                      \\
   }}                                                                      \\
 }}
 
@@ -183,37 +261,34 @@ void checkErr(const std::string &File, int Line) {{
         if (PrevLine > 0)
         std::cout << "Previous CUDA call:" << std::endl
                     << PrevFile << ", line " << PrevLine << std::endl;
-        throw;
     }}
     PrevFile = File;
     PrevLine = Line;
 #endif
 }}
 
-{gpu_kernel}
-
-struct taco_tensor_t {{
-  float* vals;
-  int* dimensions;
-}};
-
+{gpu_kernels[0]}
+{gpu_kernels[1]}
+{gpu_kernels[2]}
 
 int main(){{
   constexpr size_t num_els = {num_els};
-  float* A = new float[{sizeA} * num_els];
-  float* B = new float[{sizeB} * num_els];
-  float* C = new float[{sizeC} * num_els];
-  float* D = new float[{sizeD} * num_els];
-  float* E = new float[{sizeE} * num_els];
-  float* F = new float[{sizeF} * num_els];
-  float* R1 = new float[{sizeC} * num_els]{{0.f}};
+  float* A = new float[{sizeA} * num_els]{{0.f}};
+  float* B = new float[{sizeB} * num_els]{{0.f}};
+  float* C = new float[{sizeC} * num_els]{{0.f}};
+  float* D = new float[{sizeD} * num_els]{{0.f}};
+  float* E = new float[{sizeE} * num_els]{{0.f}};
+  float* F = new float[{sizeF} * num_els]{{0.f}};
+  float* X = new float[{sizeX} * num_els]{{0.f}};
+  float* R1 = new float[{sizeA} * num_els]{{0.f}};
+  float* R2 = new float[{sizeA} * num_els]{{0.f}};
 
-  float coreA[{sizeA}];
-  float coreB[{sizeB}];
-  float coreC[{sizeC}];
-  float coreD[{sizeD}];
-  float coreE[{sizeE}];
-  float coreF[{sizeF}];
+  float* coreA = new float[{sizeA}];
+  float* coreB = new float[{sizeB}];
+  float* coreC = new float[{sizeC}];
+  float* coreD = new float[{sizeD}];
+  float* coreE = new float[{sizeE}];
+  float* coreF = new float[{sizeF}];
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -252,6 +327,7 @@ int main(){{
   float* D_dev = nullptr;
   float* E_dev = nullptr;
   float* F_dev = nullptr;
+  float* X_dev = nullptr;
 
   float** A_dev_begins = new float*[num_els];
   float** B_dev_begins = new float*[num_els];
@@ -259,6 +335,7 @@ int main(){{
   float** D_dev_begins = new float*[num_els];
   float** E_dev_begins = new float*[num_els];
   float** F_dev_begins = new float*[num_els];
+  float** X_dev_begins = new float*[num_els];
 
   float** A_dev_begins_dev = nullptr;
   float** B_dev_begins_dev = nullptr;
@@ -266,6 +343,7 @@ int main(){{
   float** D_dev_begins_dev = nullptr;
   float** E_dev_begins_dev = nullptr;
   float** F_dev_begins_dev = nullptr;
+  float** X_dev_begins_dev = nullptr;
 
   cudaMalloc((void **)&A_dev, sizeof(float) * {sizeA} * num_els); CHECK_ERR;
   cudaMalloc((void **)&B_dev, sizeof(float) * {sizeB} * num_els); CHECK_ERR;
@@ -273,6 +351,7 @@ int main(){{
   cudaMalloc((void **)&D_dev, sizeof(float) * {sizeD} * num_els); CHECK_ERR;
   cudaMalloc((void **)&E_dev, sizeof(float) * {sizeE} * num_els); CHECK_ERR;
   cudaMalloc((void **)&F_dev, sizeof(float) * {sizeF} * num_els); CHECK_ERR;
+  cudaMalloc((void **)&X_dev, sizeof(float) * {sizeX} * num_els); CHECK_ERR;
 
   cudaMalloc((void **)&A_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
   cudaMalloc((void **)&B_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
@@ -280,6 +359,7 @@ int main(){{
   cudaMalloc((void **)&D_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
   cudaMalloc((void **)&E_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
   cudaMalloc((void **)&F_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
+  cudaMalloc((void **)&X_dev_begins_dev, sizeof(float*) * num_els); CHECK_ERR;
  
   cudaDeviceSynchronize(); CHECK_ERR;
 
@@ -289,6 +369,7 @@ int main(){{
   cudaMemcpy((void *)D_dev, (void *)D, sizeof(float) * {sizeD} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)E_dev, (void *)E, sizeof(float) * {sizeE} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)F_dev, (void *)F, sizeof(float) * {sizeF} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * {sizeX} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   for (size_t i = 0; i < num_els; i++){{
     A_dev_begins[i] = A_dev + i * {sizeA};
@@ -297,6 +378,7 @@ int main(){{
     D_dev_begins[i] = D_dev + i * {sizeD};
     E_dev_begins[i] = E_dev + i * {sizeE};
     F_dev_begins[i] = F_dev + i * {sizeF};
+    X_dev_begins[i] = X_dev + i * {sizeX};
   }}
 
   cudaMemcpy((void *)A_dev_begins_dev, (void *)A_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
@@ -305,26 +387,426 @@ int main(){{
   cudaMemcpy((void *)D_dev_begins_dev, (void *)D_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)E_dev_begins_dev, (void *)E_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)F_dev_begins_dev, (void *)F_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)X_dev_begins_dev, (void *)X_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  {function_name}(A_dev_begins_dev, 0, B_dev_begins_dev, 0, C_dev_begins_dev, 0, D_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  {function_names[0]}(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
-  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * {sizeX} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  std::cout << "Will compute the kernel: A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm'], with Gemmforge" << std::endl;
-  float elapsedTime = 0.0; 
+  std::cout << "Dimensions: " << {K} << ", " << {L} << ", " << {M} << ", " << {P} << ", " << {Q} << ", " << {L} << std::endl;
+
+  float elapsedTimeT1 = 0.0;
+  float elapsedTimeT2 = 0.0;
+  float elapsedTimeT3 = 0.0; 
   cudaEvent_t startT1, stopT1;
+  cudaEvent_t startT2, stopT2;
+  cudaEvent_t startT3, stopT3;
   cudaEventCreate(&startT1); CHECK_ERR;
   cudaEventCreate(&stopT1); CHECK_ERR;
   cudaEventRecord(startT1); CHECK_ERR;
-  {function_name}(A_dev_begins_dev, 0, B_dev_begins_dev, 0, C_dev_begins_dev, 0, w_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  {function_names[0]}(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaEventRecord(stopT1); CHECK_ERR;
   cudaEventSynchronize(stopT1); CHECK_ERR;
-  cudaEventElapsedTime(&elapsedTime, startT1, stopT1); CHECK_ERR;
+  cudaEventElapsedTime(&elapsedTimeT1, startT1, stopT1); CHECK_ERR;
+  cudaEventCreate(&startT2); CHECK_ERR;
+  cudaEventCreate(&stopT2); CHECK_ERR;
+  cudaEventRecord(startT2); CHECK_ERR;
+  {function_names[1]}(A_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  cudaEventRecord(stopT2); CHECK_ERR;
+  cudaEventSynchronize(stopT2); CHECK_ERR;
+  cudaEventElapsedTime(&elapsedTimeT2, startT2, stopT2); CHECK_ERR;
+  cudaEventCreate(&startT3); CHECK_ERR;
+  cudaEventCreate(&stopT3); CHECK_ERR;
+  cudaEventRecord(startT3); CHECK_ERR;
+  {function_names[2]}(A_dev_begins_dev, 0, B_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  cudaEventRecord(stopT3); CHECK_ERR;
+  cudaEventSynchronize(stopT3); CHECK_ERR;
+  cudaEventElapsedTime(&elapsedTimeT3, startT3, stopT3); CHECK_ERR;
+  double elapsedTime = elapsedTimeT1 + elapsedTimeT2 + elapsedTimeT3;
   cudaDeviceSynchronize(); CHECK_ERR;
   std::cout << "Gemmforge Tensor Contraction took: " << elapsedTime << " ms" << std::endl; 
-  cudaMemcpy(R1, A_dev, sizeof(float) * {sizeC} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeC} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy(R1, A_dev, sizeof(float) * {sizeA} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeA} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
+
+  double fp_per_el = {fp_per_el};
+  double ls_per_el = {ls_per_el};
+  double fp_unfused_per_el = {fp_unfused_per_el};
+  double ls_unfused_per_el = {ls_unfused_per_el};
+  fp_per_el *= num_els;
+  ls_per_el *= num_els;
+  fp_unfused_per_el *= num_els;
+  ls_unfused_per_el *= num_els;
+  std::cout << "Gemmforge Theoretical Fused Kernel GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
+  std::cout << "Operational Theoretical Fused intensity: " << fp_per_el / ls_per_el << std::endl;
+  std::cout << "Gemmforge GFLOPs/s: " << fp_unfused_per_el * 1e-6 / elapsedTime << std::endl;
+  std::cout << "Operational intensity: " << fp_unfused_per_el / ls_unfused_per_el << std::endl;
+  double peakFLOPGiven = {peakFLOPGiven};
+  double peakBandwidthGiven = {peakBandwidthGiven};
+
+  if (peakFLOPGiven > 0.1 && peakBandwidthGiven){{
+    double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
+    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved with Gemmforge" << std::endl;
+    //std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved with cuTensor" << std::endl;
+    double obtainable_unfused_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_unfused_per_el) / static_cast<double>(ls_unfused_per_el)));
+    std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTime) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with Gemmforge" << std::endl;
+    //std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTime) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
+    double obtainable_unfused_peak_k1 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>({fp_per_k1}) / static_cast<double>({ls_per_k1})));
+    std::cout << 100.0*({fp_per_k1} * num_els  * 1e-6 / elapsedTimeT1) / obtainable_unfused_peak_k1 << " % of roof w. respect to Kernel1 intensity achieved with Gemmforge" << std::endl;
+    double obtainable_unfused_peak_k2 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>({fp_per_k2}) / static_cast<double>({ls_per_k2})));
+    std::cout << 100.0*({fp_per_k2} * num_els  * 1e-6 / elapsedTimeT2) / obtainable_unfused_peak_k2 << " % of roof w. respect to Kernel2 intensity achieved with Gemmforge" << std::endl;
+    double obtainable_unfused_peak_k3 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>({fp_per_k3}) / static_cast<double>({ls_per_k3})));
+    std::cout << 100.0*({fp_per_k3} * num_els * 1e-6 / elapsedTimeT3) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 intensity achieved with Gemmforge" << std::endl;
+  }}
+
+  cutensorHandle_t* handle;
+  HANDLE_ERROR(cutensorCreate(&handle));
+
+  cudaEvent_t startCT1, stopCT1;
+  cudaEvent_t startCT2, stopCT2;
+  cudaEvent_t startCT3, stopCT3;
+  cudaEventCreate(&startCT1); CHECK_ERR;
+  cudaEventCreate(&stopCT1); CHECK_ERR;
+  cudaEventCreate(&startCT2); CHECK_ERR;
+  cudaEventCreate(&stopCT2); CHECK_ERR;
+  cudaEventCreate(&startCT3); CHECK_ERR;
+  cudaEventCreate(&stopCT3); CHECK_ERR;
+  float elapsedTimeCT1 = 0.f;
+  float elapsedTimeCT2 = 0.f;
+  float elapsedTimeCT3 = 0.f;
+
+  // Kernel 1
+  std::cout << "cuTensor Kernel 1" << std::endl;
+  {{
+    float alphaK1 = 1.0f;
+    float betaK1 = 0.0f;
+    float alphaK2 = 1.0f;
+    float betaK2 = 1.0;
+    float alphaK3 = 1.0f;
+    float betaK3 = 1.0;
+
+    std::vector<int> modeA{open_bracket + a_vector_init + close_bracket};
+    std::vector<int> modeB{open_bracket + b_vector_init + close_bracket};
+    std::vector<int> modeC{open_bracket + c_vector_init + close_bracket};
+    std::vector<int> modeD{open_bracket + d_vector_init + close_bracket};
+    std::vector<int> modeE{open_bracket + e_vector_init + close_bracket};
+    std::vector<int> modeF{open_bracket + f_vector_init + close_bracket};
+    std::vector<int> modeX{open_bracket + x_vector_init + close_bracket};
+    int nmodeA = modeA.size();
+    int nmodeB = modeB.size();
+    int nmodeC = modeC.size();
+    int nmodeD = modeD.size();
+    int nmodeE = modeE.size();
+    int nmodeF = modeF.size();
+    int nmodeX = modeX.size();
+
+    std::unordered_map<int, int64_t> extent;
+    // Derived from the kernel
+    extent['k'] = {K};
+    extent['l'] = {L};
+    extent['m'] = {M};
+    extent['p'] = {P};
+    extent['q'] = {Q};
+    extent['b'] = num_els;
+
+    std::vector<int64_t> extentA;
+    for (auto mode : modeA) {{
+        extentA.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentB;
+    for (auto mode : modeB) {{
+        extentB.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentC;
+    for (auto mode : modeC) {{
+        extentC.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentD;
+    for (auto mode : modeD) {{
+        extentD.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentE;
+    for (auto mode : modeE) {{
+        extentE.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentF;
+    for (auto mode : modeF) {{
+        extentF.push_back(extent[mode]);
+    }}
+    std::vector<int64_t> extentX;
+    for (auto mode : modeX) {{
+        extentX.push_back(extent[mode]);
+    }}
+    
+    cudaDataType_t typeA = CUDA_R_32F;
+    cudaDataType_t typeB = CUDA_R_32F;
+    cudaDataType_t typeC = CUDA_R_32F;
+    cudaDataType_t typeD = CUDA_R_32F;
+    cudaDataType_t typeE = CUDA_R_32F;
+    cudaDataType_t typeF = CUDA_R_32F;
+    cudaDataType_t typeX = CUDA_R_32F;
+    cutensorComputeType_t typeCompute = CUTENSOR_COMPUTE_32F;
+
+    cutensorTensorDescriptor_t descA;
+    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
+                    &descA,
+                    nmodeA,
+                    extentA.data(),
+                    NULL,
+                    typeA, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descB;
+    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
+                    &descB,
+                    nmodeB,
+                    extentB.data(),
+                    NULL,
+                    typeB, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descC;
+    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
+                    &descC,
+                    nmodeC,
+                    extentC.data(),
+                    NULL,
+                    typeC, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descD;
+    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
+                    &descD,
+                    nmodeD,
+                    extentD.data(),
+                    NULL,
+                    typeD, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descE;
+    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
+                    &descE,
+                    nmodeE,
+                    extentE.data(),
+                    NULL,
+                    typeE, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descF;
+    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
+                    &descF,
+                    nmodeF,
+                    extentF.data(),
+                    NULL,
+                    typeF, CUTENSOR_OP_IDENTITY));
+
+    cutensorTensorDescriptor_t descX;
+    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
+                    &descX,
+                    nmodeX,
+                    extentX.data(),
+                    NULL,
+                    typeX, CUTENSOR_OP_IDENTITY));
+
+
+    uint32_t alignmentRequirementA;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    A_dev,
+                    &descA,
+                    &alignmentRequirementA));
+
+    uint32_t alignmentRequirementB;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    B_dev,
+                    &descB,
+                    &alignmentRequirementB));
+
+    uint32_t alignmentRequirementC;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    C_dev,
+                    &descC, 
+                    &alignmentRequirementC));
+
+    uint32_t alignmentRequirementD;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    D_dev,
+                    &descD,
+                    &alignmentRequirementD));
+
+    uint32_t alignmentRequirementE;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    E_dev,
+                    &descE,
+                    &alignmentRequirementE));
+
+    uint32_t alignmentRequirementF;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    F_dev,
+                    &descF, 
+                    &alignmentRequirementF));
+
+    uint32_t alignmentRequirementX;
+    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
+                    X_dev,
+                    &descX, 
+                    &alignmentRequirementX));
+
+    cutensorContractionDescriptor_t desc1;
+    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
+                  &desc1,
+                  &descC, modeC.data(), alignmentRequirementC,
+                  &descD, modeD.data(), alignmentRequirementD,
+                  &descX, modeX.data(), alignmentRequirementX,
+                  &descX, modeX.data(), alignmentRequirementX,
+                  typeCompute));
+
+    cutensorContractionFind_t find1;
+    HANDLE_ERROR(cutensorInitContractionFind( 
+                 handle, &find1, 
+                 CUTENSOR_ALGO_DEFAULT));
+
+    uint64_t worksize1 = 0;
+    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
+                 &desc1,
+                 &find1,
+                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize1));
+
+    cutensorContractionDescriptor_t desc2;
+    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
+                  &desc2,
+                  &descF, modeF.data(), alignmentRequirementF,
+                  &descE, modeE.data(), alignmentRequirementE,
+                  &descA, modeA.data(), alignmentRequirementA,
+                  &descA, modeA.data(), alignmentRequirementA,
+                  typeCompute));
+
+    cutensorContractionFind_t find2;
+    HANDLE_ERROR(cutensorInitContractionFind( 
+                 handle, &find2, 
+                 CUTENSOR_ALGO_DEFAULT));
+
+    uint64_t worksize2 = 0;
+    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
+                 &desc2,
+                 &find2,
+                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize2));
+
+
+    cutensorContractionDescriptor_t desc3;
+    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
+                  &desc3,
+                  &descB, modeB.data(), alignmentRequirementB,
+                  &descX, modeX.data(), alignmentRequirementX,
+                  &descA, modeA.data(), alignmentRequirementA,
+                  &descA, modeA.data(), alignmentRequirementA,
+                  typeCompute));
+
+    cutensorContractionFind_t find3;
+    HANDLE_ERROR(cutensorInitContractionFind( 
+                 handle, &find3, 
+                 CUTENSOR_ALGO_DEFAULT));
+
+    uint64_t worksize3 = 0;
+    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
+                 &desc3,
+                 &find3,
+                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize3));
+
+    uint64_t maxWorkSize = std::max(std::max(worksize1, worksize2), worksize3);
+    void *work = nullptr;
+    if (maxWorkSize > 0)
+    {{
+        if (cudaSuccess != cudaMalloc(&work, maxWorkSize))
+        {{
+            work = nullptr;
+            maxWorkSize = 0;
+            worksize1 = 0;
+            worksize2 = 0;
+            worksize3 = 0;
+            cudaGetLastError(); // Clear last error to save CHECK_ERR;
+        }} else {{
+            worksize1 = maxWorkSize;
+            worksize2 = maxWorkSize;
+            worksize3 = maxWorkSize;
+        }}
+    }}
+
+
+    cutensorContractionPlan_t plan1;
+    HANDLE_ERROR(cutensorInitContractionPlan(handle,
+                 &plan1,
+                 &desc1,
+                 &find1,
+                 worksize1));
+
+    cutensorContractionPlan_t plan2;
+    HANDLE_ERROR(cutensorInitContractionPlan(handle,
+                 &plan2,
+                 &desc2,
+                 &find2,
+                 worksize2));
+
+    cutensorContractionPlan_t plan3;
+    HANDLE_ERROR(cutensorInitContractionPlan(handle,
+                 &plan3,
+                 &desc3,
+                 &find3,
+                 worksize3));
+
+    cudaDeviceSynchronize(); CHECK_ERR;
+
+    cudaEventRecord(startCT1); CHECK_ERR;
+    cutensorContraction(handle,
+                              &plan1,
+                              (void*) &alphaK1, C_dev, D_dev,
+                              (void*) &betaK1,  X_dev, X_dev, 
+                              work, worksize1, 0);
+    cudaEventRecord(stopCT1); CHECK_ERR;
+    cudaEventSynchronize(stopCT1); CHECK_ERR;
+    cudaEventElapsedTime(&elapsedTimeCT1, startCT1, stopCT1); CHECK_ERR;
+
+    cudaDeviceSynchronize(); CHECK_ERR;
+
+    cudaEventRecord(startCT2); CHECK_ERR;
+    cutensorContraction(handle,
+                              &plan2,
+                              (void*) &alphaK2, F_dev, E_dev,
+                              (void*) &betaK2,  A_dev, A_dev, 
+                              work, worksize2, 0);
+    cudaEventRecord(stopCT2); CHECK_ERR;
+    cudaEventSynchronize(stopCT2); CHECK_ERR;
+    cudaEventElapsedTime(&elapsedTimeCT2, startCT2, stopCT2); CHECK_ERR;
+
+    cudaDeviceSynchronize(); CHECK_ERR;
+
+    cudaEventRecord(startCT3); CHECK_ERR;
+    cutensorContraction(handle,
+                              &plan3,
+                              (void*) &alphaK3, B_dev, X_dev,
+                              (void*) &betaK3,  A_dev, A_dev, 
+                              work, worksize3, 0);
+    cudaEventRecord(stopCT3); CHECK_ERR;
+    cudaEventSynchronize(stopCT3); CHECK_ERR;
+    cudaEventElapsedTime(&elapsedTimeCT3, startCT3, stopCT3); CHECK_ERR;
+
+    cudaDeviceSynchronize(); CHECK_ERR;
+    
+    cudaMemcpy(R2, A_dev, sizeof(float) * {sizeA} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+
+    cudaFree(work);
+  }}
+
+  float elapsedTimeCuTensor = elapsedTimeCT1 + elapsedTimeCT2 + elapsedTimeCT2;
+  if (peakFLOPGiven > 0.1 && peakBandwidthGiven){{
+    double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
+    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_peak << " % of roof w. respect to operational intensity achieved with cuTensor" << std::endl;
+
+    double obtainable_unfused_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_unfused_per_el) / static_cast<double>(ls_unfused_per_el)));
+    std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
+  }}
+
+  cudaFree(A_dev_begins_dev);
+  cudaFree(B_dev_begins_dev);
+  cudaFree(C_dev_begins_dev);
+  cudaFree(D_dev_begins_dev);
+  cudaFree(E_dev_begins_dev);
+  cudaFree(F_dev_begins_dev);
+  cudaFree(X_dev_begins_dev);
 
   delete[] A;
   delete[] B;
@@ -332,12 +814,14 @@ int main(){{
   delete[] D;
   delete[] E;
   delete[] F;
+  delete[] X;
   delete[] A_dev_begins;
   delete[] B_dev_begins;
   delete[] C_dev_begins;
   delete[] D_dev_begins;
   delete[] E_dev_begins;
   delete[] F_dev_begins;
+  delete[] X_dev_begins;
   delete[] R1;
 
   cudaFree(A_dev);
@@ -346,13 +830,24 @@ int main(){{
   cudaFree(D_dev);
   cudaFree(E_dev);
   cudaFree(F_dev);
+  cudaFree(X_dev);
+
+  delete[] coreA;
+  delete[] coreB;
+  delete[] coreC;
+  delete[] coreD;
+  delete[] coreE;
+  delete[] coreF;
 
   return 0;
 }}
 
 """
 
-code_file = open(f"{scripts_dir}/cuda_code/benchmark_tensor2.cu", "w")
-code_file.write(benchmark_str)
-code_file.flush()
-code_file.close()
+  if dimId < 10:
+    code_file = open(f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_2_variant_0{dimId}.cu", "w")
+  else:
+    code_file = open(f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_2_variant_{dimId}.cu", "w")
+  code_file.write(benchmark_str)
+  code_file.flush()
+  code_file.close()

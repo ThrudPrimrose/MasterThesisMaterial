@@ -59,7 +59,13 @@ for i in range(runs):
         stdout_as_str += proc.stdout.decode('utf-8')
         print("Call: ", generator)
 
-    for file in os.listdir(code_path):
+    # List all the files in the directory
+    files = os.listdir(code_path)
+
+    # Sort the files by name
+    files.sort(key=lambda x: int(x[-5:-3]))
+
+    for file in files:
         filename = os.fsdecode(file)
         filename_without_suffix = filename.split(".cu")[0]
         benchmark_identifier = filename.split(".cu")[0].split("benchmark_cuda_")[1]
