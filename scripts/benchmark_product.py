@@ -6,7 +6,7 @@ from yateto import *
 from params import *
 from numba import cuda
 
-N = 16
+N = 18
 A = Tensor('A', (N, N, N))
 B = Tensor('B', (N, N, N))
 C = Tensor('C', (N, N, N))
