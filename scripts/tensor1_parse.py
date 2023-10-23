@@ -1,11 +1,14 @@
+from functools import reduce
+from itertools import combinations
 import math
 from copy import deepcopy
+import operator
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import MaxNLocator
-
+import seaborn as sns
 from aux import *
 from params import *
 
@@ -26,11 +29,18 @@ from params import *
 
 FLOAT_SIZE = 4
 
+stdout_dir = f"{data_dir}/TensorKernel1"
+
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
 pd_dataframes = list()
 kernel = ""
+
+
+#  shape_str += f"A({a_tuple}), B({b_tuple}), C({c_tuple}), w({w_tuple})"
+
+#  kernel = C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k']
 
 for r in range(runs):
     path = f"{stdout_dir}/run{r}.txt"
@@ -44,7 +54,10 @@ for r in range(runs):
         gflops = 0.0
         operational_intensity = 0.0
         sizeStr = ""
-        
+        i = 0.0
+        j = 0.0
+        k = 0.0
+        l = 0.0
         
         for i, line in enumerate(file):
           if state == "initial" and "compute the kernel" in line and "with Gemmforge" in line:
@@ -57,6 +70,16 @@ for r in range(runs):
             t = tokens[1:-1]
             sizeStr = " ".join(t)
             state = "check-gemmforge"
+            #  shape_str += f"A({a_tuple}), B({b_tuple}), C({c_tuple}), w({w_tuple})"
+            #  kernel = C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k']
+            a_in = t.split(")")[0].split("A(")[-1].split(",")
+            print(a_in)
+            i = float(a_in[0])
+            j = float(a_in[1])
+            b_in = t.split(")")[1].split("B(")[-1].split(",")
+            print(b_in)
+            k = float(b_in[1])
+            l = float(b_in[2])
             print(sizeStr)
           if state == "check-gemmforge" and  "Gemmforge Tensor Contraction took" in line:
             state = "check-cutensor"
@@ -90,10 +113,29 @@ for r in range(runs):
             cutensor_efficiency = float(eff)
             print(cutensor_efficiency)
           if state == "final":
-            report.append([sizeStr, gemmforge, 
+            variables = [i,j,k,l]
+
+            r = [sizeStr, gemmforge, 
                            cutensor, gemmforge_efficiency, 
                            cutensor_efficiency, gflops, gflops*gemmforge/cutensor,
-                           operational_intensity])
+                           operational_intensity]
+            # Iterate through all possible subsets of the variables
+            for red in range(1, len(variables) + 1):
+                for subset in combinations(variables, red):
+                    print(subset)
+                    sd = reduce(operator.mul, subset, 1)
+                    r.append(float(sd))
+
+            """
+            variables = ["I", "J", "K", "L"]
+            for r in range(1, len(variables) + 1):
+                for subset in combinations(variables, r):
+                    sd = "".join(subset)
+                    print(f"\"{sd}\",")
+            raise Exception("UWU")
+            """
+            
+            report.append(r)
             state = "initial"
             cutensor = 0.0
             gemmforge = 0.0
@@ -102,6 +144,10 @@ for r in range(runs):
             gflops = 0.0
             operational_intensity = 0.0
             sizeStr = ""
+            i = 0.0
+            j = 0.0
+            k = 0.0
+            l = 0.0
             print(report)
 
 
@@ -113,7 +159,22 @@ for r in range(runs):
         "cuTensor efficiency",
         "Gemmforge GFLOP/s",
         "cuTensor GFLOP/s",
-        "Operational Intensity"
+        "Operational Intensity",
+        "I",
+        "J",
+        "K",
+        "L",
+        "IJ",
+        "IK",
+        "IL",
+        "JK",
+        "JL",
+        "KL",
+        "IJK",
+        "IJL",
+        "IKL",
+        "JKL",
+        "IJKL"
     ])
     tmp1 = tmp1.sort_values(by="Kernel").copy()
     print(f"DATAFRAME {r}:")
@@ -324,3 +385,15 @@ if save_plots:
                   gemmforge_points=gemmforge_points,
                   cutensor_points=cutensor_points,
                   pd_avg=pd_avg)
+
+correlation_matrix = pd_avg.corr()
+
+plt.clf()
+plt.figure(figsize=(24, 18))  # Set the figure size
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=.5)
+
+# Add labels and title
+plt.title('Correlation Matrix Heatmap')
+plt.tight_layout()
+plt.savefig(
+    f"{stdout_dir}/plots/kernel-2-corr.pdf")

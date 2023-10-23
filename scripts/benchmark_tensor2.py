@@ -800,6 +800,18 @@ int main(){{
     std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
   }}
 
+  bool results_wrong = false;
+  for (size_t i = 0; i < {sizeA} * num_els; i++){{
+    if (std::abs(R1[i] - R2[i]) > 1.0f) {{
+      std::cout << "Results do not match, problem first at offset " << i << " :_(" << std::endl;
+      results_wrong = true;
+      break;
+    }}
+  }}
+  if (!results_wrong){{
+    std::cout << "Gemmforge and cuTensor contraction results match! :)" << std::endl;
+  }}
+
   cudaFree(A_dev_begins_dev);
   cudaFree(B_dev_begins_dev);
   cudaFree(C_dev_begins_dev);
@@ -823,6 +835,7 @@ int main(){{
   delete[] F_dev_begins;
   delete[] X_dev_begins;
   delete[] R1;
+  delete[] R2;
 
   cudaFree(A_dev);
   cudaFree(B_dev);
