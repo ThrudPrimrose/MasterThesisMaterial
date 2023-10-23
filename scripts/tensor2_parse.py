@@ -30,6 +30,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
+stdout_dir = f"{data_dir}/TensorKernel2"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -65,9 +66,9 @@ for r in range(runs):
           if state == "initial" and "Dimensions" in line:
             state = "gemmforge-time"
             tokens = line.split("Dimensions:")
-            sizeStr = tokens[-1][:-1]
+            sizeStr = tokens[-1]
             print(sizeStr)
-            dims = sizeStr.split(", ")
+            dims = sizeStr[:-1].split(", ")
             k = int(dims[0])
             l = int(dims[1])
             m = int(dims[2])
@@ -271,8 +272,8 @@ pd_var["Kernel"] = pd_avg["Kernel"]
 #pd_avg = pd_avg[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
 #pd_avg = pd_avg[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
 
-#gemmforge_var = pd_var[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
-#cutensor_var = pd_var[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
+#pd_var = pd_var[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
+#pd_var = pd_var[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
 
 def round_up_to_power_of_ten(n):
     if n == 0:
@@ -298,6 +299,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     # Calculate the positions for the bars
     kernel_strs = list()
     for kernel_str in pd_avg["Kernel"]:
+      print(kernel_str)
       s = kernel_str.replace(" ", "")
       kernel_strs.append(s)
 
@@ -305,28 +307,43 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
     x_positions1 = np.arange(len(kernel_strs), dtype=float)
 
-    plt.plot(x_positions1,
+    plt.bar(x_positions1 - 0.2,
             gf_points, color=dense_blue, 
-            label="Gemmfogre") #width = bar_width,
+            label="Gemmfogre", width = bar_width) #,
+    plt.bar(x_positions1 + 0.2,
+            pd_avg["cuTensor GFLOP/s"], color=nvidia_green, 
+            label="cuTensor", width = bar_width) #width = bar_width,
     theo_roof_for_intensity = roof(max(pd_avg["Operational Intensity 2"]))
-    y = [roof(x) for x in pd_avg["Operational Intensity 2"]]
-    plt.plot(x_positions1, y, label="Roof Unfused", color="gray", linestyle="--")
-    y = [roof(x) for x in pd_avg["Operational Intensity 1"]]
-    plt.plot(x_positions1, y, label="Roof Fused", color="darkgray", linestyle="-.")
+    #y = [roof(x) for x in pd_avg["Operational Intensity 2"]]
+    #plt.bar(x_positions1, y, label="Roof Unfused", color="gray", linestyle="--")
+    #y = [roof(x) for x in pd_avg["Operational Intensity 1"]]
+    #plt.bar(x_positions1, y, label="Roof Fused", color="darkgray", linestyle="-.")
+
+    for i, x_pos in enumerate(x_positions1):
+        xpts = np.linspace(x_pos-0.6, x_pos+0.6)
+        ypts = [roof(pd_avg["Operational Intensity 2"].iloc[i]) for x in xpts]
+        plt.hlines(roof(pd_avg["Operational Intensity 2"].iloc[i]), x_pos-0.4, x_pos+0.4, color=["darkgray"], linestyles=["--"], label="Roofline" if i == 0 else "_nolabel_")
+        plt.hlines(roof(pd_avg["Operational Intensity 1"].iloc[i]), x_pos-0.4, x_pos+0.4, color=["gray"], linestyles=["solid"], label="Roofline" if i == 0 else "_nolabel_")
 
 
-    for i, value in enumerate(gf_points):
-        if value == max(gf_points):
-            float_number = 100*gf_points[i] / theo_roof_for_intensity
-            formatted_number = f"{float_number:.1f}%"
-            plt.text(x_positions1[i] + bar_width/2, value + 1, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
+    std_dev_data = np.sqrt(pd_var["Gemmforge GFLOP/s"])
+    yerr = 1.96 * (std_dev_data / np.sqrt(runs))
+    plt.errorbar(x_positions1 -0.2, pd_avg["Gemmforge GFLOP/s"], 
+                 yerr=yerr, fmt='none', ecolor='black', capsize=2, 
+                 capthick=2, label='_nolegend_')
+    std_dev_data = np.sqrt(pd_var["cuTensor GFLOP/s"])
+    yerr = 1.96 * (std_dev_data / np.sqrt(runs))
+    plt.errorbar(x_positions1 +0.2, pd_avg["cuTensor GFLOP/s"], 
+                 yerr=yerr, fmt='none', ecolor='black', 
+                 capsize=2, capthick=2,
+                 label='_nolegend_')
 
     plt.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=12)
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('Loop Unrolling Parameters', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1 + 1, kernel_strs,  rotation=70, ha='center', fontsize=7)
+    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='center', fontsize=9)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-bar.pdf")
@@ -342,7 +359,7 @@ def round_up_to_power_of_ten(n):
         return 10 ** power
 
 
-def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, 
+def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf, 
                   title):
     plt.clf()
     fig, ax = plt.subplots(figsize=(9, 6))  # Adjust the width and height as needed
@@ -358,21 +375,21 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
     x_positions1 = np.arange(len(kernel_strs), dtype=float)
 
-    plt.plot(x_positions1,
-            pd_avg["Gemmforge Efficiency K1"], 
-            label="Gemmfogre Kernel 1")
-    plt.plot(x_positions1,
-            pd_avg["Gemmforge Efficiency K2"], 
-            label="Gemmfogre Kernel 2")
-    plt.plot(x_positions1,
-            pd_avg["Gemmforge Efficiency K3"], 
-            label="Gemmfogre Kernel 3")
-    plt.plot(x_positions1,
-            pd_avg["Gemmforge Efficiency 2"], 
-            label="Gemmfogre Kernel All")
-    plt.plot(x_positions1,
-            pd_avg["cuTensor Efficiency 2"], 
-            label="cuTensor Kernel All")
+    plt.scatter(x_positions1,
+            pd_avg["Gemmforge Efficiency K1"],  c="orangered", #linewidth=0.1, linestyle="--",
+            label="Gemmfogre Kernel 1", marker="o")
+    plt.scatter(x_positions1,
+            pd_avg["Gemmforge Efficiency K2"], c="darkorchid", #linewidth=0.1, linestyle="--",
+            label="Gemmfogre Kernel 2", marker="x")
+    plt.scatter(x_positions1,
+            pd_avg["Gemmforge Efficiency K3"],  c=sparse_rose, #linewidth=0.1, linestyle="--",
+            label="Gemmfogre Kernel 3", marker="s")
+    plt.scatter(x_positions1,
+            pd_avg["Gemmforge Efficiency 2"], c=dense_blue, #linewidth=0.1, linestyle="--",
+            label="Gemmfogre Kernel All", marker="v")
+    plt.scatter(x_positions1,
+            pd_avg["cuTensor Efficiency 2"], c=nvidia_green, #linewidth=0.1, linestyle="--",
+            label="cuTensor Kernel All", marker="*")
 
     plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
     plt.ylim((0, 100.0))
@@ -380,7 +397,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('Loop Unrolling Parameters', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1 + 1, kernel_strs,  rotation=70, ha='center', fontsize=7)
+    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='right', fontsize=7)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-eff.pdf")
@@ -389,6 +406,8 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
 if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
+                  "")
+    plot_roofline2(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "")
 
 correlation_matrix = pd_avg.corr()
