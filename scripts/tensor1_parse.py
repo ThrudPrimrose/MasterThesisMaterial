@@ -125,7 +125,9 @@ for r in range(runs):
                     print(subset)
                     sd = reduce(operator.mul, subset, 1)
                     r.append(float(sd))
-
+            r.append(min(i,j,k,l))
+            r.append(max(i,j,k,l))
+            r.append(np.var([i,j,k,l]))
             """
             variables = ["I", "J", "K", "L"]
             for r in range(1, len(variables) + 1):
@@ -174,7 +176,10 @@ for r in range(runs):
         "IJL",
         "IKL",
         "JKL",
-        "IJKL"
+        "IJKL",
+        "MIN",
+        "MAX",
+        "VAR"
     ])
     tmp1 = tmp1.sort_values(by="Kernel").copy()
     print(f"DATAFRAME {r}:")
