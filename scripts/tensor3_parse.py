@@ -284,14 +284,14 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
       ax[m].set_ylim(0,y_max+100)
 
     ax[1].set_xlabel(f"N = {Ns[1]}\n Index permutations", fontsize=14)
-    #plt.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=12)
+    ax[2].legend(loc='lower right', bbox_to_anchor=(1, 0), fontsize=12)
     plt.suptitle(title, fontsize=14)
     #fig.text(1, 0.00, 'Loop Unrolling Parameters', ha='center', fontsize=14)
     #plt.xlabel('Loop Unrolling Parameters', fontsize=12)
     ax[0].set_ylabel('Performance (GFLOPs/s)', fontsize=12)
     plt.tight_layout()
     plt.savefig(
-        f"{stdout_dir}/plots/kernel-2-bar.pdf")
+        f"{stdout_dir}/plots/kernel-3-bar.pdf")
     plt.clf()
 
 def round_up_to_power_of_ten(n):
