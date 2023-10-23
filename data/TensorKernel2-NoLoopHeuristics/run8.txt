@@ -1,0 +1,573 @@
+Dimensions: 32, 32, 32, 32, 32, 32
+Gemmforge Tensor Contraction took: 174.161 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 436.689
+Operational Theoretical Fused intensity: 5.65478
+Gemmforge GFLOPs/s: 436.689
+Operational intensity: 3.3933
+10.1601 % of roof w. respect to operational intensity achieved with Gemmforge
+16.9313 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+88.5466 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+10.7845 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+90.4683 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+36.8764 % of roof w. respect to operational intensity achieved with cuTensor
+61.4529 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 16, 16, 16, 16, 16, 16
+Gemmforge Tensor Contraction took: 31.6718 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1228.83
+Operational Theoretical Fused intensity: 2.97674
+Gemmforge GFLOPs/s: 1228.83
+Operational intensity: 1.78692
+54.3112 % of roof w. respect to operational intensity achieved with Gemmforge
+90.4743 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+89.4329 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+90.8715 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.9866 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+39.2489 % of roof w. respect to operational intensity achieved with cuTensor
+65.3828 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 3, 13, 5, 11, 7, 13
+Gemmforge Tensor Contraction took: 24.7898 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 628.862
+Operational Theoretical Fused intensity: 1.45955
+Gemmforge GFLOPs/s: 628.862
+Operational intensity: 1.02268
+56.6863 % of roof w. respect to operational intensity achieved with Gemmforge
+80.9018 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+42.1508 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+92.7065 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+84.4617 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+7.86287 % of roof w. respect to operational intensity achieved with cuTensor
+11.2218 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 52, 13, 17, 19, 99, 13
+Gemmforge Tensor Contraction took: 32.8042 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1299.67
+Operational Theoretical Fused intensity: 3.25635
+Gemmforge GFLOPs/s: 1299.67
+Operational intensity: 1.95893
+52.5102 % of roof w. respect to operational intensity achieved with Gemmforge
+87.2882 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+67.3658 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+90.0991 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.6603 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+37.919 % of roof w. respect to operational intensity achieved with cuTensor
+63.0331 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 11857 :_(
+Dimensions: 23, 93, 11, 13, 37, 93
+Gemmforge Tensor Contraction took: 17.3791 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2547.03
+Operational Theoretical Fused intensity: 4.40149
+Gemmforge GFLOPs/s: 2547.03
+Operational intensity: 3.68245
+76.1335 % of roof w. respect to operational intensity achieved with Gemmforge
+90.9993 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+90.3409 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+91.3018 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.6274 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+41.5501 % of roof w. respect to operational intensity achieved with cuTensor
+49.6632 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 8, 48, 26, 17, 35, 48
+Gemmforge Tensor Contraction took: 27.0833 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2506.76
+Operational Theoretical Fused intensity: 5.76418
+Gemmforge GFLOPs/s: 2506.76
+Operational intensity: 3.93106
+57.2159 % of roof w. respect to operational intensity achieved with Gemmforge
+83.8966 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+50.7363 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+84.8168 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+90.1218 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+42.5739 % of roof w. respect to operational intensity achieved with cuTensor
+62.4268 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 16, 23, 52, 36, 57, 23
+Gemmforge Tensor Contraction took: 322.644 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 233.208
+Operational Theoretical Fused intensity: 5.05165
+Gemmforge GFLOPs/s: 233.208
+Operational intensity: 2.82341
+6.07366 % of roof w. respect to operational intensity achieved with Gemmforge
+10.867 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+90.4729 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+6.18179 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+90.1359 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+41.6751 % of roof w. respect to operational intensity achieved with cuTensor
+74.5653 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 7993 :_(
+Dimensions: 13, 95, 30, 24, 16, 95
+Gemmforge Tensor Contraction took: 25.4983 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 3865.78
+Operational Theoretical Fused intensity: 8.80645
+Gemmforge GFLOPs/s: 3865.78
+Operational intensity: 6.41306
+57.7533 % of roof w. respect to operational intensity achieved with Gemmforge
+79.3072 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+85.9241 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+80.0168 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+77.1864 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+45.8234 % of roof w. respect to operational intensity achieved with cuTensor
+62.9249 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 13, 19, 75, 8, 22, 19
+Gemmforge Tensor Contraction took: 46.0037 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1407.78
+Operational Theoretical Fused intensity: 4.25038
+Gemmforge GFLOPs/s: 1407.78
+Operational intensity: 2.34946
+43.5761 % of roof w. respect to operational intensity achieved with Gemmforge
+78.8331 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+89.935 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+77.9575 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+79.5569 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+32.9969 % of roof w. respect to operational intensity achieved with cuTensor
+59.6943 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 21, 53, 41, 24, 97, 53
+Gemmforge Tensor Contraction took: 36.7146 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2738.85
+Operational Theoretical Fused intensity: 7.94307
+Gemmforge GFLOPs/s: 2738.85
+Operational intensity: 5.0678
+45.3649 % of roof w. respect to operational intensity achieved with Gemmforge
+71.1033 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+91.4126 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+62.5245 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.3523 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.6319 % of roof w. respect to operational intensity achieved with cuTensor
+63.6849 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 1009 :_(
+Dimensions: 10, 75, 54, 79, 93, 75
+Gemmforge Tensor Contraction took: 280.348 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 480.884
+Operational Theoretical Fused intensity: 10.6985
+Gemmforge GFLOPs/s: 480.884
+Operational intensity: 6.88595
+5.91367 % of roof w. respect to operational intensity achieved with Gemmforge
+9.18793 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+35.4179 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+5.91266 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+75.0255 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.5162 % of roof w. respect to operational intensity achieved with cuTensor
+62.949 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 597 :_(
+Dimensions: 32, 35, 15, 10, 39, 35
+Gemmforge Tensor Contraction took: 23.6377 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2007.76
+Operational Theoretical Fused intensity: 4.13613
+Gemmforge GFLOPs/s: 2007.76
+Operational intensity: 2.8611
+63.8643 % of roof w. respect to operational intensity achieved with Gemmforge
+92.325 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+91.8642 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+93.4734 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+90.0396 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+38.5316 % of roof w. respect to operational intensity achieved with cuTensor
+55.703 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 15, 70, 56, 29, 8, 70
+Gemmforge Tensor Contraction took: 177.793 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 766.505
+Operational Theoretical Fused intensity: 10.5236
+Gemmforge GFLOPs/s: 766.505
+Operational intensity: 6.6024
+9.58277 % of roof w. respect to operational intensity achieved with Gemmforge
+15.274 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+82.4155 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+10.2457 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+82.8429 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.0813 % of roof w. respect to operational intensity achieved with cuTensor
+63.8858 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 11, 84, 52, 47, 78, 84
+Gemmforge Tensor Contraction took: 822.283 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 165.672
+Operational Theoretical Fused intensity: 11.0814
+Gemmforge GFLOPs/s: 165.672
+Operational intensity: 7.30807
+1.96697 % of roof w. respect to operational intensity achieved with Gemmforge
+2.98255 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+76.8487 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+1.90664 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+86.6388 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+Error: CUTENSOR_STATUS_INTERNAL_ERROR
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 452
+cuTensor Kernel 1
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 540
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 548
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 556
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 564
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 572
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 580
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 588
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 597
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 603
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 609
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 615
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 621
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 627
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 633
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 639
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 648
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 653
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 659
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 668
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 673
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 680
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 689
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 694
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 720
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 727
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_13.cu 734
+111330 % of roof w. respect to operational intensity achieved with cuTensor
+168812 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 0 :_(
+Dimensions: 14, 11, 34, 73, 37, 11
+Gemmforge Tensor Contraction took: 67.0452 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 666.097
+Operational Theoretical Fused intensity: 2.90131
+Gemmforge GFLOPs/s: 666.097
+Operational intensity: 1.56999
+30.2054 % of roof w. respect to operational intensity achieved with Gemmforge
+55.819 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+48.9035 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+44.3084 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+80.5665 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+34.4181 % of roof w. respect to operational intensity achieved with cuTensor
+63.6039 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 24, 8, 42, 32, 77, 8
+Gemmforge Tensor Contraction took: 72.1384 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 557.318
+Operational Theoretical Fused intensity: 2.53295
+Gemmforge GFLOPs/s: 557.318
+Operational intensity: 1.34976
+28.9478 % of roof w. respect to operational intensity achieved with Gemmforge
+54.3234 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+91.799 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+38.9813 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.9381 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.8774 % of roof w. respect to operational intensity achieved with cuTensor
+76.7104 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 3844 :_(
+Dimensions: 11, 37, 41, 26, 91, 37
+Gemmforge Tensor Contraction took: 34.1037 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2378.91
+Operational Theoretical Fused intensity: 6.20319
+Gemmforge GFLOPs/s: 2378.91
+Operational intensity: 3.83707
+50.4549 % of roof w. respect to operational intensity achieved with Gemmforge
+81.5678 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+70.2238 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+78.9065 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+88.2044 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+33.886 % of roof w. respect to operational intensity achieved with cuTensor
+54.7817 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 56 :_(
+Dimensions: 18, 60, 47, 27, 69, 60
+Gemmforge Tensor Contraction took: 871.231 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 131.494
+Operational Theoretical Fused intensity: 8.96937
+Gemmforge GFLOPs/s: 131.494
+Operational intensity: 5.6865
+1.92878 % of roof w. respect to operational intensity achieved with Gemmforge
+3.04229 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+58.9861 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+1.8797 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+88.5516 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+Error: CUTENSOR_STATUS_INTERNAL_ERROR
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 452
+cuTensor Kernel 1
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 540
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 548
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 556
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 564
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 572
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 580
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 588
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 597
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 603
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 609
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 615
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 621
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 627
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 633
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 639
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 648
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 653
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 659
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 668
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 673
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 680
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 689
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 694
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 720
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 727
+Error: CUTENSOR_STATUS_INVALID_VALUE
+/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_code/benchmark_cuda_tensor_2_variant_17.cu 734
+211746 % of roof w. respect to operational intensity achieved with cuTensor
+333989 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 0 :_(
+Dimensions: 18, 19, 8, 28, 48, 19
+Gemmforge Tensor Contraction took: 23.2649 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1311.34
+Operational Theoretical Fused intensity: 2.72051
+Gemmforge GFLOPs/s: 1311.34
+Operational intensity: 1.8718
+63.417 % of roof w. respect to operational intensity achieved with Gemmforge
+92.1715 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+92.1792 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+93.4117 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.6984 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+28.4551 % of roof w. respect to operational intensity achieved with cuTensor
+41.3572 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 46, 46, 13, 22, 38, 46
+Gemmforge Tensor Contraction took: 21.7202 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2229.43
+Operational Theoretical Fused intensity: 4.40411
+Gemmforge GFLOPs/s: 2229.43
+Operational intensity: 3.2087
+66.6003 % of roof w. respect to operational intensity achieved with Gemmforge
+91.4125 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+90.3286 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+92.6565 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+88.3637 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.9198 % of roof w. respect to operational intensity achieved with cuTensor
+56.1646 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 15, 37, 31, 35, 87, 37
+Gemmforge Tensor Contraction took: 33.7683 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2229.29
+Operational Theoretical Fused intensity: 5.91621
+Gemmforge GFLOPs/s: 2229.29
+Operational intensity: 3.73423
+49.5752 % of roof w. respect to operational intensity achieved with Gemmforge
+78.5428 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+50.1101 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+78.8781 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+85.0704 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+42.4137 % of roof w. respect to operational intensity achieved with cuTensor
+67.1968 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 526 :_(
+Dimensions: 11, 97, 35, 77, 27, 97
+Gemmforge Tensor Contraction took: 37.8916 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 3044.24
+Operational Theoretical Fused intensity: 10.0429
+Gemmforge GFLOPs/s: 3044.24
+Operational intensity: 7.10175
+39.8806 % of roof w. respect to operational intensity achieved with Gemmforge
+56.3968 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+46.8363 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+50.6797 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+78.5998 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+35.1902 % of roof w. respect to operational intensity achieved with cuTensor
+49.7638 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 50, 29, 17, 8, 41, 29
+Gemmforge Tensor Contraction took: 26.1774 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1848.38
+Operational Theoretical Fused intensity: 4.04443
+Gemmforge GFLOPs/s: 1848.38
+Operational intensity: 2.6737
+60.1277 % of roof w. respect to operational intensity achieved with Gemmforge
+90.9536 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+92.1412 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+91.7118 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.3711 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+41.5837 % of roof w. respect to operational intensity achieved with cuTensor
+62.9026 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 64, 39, 12, 8, 26, 39
+Gemmforge Tensor Contraction took: 21.769 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1942.18
+Operational Theoretical Fused intensity: 3.83172
+Gemmforge GFLOPs/s: 1942.18
+Operational intensity: 2.76728
+66.6862 % of roof w. respect to operational intensity achieved with Gemmforge
+92.3371 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+91.8909 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+93.3489 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.9288 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+33.5088 % of roof w. respect to operational intensity achieved with cuTensor
+46.398 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 15, 29, 47, 61, 43, 29
+Gemmforge Tensor Contraction took: 47.419 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1779.71
+Operational Theoretical Fused intensity: 5.85423
+Gemmforge GFLOPs/s: 1779.71
+Operational intensity: 3.34653
+39.9964 % of roof w. respect to operational intensity achieved with Gemmforge
+69.9674 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+49.4423 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+72.0657 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+68.7188 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+39.2879 % of roof w. respect to operational intensity achieved with cuTensor
+68.728 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 29, 95, 26, 24, 8, 95
+Gemmforge Tensor Contraction took: 22.5046 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 4115.54
+Operational Theoretical Fused intensity: 8.36666
+Gemmforge GFLOPs/s: 4115.54
+Operational intensity: 6.16486
+64.7166 % of roof w. respect to operational intensity achieved with Gemmforge
+87.8304 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+82.1721 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+87.3502 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.4122 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+45.9799 % of roof w. respect to operational intensity achieved with cuTensor
+62.4018 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 10, 16, 48, 72, 28, 16
+Gemmforge Tensor Contraction took: 377.777 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 157.35
+Operational Theoretical Fused intensity: 3.83418
+Gemmforge GFLOPs/s: 157.35
+Operational intensity: 2.08098
+5.39927 % of roof w. respect to operational intensity achieved with Gemmforge
+9.94808 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+82.0544 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+5.5997 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+74.5812 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.902 % of roof w. respect to operational intensity achieved with cuTensor
+75.3614 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 11, 16, 22, 11, 38, 16
+Gemmforge Tensor Contraction took: 32.2097 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1269.02
+Operational Theoretical Fused intensity: 3.1
+Gemmforge GFLOPs/s: 1269.02
+Operational intensity: 1.87069
+53.8578 % of roof w. respect to operational intensity achieved with Gemmforge
+89.25 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+91.8526 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+90.7261 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+86.8518 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+39.8387 % of roof w. respect to operational intensity achieved with cuTensor
+66.0185 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Dimensions: 24, 68, 42, 26, 83, 68
+Gemmforge Tensor Contraction took: 564.277 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 202.376
+Operational Theoretical Fused intensity: 9.25626
+Gemmforge GFLOPs/s: 202.376
+Operational intensity: 6.0631
+2.87649 % of roof w. respect to operational intensity achieved with Gemmforge
+4.39141 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+90.5492 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+2.80946 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.3295 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+39.7996 % of roof w. respect to operational intensity achieved with cuTensor
+60.7602 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 1248 :_(
+Dimensions: 10, 26, 83, 44, 48, 26
+Gemmforge Tensor Contraction took: 45.5537 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 1988.26
+Operational Theoretical Fused intensity: 5.84282
+Gemmforge GFLOPs/s: 1988.26
+Operational intensity: 3.1969
+44.7705 % of roof w. respect to operational intensity achieved with Gemmforge
+81.8248 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+81.0676 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+80.4433 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+83.5468 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+27.2341 % of roof w. respect to operational intensity achieved with cuTensor
+49.7745 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 12918 :_(
+Dimensions: 56, 73, 15, 17, 35, 73
+Gemmforge Tensor Contraction took: 20.2727 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 2846.99
+Operational Theoretical Fused intensity: 5.42818
+Gemmforge GFLOPs/s: 2846.99
+Operational intensity: 4.17718
+69.0038 % of roof w. respect to operational intensity achieved with Gemmforge
+89.6694 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+78.4284 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+90.1367 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+89.635 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+43.4235 % of roof w. respect to operational intensity achieved with cuTensor
+56.4282 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
