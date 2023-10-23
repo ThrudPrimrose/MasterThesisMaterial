@@ -244,7 +244,7 @@ for r in range(runs):
         "MAX",
         "VAR"
     ])
-    tmp1 = tmp1.sort_values(by="Kernel").copy()
+    #tmp1 = tmp1.sort_values(by="Kernel").copy()
     print(f"DATAFRAME {r}:")
     print(tmp1)
 
