@@ -141,11 +141,11 @@ for r in range(runs):
           "cuTensor GFLOP/s",
           "Operational Intensity",
       ])
-      #tmp1 = tmp1.sort_values(by="Kernel").copy()
+      tmp1 = tmp.sort_values(by="Kernel").copy()
       print(f"DATAFRAME {r}:")
-      print(tmp)
+      print(tmp1)
 
-      pd_dataframes.append(tmp.copy())
+      pd_dataframes.append(tmp1.copy())
 
 #raise Exception(report1, report2, report3)
 #raise Exception(pd_dataframes1)
@@ -154,6 +154,10 @@ pd_avgs = list()
 pd_vars = list()
 
 Ns = [16, 31, 32]
+
+for dfs in [pd_dataframes1, pd_dataframes2, pd_daraframes3]:
+  for df in dfs:
+    df = df.sort_values(by='Kernel')
 
 for pd_dataframes in [pd_dataframes1, pd_dataframes2, pd_daraframes3]:
   # This takes the average and covariance of 2 pandas data frames,
@@ -197,7 +201,7 @@ def round_up_to_power_of_ten(n):
 def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, 
                   title):
     plt.clf()
-    fig, ax = plt.subplots(1, 3, figsize=(12, 6))  # Adjust the width and height as needed
+    fig, ax = plt.subplots(1, 3, figsize=(10, 6))  # Adjust the width and height as needed
     def roof(val):
         return min(peak_floating_point_perf,
                   (peak_memory_bandwidth * val))
@@ -265,7 +269,9 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
           yloc = value + 1
           if float_number > 90.0:
               yloc = value + (100-float_number) + 25
-          if m == 1:
+          if m == 2 and i == 3:
+            ax[m].text(x_positions1[i] - bar_width/2, value + 200, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
+          elif m == 1:
             ax[m].text(x_positions1[i] - bar_width/2, value + 100, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
           else:
             ax[m].text(x_positions1[i] - bar_width/2, value + 50, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
@@ -277,7 +283,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
 
       ax[m].set_ylim(0,y_max+100)
 
-    ax[1].set_xlabel("Index permutations", fontsize=14)
+    ax[1].set_xlabel(f"N = {Ns[1]}\n Index permutations", fontsize=14)
     #plt.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=12)
     plt.suptitle(title, fontsize=14)
     #fig.text(1, 0.00, 'Loop Unrolling Parameters', ha='center', fontsize=14)
