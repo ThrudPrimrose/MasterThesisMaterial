@@ -7,6 +7,7 @@ from params import *
 from numba import cuda
 import random
 
+data_dir = f"/tmp"
 
 """
 shrmem_limit = 48*1024

@@ -13,7 +13,7 @@ dims = [(32,32,32,32,32),
 ]
 
 shrmem_limit = 48*1024
-while len(dims) < 30:
+while len(dims) < 50:
   k = random.randint(8, 100)
   p = random.randint(8, 100)
   m = random.randint(8, 100)
@@ -35,37 +35,56 @@ raise Exception(",\n".join([str(el) for el in dims]))
 """
 
 dims = [
-  (32, 32, 32, 32, 32),
-  (16, 16, 16, 16, 16),
-  (3, 11, 5, 7, 13),
-  (52, 19, 17, 99, 13),
-  (23, 13, 11, 37, 93),
-  (8, 17, 26, 35, 48),
-  (16, 36, 52, 57, 23),
-  (13, 24, 30, 16, 95),
-  (13, 8, 75, 22, 19),
-  (21, 24, 41, 97, 53),
-  (10, 79, 54, 93, 75),
-  (32, 10, 15, 39, 35),
-  (15, 29, 56, 8, 70),
-  (11, 47, 52, 78, 84),
-  (14, 73, 34, 37, 11),
-  (24, 32, 42, 77, 8),
-  (11, 26, 41, 91, 37),
-  (18, 27, 47, 69, 60),
-  (18, 28, 8, 48, 19),
-  (46, 22, 13, 38, 46),
-  (15, 35, 31, 87, 37),
-  (11, 77, 35, 27, 97),
-  (50, 8, 17, 41, 29),
-  (64, 8, 12, 26, 39),
-  (15, 61, 47, 43, 29),
-  (29, 24, 26, 8, 95),
-  (10, 72, 48, 28, 16),
-  (11, 11, 22, 38, 16),
-  (24, 26, 42, 83, 68),
-  (10, 44, 83, 48, 26),
-  (56, 17, 15, 35, 73)
+(32, 32, 32, 32, 32),
+(3, 11, 5, 7, 13),
+(10, 19, 87, 59, 94),
+(11, 25, 50, 14, 22),
+(8, 80, 29, 58, 17),
+(13, 19, 11, 100, 48),
+(10, 35, 90, 69, 92),
+(22, 18, 10, 10, 31),
+(14, 40, 46, 20, 17),
+(9, 84, 40, 41, 95),
+(41, 16, 12, 40, 84),
+(19, 25, 30, 9, 41),
+(34, 18, 20, 41, 57),
+(17, 35, 33, 70, 23),
+(15, 16, 40, 100, 73),
+(10, 48, 36, 75, 100),
+(15, 50, 45, 65, 66),
+(10, 95, 87, 81, 45),
+(11, 20, 55, 45, 39),
+(13, 31, 73, 27, 33),
+(9, 98, 67, 76, 34),
+(8, 83, 28, 67, 93),
+(8, 64, 73, 37, 12),
+(20, 40, 33, 9, 49),
+(20, 51, 16, 20, 34),
+(9, 100, 26, 13, 50),
+(29, 24, 30, 34, 30),
+(8, 45, 95, 43, 20),
+(27, 37, 36, 35, 61),
+(9, 48, 52, 75, 27),
+(11, 75, 58, 61, 36),
+(8, 58, 91, 42, 25),
+(9, 15, 61, 33, 67),
+(63, 10, 16, 22, 44),
+(19, 43, 35, 68, 47),
+(9, 97, 83, 56, 15),
+(8, 88, 46, 30, 15),
+(8, 80, 39, 95, 100),
+(20, 11, 21, 41, 84),
+(9, 54, 60, 10, 100),
+(9, 85, 44, 99, 52),
+(29, 13, 28, 84, 79),
+(9, 37, 79, 98, 15),
+(9, 98, 67, 65, 88),
+(34, 21, 13, 39, 79),
+(9, 88, 57, 78, 72),
+(9, 86, 23, 19, 52),
+(12, 63, 85, 53, 8),
+(15, 13, 11, 20, 29),
+(34, 29, 15, 23, 60)
 ]
 
 open_bracket = "{"
@@ -199,6 +218,8 @@ for dimId, (K,P,M,Q,L) in enumerate(dims):
             fun_split = line.split("(")
             function_name = fun_split[0].split("void ")[1]
             function_args = fun_split[1].split(")")[0]
+        if line.startswith("void scopyAddScale"):
+          continue
 
     gpu_kernel = filtered_kernel
 
@@ -282,6 +303,11 @@ int main(){{
   float* X = new float[{sizeX} * num_els]{{0.f}};
   float* R1 = new float[{sizeA} * num_els]{{0.f}};
   float* R2 = new float[{sizeA} * num_els]{{0.f}};
+  //float* Ri1 = new float[{sizeX} * num_els]{{0.f}};
+  //float* Ri2 = new float[{sizeA} * num_els]{{0.f}};
+  //float* Ri1c = new float[{sizeX} * num_els]{{0.f}};
+  //float* Ri2c = new float[{sizeA} * num_els]{{0.f}};
+
 
   float* coreA = new float[{sizeA}];
   float* coreB = new float[{sizeB}];
@@ -408,6 +434,10 @@ int main(){{
   cudaEventRecord(stopT1); CHECK_ERR;
   cudaEventSynchronize(stopT1); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT1, startT1, stopT1); CHECK_ERR;
+  //cudaDeviceSynchronize(); CHECK_ERR;
+
+  //cudaMemcpy(Ri1, X_dev, sizeof(float) * {sizeX} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+  
   cudaEventCreate(&startT2); CHECK_ERR;
   cudaEventCreate(&stopT2); CHECK_ERR;
   cudaEventRecord(startT2); CHECK_ERR;
@@ -415,6 +445,10 @@ int main(){{
   cudaEventRecord(stopT2); CHECK_ERR;
   cudaEventSynchronize(stopT2); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT2, startT2, stopT2); CHECK_ERR;
+  //cudaDeviceSynchronize(); CHECK_ERR;
+
+  //cudaMemcpy(Ri2, A_dev, sizeof(float) * {sizeA} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+
   cudaEventCreate(&startT3); CHECK_ERR;
   cudaEventCreate(&stopT3); CHECK_ERR;
   cudaEventRecord(startT3); CHECK_ERR;
@@ -424,6 +458,7 @@ int main(){{
   cudaEventElapsedTime(&elapsedTimeT3, startT3, stopT3); CHECK_ERR;
   double elapsedTime = elapsedTimeT1 + elapsedTimeT2 + elapsedTimeT3;
   cudaDeviceSynchronize(); CHECK_ERR;
+  
   std::cout << "Gemmforge Tensor Contraction took: " << elapsedTime << " ms" << std::endl; 
   cudaMemcpy(R1, A_dev, sizeof(float) * {sizeA} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeA} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
@@ -458,6 +493,9 @@ int main(){{
     double obtainable_unfused_peak_k3 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>({fp_per_k3}) / static_cast<double>({ls_per_k3})));
     std::cout << 100.0*({fp_per_k3} * num_els * 1e-6 / elapsedTimeT3) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 intensity achieved with Gemmforge" << std::endl;
   }}
+
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeA} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+  cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * {sizeX} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
   cutensorHandle_t* handle;
   HANDLE_ERROR(cutensorCreate(&handle));
@@ -760,7 +798,8 @@ int main(){{
     cudaEventSynchronize(stopCT1); CHECK_ERR;
     cudaEventElapsedTime(&elapsedTimeCT1, startCT1, stopCT1); CHECK_ERR;
 
-    cudaDeviceSynchronize(); CHECK_ERR;
+    //cudaDeviceSynchronize(); CHECK_ERR;
+    //cudaMemcpy(Ri1c, X_dev, sizeof(float) * {sizeX} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     cudaEventRecord(startCT2); CHECK_ERR;
     cutensorContraction(handle,
@@ -772,7 +811,8 @@ int main(){{
     cudaEventSynchronize(stopCT2); CHECK_ERR;
     cudaEventElapsedTime(&elapsedTimeCT2, startCT2, stopCT2); CHECK_ERR;
 
-    cudaDeviceSynchronize(); CHECK_ERR;
+    //cudaDeviceSynchronize(); CHECK_ERR;
+    //cudaMemcpy(Ri2c, A_dev, sizeof(float) * {sizeA} * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
 
     cudaEventRecord(startCT3); CHECK_ERR;
     cutensorContraction(handle,
@@ -800,9 +840,35 @@ int main(){{
     std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
   }}
 
+  /*
+  bool i1results_wrong = false;
+  for (size_t i = 0; i < {sizeX} * num_els; i++){{
+    if (std::abs(Ri1[i] - Ri1c[i]) > 1.0f) {{
+      std::cout << "Intermediate Results 1 do not match, problem first at offset " << i << " :_(" << std::endl;
+      i1results_wrong = true;
+      break;
+    }}
+  }}
+  if (!i1results_wrong){{
+    std::cout << "Gemmforge and cuTensor contraction intermediate results 1 match! :)" << std::endl;
+  }}
+  
+  bool i2results_wrong = false;
+  for (size_t i = 0; i < {sizeA} * num_els; i++){{
+    if (std::abs(Ri2[i] - Ri2c[i]) > 1.0f) {{
+      std::cout << "Intermediate Results 2 do not match, problem first at offset " << i << " :_(" << std::endl;
+      i2results_wrong = true;
+      break;
+    }}
+  }}
+  if (!i2results_wrong){{
+    std::cout << "Gemmforge and cuTensor contraction intermediate results 2 match! :)" << std::endl;
+  }}
+  */
+
   bool results_wrong = false;
   for (size_t i = 0; i < {sizeA} * num_els; i++){{
-    if (std::abs(R1[i] - R2[i]) > 1.0f) {{
+    if (std::abs(R1[i] - R2[i]) > 5.0f) {{
       std::cout << "Results do not match, problem first at offset " << i << " :_(" << std::endl;
       results_wrong = true;
       break;

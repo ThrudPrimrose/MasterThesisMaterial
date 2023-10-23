@@ -26,6 +26,7 @@ from params import *
 
 FLOAT_SIZE = 4
 
+stdout_dir = f"{data_dir}/Product2"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -232,7 +233,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     #plt.xlim((0, round_up_to_power_of_ten(xmax)))
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Tensor Dimensions', fontsize=12)
+    plt.xlabel('Tensor Dimensions I-J-K', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
     plt.xticks(x_positions1 + (bar_width) / 2, kernel_strs, rotation=70, ha='right', fontsize=12)
     plt.tight_layout()

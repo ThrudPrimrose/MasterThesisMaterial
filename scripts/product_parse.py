@@ -26,6 +26,8 @@ from params import *
 
 FLOAT_SIZE = 4
 
+stdout_dir = f"{data_dir}/Product"
+
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
