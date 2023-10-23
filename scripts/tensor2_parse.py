@@ -158,6 +158,9 @@ for r in range(runs):
                     sd = reduce(operator.mul, subset, 1)
                     r.append(float(sd))
 
+            r.append(min(k,l,m,p,q))
+            r.append(max(k,l,m,p,q))
+            r.append(np.var([k,l,m,p,q]))
             report.append(r)
             """
             variables = ["K", "L", "M", "P", "Q"]
@@ -236,7 +239,10 @@ for r in range(runs):
         "KLPQ",
         "KMPQ",
         "LMPQ",
-        "KLMPQ"
+        "KLMPQ",
+        "MIN",
+        "MAX",
+        "VAR"
     ])
     tmp1 = tmp1.sort_values(by="Kernel").copy()
     print(f"DATAFRAME {r}:")
