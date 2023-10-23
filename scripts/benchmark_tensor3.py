@@ -7,6 +7,7 @@ from params import *
 from numba import cuda
 import random
 import itertools
+import sys
 
 open_bracket = "{"
 close_bracket = "}"
@@ -25,117 +26,120 @@ for p1 in list(itertools.permutations(pAA)):
 pp = random.sample(p, 14)
 print(pp)
 """
-pp = [(("'x'", "'k'", "'i'"), ("'k'", "'x'", "'j'")), (("'x'", "'i'", "'k'"), ("'k'", "'j'", "'x'")), (("'k'", "'i'", "'x'"), ("'k'", "'x'", "'j'")), (("'i'", "'k'", "'x'"), ("'k'", "'j'", "'x'")), (("'k'", "'x'", "'i'"), ("'j'", "'x'", "'k'")), (("'x'", "'k'", "'i'"), ("'k'", "'j'", "'x'")), (("'k'", "'i'", "'x'"), ("'x'", "'k'", "'j'")),
-      (("'i'", "'x'", "'k'"), ("'k'", "'j'", "'x'")), (("'k'", "'x'", "'i'"), ("'x'", "'j'", "'k'")), (("'i'", "'k'", "'x'"), ("'x'", "'k'", "'j'")), (("'x'", "'k'", "'i'"), ("'x'", "'j'", "'k'")), (("'k'", "'i'", "'x'"), ("'j'", "'k'", "'x'")), (("'i'", "'x'", "'k'"), ("'x'", "'k'", "'j'")), (("'x'", "'k'", "'i'"), ("'j'", "'k'", "'x'"))]
+#raise Exception(pp)
+pp = [(("'x'", "'k'", "'i'"), ("'k'", "'x'", "'j'")), (("'k'", "'x'", "'i'"), ("'j'", "'k'", "'x'")), (("'k'", "'i'", "'x'"), ("'x'", "'k'", "'j'")), (("'i'", "'k'", "'x'"), ("'j'", "'x'", "'k'")), (("'x'", "'i'", "'k'"), ("'x'", "'k'", "'j'")), (("'x'", "'k'", "'i'"), ("'x'", "'j'", "'k'")), (("'k'", "'x'", "'i'"), ("'x'", "'j'", "'k'")), (("'k'", "'i'", "'x'"), ("'x'", "'j'", "'k'")), (("'k'", "'i'", "'x'"), ("'j'", "'x'", "'k'")), (("'i'", "'x'", "'k'"), ("'x'", "'k'", "'j'")), (("'x'", "'i'", "'k'"), ("'j'", "'x'", "'k'")), (("'i'", "'x'", "'k'"), ("'x'", "'j'", "'k'")), (("'i'", "'x'", "'k'"), ("'k'", "'x'", "'j'")), (("'x'", "'k'", "'i'"), ("'j'", "'x'", "'k'"))]
 
-
-for N in [16, 31, 32]:
+for N in [16, 31, 32]: #, 31, 32
   pC = pCC
+  dimId = 0
   for _pA,_pB in pp:
-    pA = list(_pA)
-    pB = list(_pB)
     dimId += 1
-    print(pA, pB, pC)
+    print("============================================")
+    try:
+      pA = list(_pA)
+      pB = list(_pB)
+      print(pA, pB, pC)
 
-    shapeA = (N, N, N)
-    shapeB = (N, N, N)
-    shapeC = (N, N, N)
-    A = Tensor('A', shapeA)
-    B = Tensor('B', shapeB)
-    C = Tensor('C', shapeC)
-    a_vector_init = ", ".join(pA) + ", 'b'"
-    b_vector_init = ", ".join(pB) + ", 'b'"
-    c_vector_init = ", ".join(pC) + ", 'b'"
+      shapeA = (N, N, N)
+      shapeB = (N, N, N)
+      shapeC = (N, N, N)
+      A = Tensor('A', shapeA)
+      B = Tensor('B', shapeB)
+      C = Tensor('C', shapeC)
+      a_vector_init = ", ".join(pA) + ", 'b'"
+      b_vector_init = ", ".join(pB) + ", 'b'"
+      c_vector_init = ", ".join(pC) + ", 'b'"
 
-    yA = "".join(pA).replace("'", "")
-    yB = "".join(pB).replace("'", "")
-    yC = "".join(pC).replace("'", "")
-    print(yA, yB, yC)
+      yA = "".join(pA).replace("'", "")
+      yB = "".join(pB).replace("'", "")
+      yC = "".join(pC).replace("'", "")
+      print(yA, yB, yC)
 
-    kernel1 = C[yC] <= A[yA] * B[yB]
+      kernel1 = C[yC] <= A[yA] * B[yB]
 
-    sizeA = reduce(operator.mul, shapeA, 1)
-    sizeB = reduce(operator.mul, shapeB, 1)
-    sizeC = reduce(operator.mul, shapeC, 1)
-    maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC))
+      sizeA = reduce(operator.mul, shapeA, 1)
+      sizeB = reduce(operator.mul, shapeB, 1)
+      sizeC = reduce(operator.mul, shapeC, 1)
+      maxShapeLen = max(len(shapeA), len(shapeB), len(shapeC))
 
-    def get_available_mem_on_gpu():
-        meminfo = cuda.current_context().get_memory_info()
-        return meminfo[0]
+      def get_available_mem_on_gpu():
+          meminfo = cuda.current_context().get_memory_info()
+          return meminfo[0]
 
-    def get_suggested_num_elements():
-        # 1 pointer extra needed per element
-        per_el_size = (sizeA + sizeB + sizeC) * 4 + (3 * 4)
+      def get_suggested_num_elements():
+          # 1 pointer extra needed per element
+          per_el_size = (sizeA + sizeB + sizeC) * 4 + (3 * 4)
 
-        available_mem = get_available_mem_on_gpu()
-        can_fit_els = available_mem // per_el_size
-        lower = int(0.90 * can_fit_els)
-        return lower
+          available_mem = get_available_mem_on_gpu()
+          can_fit_els = available_mem // per_el_size
+          lower = int(0.90 * can_fit_els)
+          return lower
 
-    num_els = get_suggested_num_elements()
+      num_els = get_suggested_num_elements()
 
-    gpu_kernels = list()
-    function_names = list()
-    function_argss = list()
+      gpu_kernels = list()
+      function_names = list()
+      function_argss = list()
 
-    peakFLOPGiven = tensorPeakFLOP
-    peakBandwidthGiven = tensorPeakBandwidth
+      peakFLOPGiven = tensorPeakFLOP
+      peakBandwidthGiven = tensorPeakBandwidth
 
-    ls_per_el = sizeC + sizeA + sizeB
-    ls_per_el *= 4
-    ls_unfused_per_el = sizeC \
-        + sizeA \
-        + sizeB
-    ls_unfused_per_el *= 4
+      ls_per_el = sizeC + sizeA + sizeB
+      ls_per_el *= 4
+      ls_unfused_per_el = sizeC \
+          + sizeA \
+          + sizeB
+      ls_unfused_per_el *= 4
 
-    k0 = N*N*N*N*2
-    fp_per_el = k0
-    fp_unfused_per_el = fp_per_el
+      k0 = N*N*N*N*2
+      fp_per_el = k0
+      fp_unfused_per_el = fp_per_el
 
-    for kernel in [kernel1]:
-        # for kernel in [kernel1, kernel2, kernel3]:
-        arch = useArchitectureIdentifiedBy(
-            host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
-        generator = Generator(arch)
+      # for kernel in [kernel1, kernel2, kernel3]:
+      arch = useArchitectureIdentifiedBy(
+          host_arch="shsw", device_arch="ssm_86", device_backend="cuda")
+      generator = Generator(arch)
 
-        generator.add(name='kernel', ast=kernel, target="gpu")
+      generator.add(name='kernel', ast=kernel1, target="gpu")
 
-        directory = os.path.dirname(os.path.abspath(__file__))
-        generator.generate(outputDir="/tmp",
-                           gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
+      directory = os.path.dirname(os.path.abspath(__file__))
+      generator.generate(outputDir="/tmp",
+                        gemm_cfg=GeneratorCollection([GemmForge(arch), Eigen(arch)]))
 
-        assert (len(generator.kernels()) == 1)
+      assert (len(generator.kernels()) == 1)
 
-        gpu_kernel = generator.kernels()[0]
-        gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
-        gpu_kernel = gpu_subroutine_file.read()
-        gpu_subroutine_file.close()
+      gpu_kernel = generator.kernels()[0]
+      gpu_subroutine_file = open("/tmp/gpulike_subroutine.cpp", "r")
+      gpu_kernel = gpu_subroutine_file.read()
+      gpu_subroutine_file.close()
 
-        gemmforge_kernel_lines = gpu_kernel.split('\n')
+      gemmforge_kernel_lines = gpu_kernel.split('\n')
 
-        function_name = ""
-        function_args = ""
+      function_name = ""
+      function_args = ""
 
-        filtered_kernel = ""
-        for line in gemmforge_kernel_lines:
-            if '#include "gemmforge_aux.h"' in line:
-                continue
-            filtered_kernel += line + "\n"
-            if line.startswith("void sloopOverGEMM") or line.startswith("void sproduct"):
-                fun_split = line.split("(")
-                function_name = fun_split[0].split("void ")[1]
-                function_args = fun_split[1].split(")")[0]
+      filtered_kernel = ""
+      for line in gemmforge_kernel_lines:
+          if '#include "gemmforge_aux.h"' in line:
+              continue
+          filtered_kernel += line + "\n"
+          if line.startswith("void sloopOverGEMM") or line.startswith("void sproduct"):
+              fun_split = line.split("(")
+              function_name = fun_split[0].split("void ")[1]
+              function_args = fun_split[1].split(")")[0]
+          if line.startswith("void scopyAddScale"):
+            raise Exception("Skip ScopScaleAdd")
 
-        gpu_kernel = filtered_kernel
+      gpu_kernel = filtered_kernel
 
-        print(function_name)
-        print(function_args)
+      print(function_name)
+      print(function_args)
 
-        function_names.append(function_name)
-        function_argss.append(function_args)
-        gpu_kernels.append(gpu_kernel)
+      function_names.append(function_name)
+      function_argss.append(function_args)
+      gpu_kernels.append(gpu_kernel)
 
-        benchmark_str = f"""
+      benchmark_str = f"""
 #include <random>
 #include <iostream>
 #include <cstring>
@@ -496,13 +500,20 @@ int main(){{
 }}
 
 """
-
-        if dimId < 10:
-            code_file = open(
-                f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_3_variant_0{dimId}.cu", "w")
-        else:
-            code_file = open(
-                f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_3_variant_{dimId}.cu", "w")
-        code_file.write(benchmark_str)
-        code_file.flush()
-        code_file.close()
+      if dimId < 10:
+          code_file = open(
+              f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_3_variant_0{dimId}_N_{N}.cu", "w")
+      else:
+          code_file = open(
+              f"{scripts_dir}/cuda_code/benchmark_cuda_tensor_3_variant_{dimId}_N_{N}.cu", "w")
+      code_file.write(benchmark_str)
+      code_file.flush()
+      code_file.close()
+      print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    except Exception as e:
+      print(e)
+      sys.stderr.write(str(e)+ "\n")
+      if os.path.exists("/tmp/gpulike_subroutine.cpp"):
+        os.remove("/tmp/gpulike_subroutine.cpp")
+      print("*********************************")
+      #raise Exception(e)
