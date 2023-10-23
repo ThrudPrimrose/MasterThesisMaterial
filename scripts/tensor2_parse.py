@@ -397,7 +397,7 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('Loop Unrolling Parameters', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='right', fontsize=7)
+    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='center', fontsize=7)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-eff.pdf")
