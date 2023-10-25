@@ -13,7 +13,7 @@ report_path = f"{scripts_dir}/reports"
 out_path = stdout_dir
 # err_path = stdout_dir
 
-# mode = "Profile"
+#mode = "Profile"
 mode = "Run"
 
 for path in [code_path, exec_path, report_path, out_path]:
@@ -63,7 +63,8 @@ for i in range(runs):
     files = os.listdir(code_path)
 
     # Sort the files by name
-    #files.sort(key=lambda x: int(x[-5:-3]))
+    if sort:
+        files.sort(key=lambda x: int(x[-5:-3]))
 
     for file in files:
         filename = os.fsdecode(file)
