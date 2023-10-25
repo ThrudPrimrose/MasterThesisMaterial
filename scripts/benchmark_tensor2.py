@@ -149,6 +149,7 @@ for dimId, (K,P,M,Q,L) in enumerate(dims):
   kernel2 = A['kpm'] <= A['kpm'] + F['lm'] * E['kpl']
   kernel3 = A['kpm'] <= A['kpm'] + B['m']  * X['kp']
 
+  # kernel0 = A['kpm'] <= A['kpm'] + B['m'] * C['kq'] * D['qp'] + E['kpl'] * F['lm']
 
   sizeA = reduce(operator.mul, shapeA, 1)
   sizeB = reduce(operator.mul, shapeB, 1)

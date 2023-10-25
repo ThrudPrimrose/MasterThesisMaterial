@@ -30,7 +30,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel3-LoadBoth-NewLoad"
+stdout_dir = f"{data_dir}/TensorKernel3-LoadBoth-PreferExact"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
