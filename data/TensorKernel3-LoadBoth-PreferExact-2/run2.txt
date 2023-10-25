@@ -1,0 +1,165 @@
+Kernel 5, N: 16
+FileName: benchmark_cuda_tensor_3_variant_05_N_16.cu
+Dimensions: 16, 16, 16
+Indices: ijk-xik-xkj
+Gemmforge Tensor Contraction took: 14.9262 ms
+Gemmforge Kernel GFLOPs/s: 1650.5
+Operational intensity: 2.66667
+81.4306 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+28.5069 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 6, N: 16
+FileName: benchmark_cuda_tensor_3_variant_06_N_16.cu
+Dimensions: 16, 16, 16
+Indices: ijk-xki-xjk
+Gemmforge Tensor Contraction took: 14.9289 ms
+Gemmforge Kernel GFLOPs/s: 1650.2
+Operational intensity: 2.66667
+81.4159 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+28.1409 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 10, N: 16
+FileName: benchmark_cuda_tensor_3_variant_010_N_16.cu
+Dimensions: 16, 16, 16
+Indices: ijk-ixk-xkj
+Gemmforge Tensor Contraction took: 14.9182 ms
+Gemmforge Kernel GFLOPs/s: 1651.39
+Operational intensity: 2.66667
+81.4746 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+33.7617 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 12, N: 16
+FileName: benchmark_cuda_tensor_3_variant_012_N_16.cu
+Dimensions: 16, 16, 16
+Indices: ijk-ixk-xjk
+Gemmforge Tensor Contraction took: 13.5174 ms
+Gemmforge Kernel GFLOPs/s: 1822.52
+Operational intensity: 2.66667
+89.9176 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+34.591 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 4, N: 16
+FileName: benchmark_cuda_tensor_3_variant_04_N_16.cu
+Dimensions: 16, 16, 16
+Indices: ijk-ikx-jxk
+Gemmforge Tensor Contraction took: 14.9111 ms
+Gemmforge Kernel GFLOPs/s: 1652.17
+Operational intensity: 2.66667
+81.5131 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+40.3653 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 4, N: 31
+FileName: benchmark_cuda_tensor_3_variant_04_N_31.cu
+Dimensions: 31, 31, 31
+Indices: ijk-ikx-jxk
+Gemmforge Tensor Contraction took: 15.155 ms
+Gemmforge Kernel GFLOPs/s: 3150.15
+Operational intensity: 5.16667
+80.2162 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+90.181 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 5, N: 31
+FileName: benchmark_cuda_tensor_3_variant_05_N_31.cu
+Dimensions: 31, 31, 31
+Indices: ijk-xik-xkj
+Gemmforge Tensor Contraction took: 16.1346 ms
+Gemmforge Kernel GFLOPs/s: 2958.89
+Operational intensity: 5.16667
+75.3458 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+57.7509 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 12, N: 31
+FileName: benchmark_cuda_tensor_3_variant_012_N_31.cu
+Dimensions: 31, 31, 31
+Indices: ijk-ixk-xjk
+Gemmforge Tensor Contraction took: 13.6266 ms
+Gemmforge Kernel GFLOPs/s: 3503.47
+Operational intensity: 5.16667
+89.2132 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+90.0128 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 6, N: 31
+FileName: benchmark_cuda_tensor_3_variant_06_N_31.cu
+Dimensions: 31, 31, 31
+Indices: ijk-xki-xjk
+Gemmforge Tensor Contraction took: 15.0396 ms
+Gemmforge Kernel GFLOPs/s: 3174.32
+Operational intensity: 5.16667
+80.8315 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+57.6471 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 10, N: 31
+FileName: benchmark_cuda_tensor_3_variant_010_N_31.cu
+Dimensions: 31, 31, 31
+Indices: ijk-ixk-xkj
+Gemmforge Tensor Contraction took: 15.4772 ms
+Gemmforge Kernel GFLOPs/s: 3084.58
+Operational intensity: 5.16667
+78.5464 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+75.8692 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 6, N: 32
+FileName: benchmark_cuda_tensor_3_variant_06_N_32.cu
+Dimensions: 32, 32, 32
+Indices: ijk-xki-xjk
+Gemmforge Tensor Contraction took: 13.6402 ms
+Gemmforge Kernel GFLOPs/s: 3612.92
+Operational intensity: 5.33333
+89.1253 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+73.8696 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 10, N: 32
+FileName: benchmark_cuda_tensor_3_variant_010_N_32.cu
+Dimensions: 32, 32, 32
+Indices: ijk-ixk-xkj
+Gemmforge Tensor Contraction took: 13.6312 ms
+Gemmforge Kernel GFLOPs/s: 3615.32
+Operational intensity: 5.33333
+89.1843 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+81.9026 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 12, N: 32
+FileName: benchmark_cuda_tensor_3_variant_012_N_32.cu
+Dimensions: 32, 32, 32
+Indices: ijk-ixk-xjk
+Gemmforge Tensor Contraction took: 13.5163 ms
+Gemmforge Kernel GFLOPs/s: 3646.05
+Operational intensity: 5.33333
+89.9425 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+80.5298 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 4, N: 32
+FileName: benchmark_cuda_tensor_3_variant_04_N_32.cu
+Dimensions: 32, 32, 32
+Indices: ijk-ikx-jxk
+Gemmforge Tensor Contraction took: 13.63 ms
+Gemmforge Kernel GFLOPs/s: 3615.63
+Operational intensity: 5.33333
+89.192 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+91.48 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
+Kernel 5, N: 32
+FileName: benchmark_cuda_tensor_3_variant_05_N_32.cu
+Dimensions: 32, 32, 32
+Indices: ijk-xik-xkj
+Gemmforge Tensor Contraction took: 13.6193 ms
+Gemmforge Kernel GFLOPs/s: 3618.47
+Operational intensity: 5.33333
+89.262 % of roof w. respect to operational intensity achieved with Gemmforge
+cuTensor Kernel 1
+73.5013 % of roof w. respect to operational intensity achieved with cuTensor
+Gemmforge and cuTensor contraction results match! :)
