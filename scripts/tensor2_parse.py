@@ -275,6 +275,9 @@ pd_var.iloc[:, 1:] = pd_var_dist.iloc[:, 1:].copy() / float(runs)
 pd_var["Kernel"] = pd_avg["Kernel"]
 
 
+#pd_avg.sort_values(by="KMP", inplace=True)
+#pd_var.sort_values(by="KMP", inplace=True)
+
 #pd_avg = pd_avg[["Kernel", "Operational Intensity", "Gemmforge GFLOP/s"]]
 #pd_avg = pd_avg[["Kernel", "Operational Intensity", "cuTensor GFLOP/s"]]
 
@@ -368,7 +371,7 @@ def round_up_to_power_of_ten(n):
 def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf, 
                   title):
     plt.clf()
-    fig, ax = plt.subplots(figsize=(9, 6))  # Adjust the width and height as needed
+    fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the width and height as needed
 
     def roof(val):
         return min(peak_floating_point_perf,
@@ -380,30 +383,45 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
       kernel_strs.append(s)
 
     x_positions1 = np.arange(len(kernel_strs), dtype=float)
+    #pd_avg.sort_values(by='Gemmforge Efficiency 2', inplace=True)
+
 
     plt.scatter(x_positions1,
             pd_avg["Gemmforge Efficiency K1"],  c="orangered", #linewidth=0.1, linestyle="--",
-            label="Gemmfogre Kernel 1", marker="o")
+            s=15, label="Gemmfogre\nKernel 1", marker="o")
     plt.scatter(x_positions1,
             pd_avg["Gemmforge Efficiency K2"], c="darkorchid", #linewidth=0.1, linestyle="--",
-            label="Gemmfogre Kernel 2", marker="x")
+            s=15, label="Gemmfogre\nKernel 2", marker="x")
     plt.scatter(x_positions1,
             pd_avg["Gemmforge Efficiency K3"],  c=sparse_rose, #linewidth=0.1, linestyle="--",
-            label="Gemmfogre Kernel 3", marker="s")
+            s=15, label="Gemmfogre\nKernel 3", marker="s")
     plt.scatter(x_positions1,
             pd_avg["Gemmforge Efficiency 2"], c=dense_blue, #linewidth=0.1, linestyle="--",
-            label="Gemmfogre Kernel All", marker="v")
+            s=15, label="Gemmfogre\nKernel All", marker="v")
     plt.scatter(x_positions1,
             pd_avg["cuTensor Efficiency 2"], c=nvidia_green, #linewidth=0.1, linestyle="--",
-            label="cuTensor Kernel All", marker="*")
-
-    plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
+            s=15, label="cuTensor\nKernel All", marker="*")
+    
+    """
+    for key, color in [("Gemmforge Efficiency K1", "orangered"), 
+                       ("Gemmforge Efficiency K2", "darkorchid"), 
+                       ("Gemmforge Efficiency K3", sparse_rose), 
+                       ("Gemmforge Efficiency 2", dense_blue), 
+                       ("cuTensor Efficiency 2", nvidia_green)]:
+      plt.plot(x_positions1, 
+              [pd_avg[key].mean() for _ in x_positions1], c=color, linewidth=1,
+              label ="_nolabel_", linestyle="--")
+    """
+    plt.legend(loc='upper right', bbox_to_anchor=(1.17, 1), ncol=1,
+                        fontsize=9)
+    plt.tight_layout()
+    #plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
     plt.ylim((0, 100.0))
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Loop Unrolling Parameters', fontsize=12)
-    plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='center', fontsize=7)
+    plt.xlabel('Tensor Dimensions', fontsize=12)
+    plt.ylabel('Performance Relative to Roofline (%)', fontsize=12)
+    plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=7)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-eff.pdf")

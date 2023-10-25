@@ -30,7 +30,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel3-NoLoopHeuristics"
+stdout_dir = f"{data_dir}/TensorKernel3-LoadBoth-NewLoad"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -101,14 +101,16 @@ for r in range(runs):
             state = "initial"
 
 
-
+            total_gflops = gemmforge_gflops*gemmforge_time*1e-3
+            cutensor_gflops = 1e-2 * cutensor_efficiency_1 * min(operational_intensity_1* peakMemoryBandwidthTheo, peakFLOPTheo)
+            cutensor_time = 1e3 * total_gflops / cutensor_efficiency_1 
             r = [sizeStr, 
                   gemmforge_time, 
-                  gemmforge_gflops*gemmforge_time/(gemmforge_gflops*cutensor_efficiency_1/gemmforge_efficiency_1), 
+                  cutensor_time, 
                   gemmforge_efficiency_1,
                   cutensor_efficiency_1,
                   gemmforge_gflops, 
-                  gemmforge_gflops*cutensor_efficiency_1/gemmforge_efficiency_1,
+                  cutensor_gflops,
                   operational_intensity_1]
 
             cutensor_time = 0.0
@@ -269,8 +271,10 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
           yloc = value + 1
           if float_number > 90.0:
               yloc = value + (100-float_number) + 25
-          if m == 2 and i == 3:
-            ax[m].text(x_positions1[i] - bar_width/2, value + 200, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
+          if m == 2 and (i == 3 or i == 1):
+            ax[m].text(x_positions1[i] - bar_width/2, value + 230, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
+          elif m == 1 and i == 1:
+            ax[m].text(x_positions1[i] - bar_width/2, value + 210, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
           elif m == 1:
             ax[m].text(x_positions1[i] - bar_width/2, value + 100, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
           else:
