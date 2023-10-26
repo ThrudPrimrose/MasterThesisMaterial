@@ -12,11 +12,11 @@ dims = [[(11, 73),
          (27,),
          (31, 73),
          (31, 11)],
-        [(48, 144), 
-         (96, 16, 48),
+        [(48, 72), 
+         (62, 16, 48),
          (16,),
-         (96, 144),
-         (96, 48)],
+         (62, 72),
+         (62, 48)],
         [(32, 32), 
          (32, 32, 32),
          (32,),
@@ -32,11 +32,12 @@ dims = [[(11, 73),
          (7,),
          (5, 11),
          (5, 3)],
-        [(53, 107), 
-         (101, 23, 53),
+        [(53, 33), 
+         (21, 23, 53),
          (23,),
-         (101, 107),
-         (101, 53)]]
+         (21, 33),
+         (21, 53)]]
+
 
 for dimId in range(6):
   shapeA = dims[dimId][0]
@@ -87,9 +88,9 @@ for dimId in range(6):
   fp_per_el_0 += 31*73 # C += second kernel
 
   fp_per_el_1 = 0
-  fp_per_el_1 += 48*96*16*2 # Comp loop first kernel
-  fp_per_el_1 += 96*48*144*2 # Comp loop second kernel
-  fp_per_el_1 += 96*144 # C += second kernel
+  fp_per_el_1 += 62*48*16*2 # Comp loop first kernel
+  fp_per_el_1 += 62*48*72*2 # Comp loop second kernel
+  fp_per_el_1 += 62*72 # C += second kernel
 
   fp_per_el_2 = 0
   fp_per_el_2 += 32*32*32*2 # Comp loop first kernel
@@ -107,9 +108,9 @@ for dimId in range(6):
   fp_per_el_4 += 5*11 # C += second kernel
 
   fp_per_el_5 = 0
-  fp_per_el_5 += 53*101*23*2 # Comp loop first kernel
-  fp_per_el_5 += 101*53*107*2 # Comp loop second kernel
-  fp_per_el_5 += 101*107 # C += second kernel
+  fp_per_el_5 += 53*21*23*2 # Comp loop first kernel
+  fp_per_el_5 += 21*53*33*2 # Comp loop second kernel
+  fp_per_el_5 += 23*33 # C += second kernel
 
   fp_per_els = [fp_per_el_0, fp_per_el_1, fp_per_el_2, fp_per_el_3, fp_per_el_4, fp_per_el_5]
   fp_per_el = fp_per_els[dimId]
@@ -120,13 +121,6 @@ for dimId in range(6):
   ls_per_el += sizeC*2 # load A second kernel
   ls_per_el += sizew # load and write C second kernel
   ls_per_el *= 4
-
-  ls_per_el_1 = 0
-  ls_per_el_1 += 72*96 # load w first kernel
-  ls_per_el_1 += 16*48*96 # load B first kernel
-  ls_per_el_1 += 96*144*2 # load A second kernel
-  ls_per_el_1 += 16 # load and write C second kernel
-  ls_per_el_1 *= 4
 
   ls_per_els = list()
   for j in dims:

@@ -694,7 +694,7 @@ int main(){{
     std::cout << "Gemmforge and cuTensor contraction results match! :)" << std::endl;
   }}
 
-  double fp_per_el = 1488384;
+  double fp_per_el = 528240;
   double ls_per_el = 240064;
   fp_per_el *= num_els;
   ls_per_el *= num_els;
