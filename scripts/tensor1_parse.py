@@ -29,8 +29,8 @@ from params import *
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel1"
-
+#stdout_dir = f"{data_dir}/TensorKernel1"
+stdout_dir = f"{data_dir}/TensorKernel1-Regenerated"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -339,21 +339,23 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     std_dev_data = np.sqrt(gemmforge_var["Gemmforge GFLOP/s"])
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
     plt.errorbar(x_positions1, gemmforge_points["Gemmforge GFLOP/s"], 
-                 yerr=yerr, fmt='none', ecolor='black', capsize=5, 
-                 capthick=2, label='_nolegend_')
+                 yerr=yerr, fmt='none', ecolor='black', capsize=4, 
+                 capthick=1, label='_nolegend_')
     std_dev_data = np.sqrt(cutensor_var["cuTensor GFLOP/s"])
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
     plt.errorbar(x_positions2, cutensor_points["cuTensor GFLOP/s"], 
                  yerr=yerr, fmt='none', ecolor='black', 
-                 capsize=5, capthick=2,
+                 capsize=4, capthick=1,
                  label='_nolegend_')
 
     for i, value in enumerate(gemmforge_points["Gemmforge GFLOP/s"]):
         float_number = 100*gemmforge_points["Gemmforge GFLOP/s"].iloc[i] / roof(gemmforge_points["Operational Intensity"].iloc[i])
         formatted_number = f"{float_number:.1f}%"
         yloc = value + 1
-        if float_number > 90.0:
-            yloc = value + (100-float_number) + 25
+        if float_number > 80.0:
+            yloc = value + (100-float_number) + 150
+        if float_number < 60:
+            yloc = value + (100-float_number) + 250
         plt.text(x_positions1[i] + bar_width/2, yloc, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
 
     for i, value in enumerate(cutensor_points["cuTensor GFLOP/s"]):
