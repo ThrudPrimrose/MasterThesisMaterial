@@ -30,7 +30,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel2"
+stdout_dir = f"{data_dir}/TensorKernel2-LoadBoth-NewTransposeLoad"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -329,30 +329,30 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
     #plt.bar(x_positions1, y, label="Roof Fused", color="darkgray", linestyle="-.")
 
     for i, x_pos in enumerate(x_positions1):
-        xpts = np.linspace(x_pos-0.6, x_pos+0.6)
+        xpts = np.linspace(x_pos-1.2, x_pos+0.6)
         ypts = [roof(pd_avg["Operational Intensity 2"].iloc[i]) for x in xpts]
-        plt.hlines(roof(pd_avg["Operational Intensity 2"].iloc[i]), x_pos-0.4, x_pos+0.4, color=["darkgray"], linestyles=["--"], label="Roofline" if i == 0 else "_nolabel_")
-        plt.hlines(roof(pd_avg["Operational Intensity 1"].iloc[i]), x_pos-0.4, x_pos+0.4, color=["gray"], linestyles=["solid"], label="Roofline" if i == 0 else "_nolabel_")
+        plt.hlines(roof(pd_avg["Operational Intensity 2"].iloc[i]), x_pos-0.5, x_pos+0.5, color=["darkgray"], linestyles=["--"], label="Roofline" if i == 0 else "_nolabel_")
+        #plt.hlines(roof(pd_avg["Operational Intensity 1"].iloc[i]), x_pos-0.4, x_pos+0.4, color=["gray"], linestyles=["solid"], label="Roofline" if i == 0 else "_nolabel_")
 
 
     std_dev_data = np.sqrt(pd_var["Gemmforge GFLOP/s"])
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
     plt.errorbar(x_positions1 -0.2, pd_avg["Gemmforge GFLOP/s"], 
-                 yerr=yerr, fmt='none', ecolor='black', capsize=2, 
-                 capthick=2, label='_nolegend_')
+                 yerr=yerr, fmt='none', ecolor='black', 
+                 capsize=1, capthick=1, label='_nolegend_')
     std_dev_data = np.sqrt(pd_var["cuTensor GFLOP/s"])
     yerr = 1.96 * (std_dev_data / np.sqrt(runs))
     plt.errorbar(x_positions1 +0.2, pd_avg["cuTensor GFLOP/s"], 
                  yerr=yerr, fmt='none', ecolor='black', 
-                 capsize=2, capthick=2,
+                 capsize=1, capthick=1,
                  label='_nolegend_')
 
-    plt.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=12)
+    plt.legend(loc='upper right', bbox_to_anchor=(1, 1), fontsize=12)
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Loop Unrolling Parameters', fontsize=12)
+    plt.xlabel('Tensor Dimensions', fontsize=12)
     plt.ylabel('Performance (GFLOPs/s)', fontsize=12)
-    plt.xticks(x_positions1, kernel_strs,  rotation=70, ha='center', fontsize=9)
+    plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=9)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-bar.pdf")

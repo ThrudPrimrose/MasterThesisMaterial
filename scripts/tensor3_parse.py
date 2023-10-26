@@ -30,7 +30,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel3-LoadBoth-PreferExact"
+stdout_dir = f"{data_dir}/TensorKernel3-LoadBoth-PreferExact-3"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -271,7 +271,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
           yloc = value + 1
           if float_number > 90.0:
               yloc = value + (100-float_number) + 25
-          if m == 2 and (i == 3 or i == 1):
+          if m == 2 and (i == 1):
             ax[m].text(x_positions1[i] - bar_width/2, value + 230, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
           elif m == 1 and i == 1:
             ax[m].text(x_positions1[i] - bar_width/2, value + 210, str(formatted_number), ha='center', va='bottom', fontsize=8, c="gray")
