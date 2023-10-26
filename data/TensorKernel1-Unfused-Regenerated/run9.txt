@@ -1,0 +1,60 @@
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(48,72), B(62,16,48), C(62,72), w(16)
+Gemmforge Fused Tensor Contraction took: 12.7209 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 10.2404 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 3.58672 ms
+Gemmforge GFLOPs/s: 1456.83
+Unfused GFLOPs/s: 1340.28
+Operational intensity: 2.20041
+87.1055 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+80.1367 % of roof w. respect to operational intensity achieved with Unfused
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(32,32), B(32,32,32), C(32,32), w(32)
+Gemmforge Fused Tensor Contraction took: 11.6591 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 11.2514 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 1.3271 ms
+Gemmforge GFLOPs/s: 648.5
+Unfused GFLOPs/s: 601.098
+Operational intensity: 0.920607
+92.678 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+85.9037 % of roof w. respect to operational intensity achieved with Unfused
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(53,33), B(21,23,53), C(21,33), w(23)
+Gemmforge Fused Tensor Contraction took: 11.5468 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 10.9212 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 1.69978 ms
+Gemmforge GFLOPs/s: 764.323
+Unfused GFLOPs/s: 699.27
+Operational intensity: 1.0903
+92.23 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+84.38 % of roof w. respect to operational intensity achieved with Unfused
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(11,73), B(31,27,11), C(31,73), w(27)
+Gemmforge Fused Tensor Contraction took: 13.4324 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 8.96422 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 6.84406 ms
+Gemmforge GFLOPs/s: 851.884
+Unfused GFLOPs/s: 723.851
+Operational intensity: 1.20962
+92.6555 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+78.7298 % of roof w. respect to operational intensity achieved with Unfused
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(3,11), B(5,7,3), C(5,11), w(7)
+Gemmforge Fused Tensor Contraction took: 23.2701 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 14.7115 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 12.4836 ms
+Gemmforge GFLOPs/s: 239.755
+Unfused GFLOPs/s: 205.152
+Operational intensity: 0.583333
+54.0744 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+46.2701 % of roof w. respect to operational intensity achieved with Unfused
+Will compute the kernel: C['ij'] <= C['ij'] + A['lj'] * B['ikl'] * w['k'], with Gemmforge
+Shapes and dims: A(16,16), B(16,16,16), C(16,16), w(16)
+Gemmforge Fused Tensor Contraction took: 11.7093 ms
+Gemmforge Unfused Tensor Contraction Part 1 took: 10.4949 ms
+Gemmforge Unfused Tensor Contraction Part 2 took: 2.44707 ms
+Gemmforge GFLOPs/s: 597.502
+Unfused GFLOPs/s: 540.591
+Operational intensity: 0.852459
+92.2161 % of roof w. respect to operational intensity achieved with Gemmforge Fused
+83.4327 % of roof w. respect to operational intensity achieved with Unfused
