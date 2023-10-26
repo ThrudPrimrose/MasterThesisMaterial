@@ -76,9 +76,9 @@ for dimId in range(6):
   fp_per_el_0 += 31*73 # C += second kernel
 
   fp_per_el_1 = 0
-  fp_per_el_1 += 48*96*16*2 # Comp loop first kernel
-  fp_per_el_1 += 96*48*144*2 # Comp loop second kernel
-  fp_per_el_1 += 96*144 # C += second kernel
+  fp_per_el_1 += 62*48*16*2 # Comp loop first kernel
+  fp_per_el_1 += 62*48*72*2 # Comp loop second kernel
+  fp_per_el_1 += 62*72 # C += second kernel
 
   fp_per_el_2 = 0
   fp_per_el_2 += 32*32*32*2 # Comp loop first kernel
@@ -96,9 +96,9 @@ for dimId in range(6):
   fp_per_el_4 += 5*11 # C += second kernel
 
   fp_per_el_5 = 0
-  fp_per_el_5 += 53*101*23*2 # Comp loop first kernel
-  fp_per_el_5 += 101*53*107*2 # Comp loop second kernel
-  fp_per_el_5 += 101*107 # C += second kernel
+  fp_per_el_5 += 53*21*23*2 # Comp loop first kernel
+  fp_per_el_5 += 21*53*33*2 # Comp loop second kernel
+  fp_per_el_5 += 23*33 # C += second kernel
 
   fp_per_els = [fp_per_el_0, fp_per_el_1, fp_per_el_2, fp_per_el_3, fp_per_el_4, fp_per_el_5]
   fp_per_el = fp_per_els[dimId]
