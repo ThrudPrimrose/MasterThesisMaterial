@@ -46,6 +46,7 @@ print(",\n".join([str(el) for el in dims]))
 raise Exception(",\n".join([str(el) for el in dims]))
 """
 
+"""
 dims = [
 (11, 11, 17, 49, 89),
 (10, 8, 42, 16, 46),
@@ -108,10 +109,24 @@ dims = [
 (16, 26, 8, 40, 68),
 (10, 15, 9, 20, 76)
 ]
+"""
 
+dims = [
+  (21,13,10,22,61),
+  (3,13,5,11,7),
+  (13,8,25,14,49),
+  (17,49,24,9,14),
+  (9,83,46,9,14),
+  (8,19,18,23,74),
+  (8,31,9,35,27),
+  (10,17,45,10,32),
+  (8,14,46,13,15),
+  (9,46,17,26,89)
+]
 open_bracket = "{"
 close_bracket = "}"
 
+profile_only = "true"
 
 for dimId, (K,P,M,Q,L) in enumerate(dims):
   #M*K < 1024
@@ -520,6 +535,7 @@ int main(){{
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * {sizeA} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * {sizeX} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
+  if constexpr (!{profile_only}){{
   cutensorHandle_t* handle;
   HANDLE_ERROR(cutensorCreate(&handle));
 
@@ -899,6 +915,7 @@ int main(){{
   }}
   if (!results_wrong){{
     std::cout << "Gemmforge and cuTensor contraction results match! :)" << std::endl;
+  }}
   }}
 
   cudaFree(A_dev_begins_dev);
