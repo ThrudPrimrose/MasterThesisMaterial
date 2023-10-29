@@ -2,7 +2,7 @@ from functools import reduce
 import math
 from copy import deepcopy
 import operator
-
+import scipy.stats as stats
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -11,7 +11,8 @@ import seaborn as sns
 from aux import *
 from params import *
 from itertools import combinations
-
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 # path = f"{data_dir}/gemmforge_remote/stdout_only_run.txt"
 
@@ -30,7 +31,7 @@ from itertools import combinations
 
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel2-LoadBoth-NewTransposeLoad"
+stdout_dir = f"{data_dir}/TensorKernel2-LoadBoth"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -66,14 +67,17 @@ for r in range(runs):
           if state == "initial" and "Dimensions" in line:
             state = "gemmforge-time"
             tokens = line.split("Dimensions:")
-            sizeStr = ",".join(tokens[-1].split(",")[:-1])
+            sizeStr = ",".join(tokens[-1].split(","))
             print(sizeStr)
             dims = sizeStr.split(", ")
+            #raise Exception(dims)
+            #Old kernels had order k-p-m-l-q
             k = int(dims[0])
-            l = int(dims[1])
+            p = int(dims[1])
             m = int(dims[2])
-            p = int(dims[3])
-            q = int(dims[4])
+            q = int(dims[3])
+            l = int(dims[4])
+            kernel_str = str(k) + "," + str(l) + "," + str(m) + "," + str(p) + "," + str(q)
           if state == "gemmforge-time" and "Gemmforge Tensor Contraction took:" in line:
             state = "gemmforge-gflops"
             runtime = line.split("ms")[0].split("took: ")[-1]
@@ -134,7 +138,7 @@ for r in range(runs):
 
 
 
-            r = [sizeStr, 
+            r = [kernel_str,
                            gemmforge_time, 
                            cutensor_time, 
                            gemmforge_efficiency_1,
@@ -161,7 +165,33 @@ for r in range(runs):
             r.append(min(k,l,m,p,q))
             r.append(max(k,l,m,p,q))
             r.append(np.var([k,l,m,p,q]))
+            r.append(float(p)/float(q))
+            op_intensity_1 = k*q*p*2 / (4*(k*p + k*q + q*p))
+            op_intensity_2 = (l*m*k*p*2 + k*p*m) / (4*(k*p*m + l*m + k*p*l))
+            op_intensity_3 = (k*m*p*3) / (4*(k*p*m + m + k*p))
+            k*p
+            r.append(op_intensity_1)
+            r.append(k*p/q)
+            r.append(1/(k*l*m*p*q))
+            r.append(p%32)
+            lines_needed_k1 = (k*p+31)//32+ (k*q+31)//32 + (q*p+31)//32
+            load_difference = lines_needed_k1*32 / (k*p + k*q + q*p)
+            r.append(lines_needed_k1)
+            r.append(load_difference)
+            r.append(k%32)
+            t_rounded_up = (k*q + q*p + k*p) / (k+31)//32
+            r.append(t_rounded_up)
+            r.append(op_intensity_2)
+            r.append(op_intensity_3)
+            r.append(p/k)
+            r.append(q/k)
+            r.append(p*q/k)
+            r.append(t_rounded_up* q/k)
+            r.append(l/(k*p))
+            r.append(k/(p*m))
+            r.append((k*p*m + m + k*p)/(k*m))
             report.append(r)
+            
             """
             variables = ["K", "L", "M", "P", "Q"]
             for r in range(1, len(variables) + 1):
@@ -186,6 +216,7 @@ for r in range(runs):
             cutensor_efficiency_1 = 0.0
             cutensor_efficiency_2 = 0.0
             sizeStr = ""
+            kernel_str = ""
             k = 0
             l = 0
             m = 0
@@ -242,13 +273,38 @@ for r in range(runs):
         "KLMPQ",
         "MIN",
         "MAX",
-        "VAR"
+        "VAR",
+        "Q-1P",
+        "OP INTENSITY 1",
+        "KQ-1P",
+        "NUM_ELEMENTS",
+        "P%32",
+        "LINED NEEDED K1",
+        "LOAD DIFFERENCE",
+        "K%32",
+        "LOAD OP PER THREAD",
+        "OP INTENSITY 2",
+        "OP INTENSITY 3",
+        "K-1P",
+        "K-1Q",
+        "PK-1Q",
+        "K-1QLOPT",
+        "LK-1P-1",
+        "KP-1M-1",
+        "Tensor Load K3"
     ])
     #tmp1 = tmp1.sort_values(by="Kernel").copy()
     print(f"DATAFRAME {r}:")
     print(tmp1)
 
     pd_dataframes.append(tmp1.copy())
+
+"""
+s = ""
+for i in pd_dataframes[0]["Kernel"]:
+  s += "(" + i + "),\n"
+raise Exception(s)
+"""
 
 # This takes the average and covariance of 2 pandas data frames,
 # Runtime for denses parse dense sparse with ctv 
@@ -297,7 +353,7 @@ def round_up_to_power_of_ten(n):
 def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf, 
                   title):
     plt.clf()
-    fig, ax = plt.subplots(figsize=(9, 6))  # Adjust the width and height as needed
+    fig, ax = plt.subplots(figsize=(9, 7))  # Adjust the width and height as needed
 
     def roof(val):
         return min(peak_floating_point_perf,
@@ -346,7 +402,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
                  yerr=yerr, fmt='none', ecolor='black', 
                  capsize=1, capthick=1,
                  label='_nolegend_')
-
+    plt.ylim(0, 5100)
     plt.legend(loc='upper right', bbox_to_anchor=(1, 1), fontsize=12)
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
@@ -371,7 +427,7 @@ def round_up_to_power_of_ten(n):
 def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf, 
                   title):
     plt.clf()
-    fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the width and height as needed
+    fig, ax = plt.subplots(figsize=(9, 7))  # Adjust the width and height as needed
 
     def roof(val):
         return min(peak_floating_point_perf,
@@ -412,14 +468,17 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
               [pd_avg[key].mean() for _ in x_positions1], c=color, linewidth=1,
               label ="_nolabel_", linestyle="--")
     """
-    plt.legend(loc='upper right', bbox_to_anchor=(1.17, 1), ncol=1,
+    plt.legend(loc='center left', bbox_to_anchor=(0.10, -0.225), ncol=6,
                         fontsize=9)
+    desired_y_ticks = [i for i in range(5, 105, 5)]  # Define desired tick positions
+    plt.yticks(desired_y_ticks)
+    plt.xticks(x_positions1)
     plt.tight_layout()
     #plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
-    plt.ylim((0, 100.0))
+    plt.ylim((0, 101.0))
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
-    plt.xlabel('Tensor Dimensions', fontsize=12)
+    plt.xlabel('\n\n\nTensor Dimensions', fontsize=12)
     plt.ylabel('Performance Relative to Roofline (%)', fontsize=12)
     plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=7)
     plt.tight_layout()
@@ -428,16 +487,219 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
     plt.clf()
 
 
+
+def plot_roofline4(peak_memory_bandwidth, peak_floating_point_perf, 
+                  title):
+    plt.clf()
+    fig, ax = plt.subplots(figsize=(9, 7))  # Adjust the width and height as needed
+
+    pd_avg.sort_values(by="Operational Intensity 2", inplace = True)
+    def roof(val):
+        return min(peak_floating_point_perf,
+                   (peak_memory_bandwidth * val))
+
+    kernel_strs = list()
+    for kernel_str in pd_avg["Kernel"]:
+      s = kernel_str.replace(" ", "")
+      kernel_strs.append(s)
+
+    x_positions1 = np.arange(len(kernel_strs), dtype=float)
+    #pd_avg.sort_values(by='Gemmforge Efficiency 2', inplace=True)
+
+
+    # Extract the 'x' and 'y' columns from the DataFrame
+    x = pd_avg['Operational Intensity 2'].values.reshape(-1, 1)
+    y = pd_avg['Gemmforge Efficiency 2'].values
+
+    # Create a linear regression model
+    model = LinearRegression()
+
+    # Fit the model to the data
+    model.fit(x, y)
+
+    # Make predictions using the model
+    y_pred = model.predict(x)
+
+    pd_avg2 = pd_avg.drop(len(pd_avg["Operational Intensity 2"])-1)
+    #raise Exception(pd_avg)
+    # Extract the 'x' and 'y' columns from the DataFrame
+    x = np.array([x*x for x in pd_avg2['Operational Intensity 2'].values]).reshape(-1, 1)
+    y = pd_avg2['Gemmforge Efficiency 2'].values
+
+    # Create a linear regression model
+    model2 = LinearRegression()
+
+    # Fit the model to the data
+    model2.fit(x, y)
+
+    # Make predictions using the model
+    y_pred_2 = model.predict(x)
+    r_squared = r2_score(pd_avg["Gemmforge Efficiency 2"], y_pred)
+    print("R_square:", r_squared)
+    
+    # Plot the original data and the regression line
+    #plt.scatter(x, y, label='Data')
+    #plt.scatter(x_positions1, 
+    #            y_pred, color='lightgray', label='Predicted Efficency', s=15, marker="x")
+    #plt.scatter(x_positions1[:-1], 
+    #            y_pred_2, color='gray', label='Predicted Efficency 2', s=15, marker="+")
+    #plt.xlabel('x')
+    #plt.ylabel('y')
+    #plt.legend()
+    #plt.show()
+
+    # Get the coefficients of the linear regression model
+    slope = model.coef_[0]
+    intercept = model.intercept_
+    print(f"Slope (Coefficient): {slope}")
+    print(f"Intercept: {intercept}")
+
+
+    plt.scatter(x_positions1,
+            pd_avg["Gemmforge Efficiency 2"], c=dense_blue, #linewidth=0.1, linestyle="--",
+            s=15, label="Gemmfogre Kernel All", marker="v")
+    plt.scatter(x_positions1,
+            pd_avg["cuTensor Efficiency 2"], c=nvidia_green, #linewidth=0.1, linestyle="--",
+            s=15, label="cuTensor Kernel All", marker="*")
+
+    degrees_of_freedom = 10 - 1
+    alpha = 1 - 0.95
+    t_score = stats.t.ppf(1 - alpha / 2, degrees_of_freedom)
+
+    # Calculate the margin of error
+    margin_of_error = [t_score * math.sqrt(x) / math.sqrt(10) for x in pd_var["Gemmforge Efficiency 2"]]
+
+
+    plt.errorbar(x_positions1, pd_avg["Gemmforge Efficiency 2"], 
+                 yerr=margin_of_error , fmt='none', ecolor=dense_blue, 
+                 capsize=5, capthick=1,
+                 label='_nolegend_')
+
+    degrees_of_freedom = 10 - 1
+    alpha = 1 - 0.95
+    t_score = stats.t.ppf(1 - alpha / 2, degrees_of_freedom)
+
+    # Calculate the margin of error
+    margin_of_errorw = [t_score * math.sqrt(x) / math.sqrt(10) for x in pd_var["cuTensor Efficiency 2"]]
+
+
+    plt.errorbar(x_positions1, pd_avg["cuTensor Efficiency 2"], 
+                 yerr=margin_of_errorw , fmt='none', ecolor=nvidia_green, 
+                 capsize=5, capthick=1,
+                 label='_nolegend_')
+
+    """
+    for key, color in [("Gemmforge Efficiency K1", "orangered"), 
+                       ("Gemmforge Efficiency K2", "darkorchid"), 
+                       ("Gemmforge Efficiency K3", sparse_rose), 
+                       ("Gemmforge Efficiency 2", dense_blue), 
+                       ("cuTensor Efficiency 2", nvidia_green)]:
+      plt.plot(x_positions1, 
+              [pd_avg[key].mean() for _ in x_positions1], c=color, linewidth=1,
+              label ="_nolabel_", linestyle="--")
+    """
+    plt.legend(loc='center left', bbox_to_anchor=(0.28, -0.225), ncol=6,
+                        fontsize=9)
+    desired_y_ticks = [i for i in range(5, 105, 5)]  # Define desired tick positions
+    plt.yticks(desired_y_ticks)
+    plt.xticks(x_positions1)
+    plt.tight_layout()
+    #plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
+    plt.ylim((0, 101.0))
+    plt.title(title, fontsize=14)
+    plt.grid(visible=True, which="both", axis="both", linestyle=':')
+    plt.xlabel('\n\n\nTensor Dimensions', fontsize=12)
+    plt.ylabel('Performance Relative to Roofline (%)', fontsize=12)
+    plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=7)
+    plt.tight_layout()
+    plt.savefig(
+        f"{stdout_dir}/plots/kernel-2-eff-2.pdf")
+    plt.clf()
+
+
+def plot_roofline3(peak_memory_bandwidth, peak_floating_point_perf, 
+                  title, sort_key, access_key, save_key, color_key, marker_key):
+    plt.clf()
+    fig, ax = plt.subplots(figsize=(9, 7))  # Adjust the width and height as needed
+
+
+
+    pd_avg.sort_values(by=sort_key, inplace = True)
+    #pd_avg.sort_values(by="LINED NEEDED K1", inplace = True)
+    #pd_avg.sort_values(by="LOAD DIFFERENCE", inplace = True)
+
+    def roof(val):
+        return min(peak_floating_point_perf,
+                   (peak_memory_bandwidth * val))
+
+    kernel_strs = list()
+    for kernel_str in pd_avg["Kernel"]:
+      s = kernel_str.replace(" ", "")
+      kernel_strs.append(s)
+
+    x_positions1 = np.arange(len(kernel_strs), dtype=float)
+    #pd_avg.sort_values(by='Gemmforge Efficiency 2', inplace=True)
+
+
+    plt.scatter(x_positions1,
+            pd_avg[access_key],  c=color_key, #linewidth=0.1, linestyle="--",
+            s=15, label=f"Gemmfogre Kernel {save_key[1:]}", marker=marker_key)
+
+    degrees_of_freedom = 10 - 1
+    alpha = 1 - 0.95
+    t_score = stats.t.ppf(1 - alpha / 2, degrees_of_freedom)
+
+    # Calculate the margin of error
+    margin_of_error = [t_score * math.sqrt(x) / math.sqrt(10) for x in pd_var[access_key]]
+
+
+    plt.errorbar(x_positions1, pd_avg[access_key], 
+                 yerr=margin_of_error , fmt='none', ecolor=color_key, 
+                 capsize=5, capthick=1,
+                 label='_nolegend_')
+    """
+    for key, color in [(access_key, "orangered"), 
+                       ("Gemmforge Efficiency K2", "darkorchid"), 
+                       ("Gemmforge Efficiency K3", sparse_rose), 
+                       ("Gemmforge Efficiency 2", dense_blue), 
+                       ("cuTensor Efficiency 2", nvidia_green)]:
+      plt.plot(x_positions1, 
+              [pd_avg[key].mean() for _ in x_positions1], c=color, linewidth=1,
+              label ="_nolabel_", linestyle="--")
+    """
+    plt.legend(loc='center left', bbox_to_anchor=(0.38, -0.225), ncol=6,
+                        fontsize=9)
+    desired_y_ticks = [i for i in range(5, 105, 5)]  # Define desired tick positions
+    plt.yticks(desired_y_ticks)
+    plt.xticks(x_positions1)
+    plt.tight_layout()
+    #plt.legend(loc='lower left', bbox_to_anchor=(0, 0), fontsize=12)
+    plt.ylim((0, 101.0))
+    plt.title(title, fontsize=14)
+    plt.grid(visible=True, which="both", axis="both", linestyle=':')
+    plt.xlabel('\n\n\nTensor Dimensions', fontsize=12)
+    plt.ylabel('Performance Relative to Roofline (%)', fontsize=12)
+    plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=7)
+    plt.tight_layout()
+    plt.savefig(
+        f"{stdout_dir}/plots/kernel-2-{save_key}-eff.pdf")
+    plt.clf()
+
+
 if save_plots:
     plot_roofline(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "")
     plot_roofline2(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "")
-
+    plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "K-1Q", "Gemmforge Efficiency K1", "k1", "orangered", "o")
+    plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "Q-1P", "Gemmforge Efficiency K2", "k2", "darkorchid", "x")
+    plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "K", "Gemmforge Efficiency K3", "k3", sparse_rose, "s")
+    plot_roofline4(peakMemoryBandwidthTheo, peakFLOPTheo,
+                  "")
 correlation_matrix = pd_avg.corr()
 
 plt.clf()
-plt.figure(figsize=(24, 18))  # Set the figure size
+plt.figure(figsize=(30, 24))  # Set the figure size
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=.5)
 
 # Add labels and title
