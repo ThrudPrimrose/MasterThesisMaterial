@@ -243,9 +243,19 @@ for dimId, (K,P,M,Q,L) in enumerate(dims):
                     + sizeA*2 + sizeB + sizeX
   ls_unfused_per_el *= 4
 
+  #kernel1 = X['kp'] <= C['kq']  * D['qp']
+  #kernel2 = A['kpm'] <= A['kpm'] + F['lm'] * E['kpl']
+  #kernel3 = A['kpm'] <= A['kpm'] + B['m']  * X['kp']
+
+  #K   L   M   P   Q
+  #11, 11, 17, 49, 89
+  # 11, 89, 49  K*Q*P
+  # K*P*L*M*2 + k*P*M
+  # M*K*P*
+
   k0 = K*Q*P*2
   k1 = L*M*K*P*2 + K*P*M
-  k2 = K*M*P*2 + K*M*P
+  k2 = K*M*P*2
   fp_per_el = k0 + k1 + k2
   fp_unfused_per_el = fp_per_el
   fp_per_k1 = k0
