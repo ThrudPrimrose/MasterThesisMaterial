@@ -10,16 +10,16 @@ import os
 runs = 10
 
 # Change if wanted
-row_a = 56
-col_a = 9
-row_b = 9
-col_b = 9
-row_c = 56
-col_c = 9
+row_a = 32
+col_a = 32
+row_b = 32
+col_b = 32
+row_c = 32
+col_c = 32
 
 # Change if wanted
-Alpha = 1.0
-Beta = 1.0
+Alpha = 1.5
+Beta = 0.0
 
 # Change if wanted
 non_zero_ratio = 0.15
@@ -55,7 +55,7 @@ dense_blue = my_blue
 #pre = "TensorKernel1-NewLoopHeuristics"
 #pre = "TensorKernel2-NoLoopHeuristics"
 #pre = "TensorKernel3-NewLoadStrategy"
-pre = f"SparseDense-A{row_a}x{col_a}-B{row_b}-{col_b}-a{Alpha}-b{Beta}"
+pre = f"SparseDense-A{row_a}x{col_a}-B{row_b}-{col_b}-a{Alpha}-b{Beta}-Filtered"
 
 # Change always
 workaround = False
