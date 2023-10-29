@@ -111,7 +111,7 @@ dims = [
 open_bracket = "{"
 close_bracket = "}"
 
-profile_only = "true"
+profile_only = "false"
 
 for dimId, (K,P,M,Q,L) in enumerate(dims):
   #M*K < 1024
@@ -327,6 +327,7 @@ void checkErr(const std::string &File, int Line) {{
 
 int main(){{
   constexpr size_t num_els = {num_els};
+  std::cout << "Number of Elements: " << num_els << std::endl;
   float* A = new float[{sizeA} * num_els]{{0.f}};
   float* B = new float[{sizeB} * num_els]{{0.f}};
   float* C = new float[{sizeC} * num_els]{{0.f}};
