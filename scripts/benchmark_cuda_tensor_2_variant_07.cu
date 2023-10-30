@@ -189,7 +189,7 @@ __launch_bounds__(128)
         if (threadIdx.x < 100) {
           float value;
         
-          #pragma unroll 1
+          #pragma unroll
           for (int k = 0; k < 17; ++k) {
             value = shrRegion0[threadIdx.x + k * 100];
         
