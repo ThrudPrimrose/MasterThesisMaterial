@@ -1,0 +1,274 @@
+==PROF== Connected to process 4145189 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_00)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 3, 13, 5, 11, 7
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d5_..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 306212 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.0493583
+Operational Theoretical Fused intensity: 1.41505
+Gemmforge GFLOPs/s: 0.0493583
+Operational intensity: 0.991497
+0.00458913 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00654953 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.00198727 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0120233 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00544813 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "tensor_contraction_tinyK_tiny..." - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 37 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 37 passes
+0.00380303 % of roof w. respect to operational intensity achieved with cuTensor
+0.00542762 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 3296092 :_(
+==PROF== Disconnected from process 4145189
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_00_rep.ncu-rep
+==PROF== Connected to process 4145327 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_02)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 8, 31, 9, 35, 27
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d8_..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 307463 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.103923
+Operational Theoretical Fused intensity: 2.94878
+Gemmforge GFLOPs/s: 0.103923
+Operational intensity: 2.15369
+0.0046367 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00634845 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.00134879 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0125674 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00489249 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "contraction_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 35 passes
+0.00330535 % of roof w. respect to operational intensity achieved with cuTensor
+0.0045256 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 29629281 :_(
+==PROF== Disconnected from process 4145327
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_02_rep.ncu-rep
+==PROF== Connected to process 4145438 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_05)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 13, 8, 25, 14, 49
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 37 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d25..." - 4: 0%....50%....100% - 37 passes
+Gemmforge Tensor Contraction took: 318406 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.0977191
+Operational Theoretical Fused intensity: 2.15396
+Gemmforge GFLOPs/s: 0.0977191
+Operational intensity: 1.2088
+0.00596875 % of roof w. respect to operational intensity achieved with Gemmforge
+0.0106357 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.00234482 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0155181 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.0134314 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "gemmSN_NN_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 7: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 8: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 9: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 10: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 11: 0%....50%....100% - 37 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 12: 0%....50%....100% - 37 passes
+0.00228541 % of roof w. respect to operational intensity achieved with cuTensor
+0.00407235 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 754576719 :_(
+==PROF== Disconnected from process 4145438
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_05_rep.ncu-rep
+==PROF== Connected to process 4145902 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_01)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 8, 14, 46, 13, 15
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d46..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 320773 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.148252
+Operational Theoretical Fused intensity: 3.14706
+Gemmforge GFLOPs/s: 0.148252
+Operational intensity: 1.73612
+0.00619777 % of roof w. respect to operational intensity achieved with Gemmforge
+0.0112347 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.000690988 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0174315 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.014611 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "contraction_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 35 passes
+0.00598533 % of roof w. respect to operational intensity achieved with cuTensor
+0.0108496 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 926632096 :_(
+==PROF== Disconnected from process 4145902
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_01_rep.ncu-rep
+==PROF== Connected to process 4145999 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_06)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 17, 49, 24, 9, 14
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 37 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d17..." - 4: 0%....50%....100% - 37 passes
+Gemmforge Tensor Contraction took: 316110 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.212649
+Operational Theoretical Fused intensity: 5.7171
+Gemmforge GFLOPs/s: 0.212649
+Operational intensity: 3.89894
+0.0048936 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00717558 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.000484554 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0136665 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00675505 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "gemmSN_NN_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 7: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 8: 0%....50%....100% - 35 passes
+==PROF== Profiling "gemmSN_NN_kernel" - 9: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 10: 0%....50%....100% - 37 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 11: 0%....50%....100% - 37 passes
+0.00198145 % of roof w. respect to operational intensity achieved with cuTensor
+0.00290545 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 148352472 :_(
+==PROF== Disconnected from process 4145999
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_06_rep.ncu-rep
+==PROF== Connected to process 4146136 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_08)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 21, 13, 10, 22, 61
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d21..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 313825 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.10111
+Operational Theoretical Fused intensity: 2.64235
+Gemmforge GFLOPs/s: 0.10111
+Operational intensity: 1.68906
+0.00503439 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00787572 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.00265517 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0126663 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00808401 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "contraction_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 35 passes
+0.00476526 % of roof w. respect to operational intensity achieved with cuTensor
+0.0074547 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 344836800 :_(
+==PROF== Disconnected from process 4146136
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_08_rep.ncu-rep
+==PROF== Connected to process 4146313 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_04)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 9, 83, 46, 9, 14
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 37 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d46..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 321569 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.309837
+Operational Theoretical Fused intensity: 8.63761
+Gemmforge GFLOPs/s: 0.309837
+Operational intensity: 6.09884
+0.00471932 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00668384 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.000273813 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.012874 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00600562 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "contraction_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 37 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 37 passes
+0.00465641 % of roof w. respect to operational intensity achieved with cuTensor
+0.00659473 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 29122416 :_(
+==PROF== Disconnected from process 4146313
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_04_rep.ncu-rep
+==PROF== Connected to process 4146563 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_07)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 10, 17, 45, 10, 32
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 37 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d45..." - 4: 0%....50%....100% - 37 passes
+Gemmforge Tensor Contraction took: 325854 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.158024
+Operational Theoretical Fused intensity: 3.55761
+Gemmforge GFLOPs/s: 0.158024
+Operational intensity: 2.02459
+0.00584393 % of roof w. respect to operational intensity achieved with Gemmforge
+0.010269 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.00114406 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.0157404 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.0129923 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "contraction_kernel" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 6: 0%....50%....100% - 37 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 7: 0%....50%....100% - 37 passes
+0.00568327 % of roof w. respect to operational intensity achieved with cuTensor
+0.00998664 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 692577000 :_(
+==PROF== Disconnected from process 4146563
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_07_rep.ncu-rep
+==PROF== Connected to process 4146662 (/nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/cuda_executables/tensor_2_variant_03)
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 1: 0%
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+....50%....100% - 35 passes
+Dimensions: 9, 46, 17, 26, 89
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 2: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sloopOverGEMM_NT_NT_NT..." - 3: 0%....50%....100% - 35 passes
+==PROF== Profiling "kernel_sproduct_NT_NT_NT__d9_..." - 4: 0%....50%....100% - 35 passes
+Gemmforge Tensor Contraction took: 314219 ms
+Gemmforge Theoretical Fused Kernel GFLOPs/s: 0.163235
+Operational Theoretical Fused intensity: 4.6342
+Gemmforge GFLOPs/s: 0.163235
+Operational intensity: 3.37725
+0.00463424 % of roof w. respect to operational intensity achieved with Gemmforge
+0.00635903 % of roof w. respect to unfused operational intensity achieved with Gemmforge
+0.002088 % of roof w. respect to Kernel1 intensity achieved with Gemmforge
+0.011776 % of roof w. respect to Kernel2 intensity achieved with Gemmforge
+0.00505334 % of roof w. respect to Kernel3 intensity achieved with Gemmforge
+cuTensor Kernel 1
+==PROF== Profiling "ampere_sgemm_128x128_nn" - 5: 0%....50%....100% - 35 passes
+==PROF== Profiling "ampere_sgemm_128x128_nn" - 6: 0%....50%....100% - 35 passes
+==PROF== Profiling "ampere_sgemm_128x128_nn" - 7: 0%....50%....100% - 35 passes
+==PROF== Profiling "ampere_sgemm_128x128_nn" - 8: 0%....50%....100% - 35 passes
+==PROF== Profiling "ampere_sgemm_128x128_nn" - 9: 0%....50%....100% - 35 passes
+==PROF== Profiling "contraction_kernel" - 10: 0%....50%....100% - 35 passes
+==PROF== Profiling "tensor_elementwise_kernel" - 11: 0%....50%....100% - 36 passes
+0.00195592 % of roof w. respect to operational intensity achieved with cuTensor
+0.00268389 % of roof w. respect to unfused operational intensity achieved with cuTensor
+Results do not match, problem first at offset 67943412 :_(
+==PROF== Disconnected from process 4146662
+==PROF== Report: /nfs/c3po/home/ge69xij/MasterThesisMaterial/scripts/reports/tensor_2_variant_03_rep.ncu-rep
