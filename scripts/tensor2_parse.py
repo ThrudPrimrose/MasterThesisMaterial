@@ -29,9 +29,13 @@ from sklearn.metrics import r2_score
 # Peak Memory Bandwidth: 176.032GB/s
 # Peak Floating-Point Performance: 270385 GFLOPS
 
+def roof(val):
+    return min(peakFLOPTheo,
+                (peakMemoryBandwidthTheo * val))
+
 FLOAT_SIZE = 4
 
-stdout_dir = f"{data_dir}/TensorKernel2-LoadBoth"
+stdout_dir = f"{data_dir}/TensorKernel2-LoadBoth-3"
 if not os.path.exists(f"{stdout_dir}/plots"):
     os.mkdir(f"{stdout_dir}/plots")
 
@@ -61,6 +65,7 @@ for r in range(runs):
         m = 0
         p = 0
         q = 0
+        tokens = []
         
         
         for i, line in enumerate(file):
@@ -72,12 +77,25 @@ for r in range(runs):
             dims = sizeStr.split(", ")
             #raise Exception(dims)
             #Old kernels had order k-p-m-l-q
+            # New
             k = int(dims[0])
-            p = int(dims[1])
+            l = int(dims[1])
             m = int(dims[2])
-            q = int(dims[3])
-            l = int(dims[4])
+            p = int(dims[3])
+            q = int(dims[4])
+            # Old
+            #k = int(dims[0])
+            #q = int(dims[1])
+            #m = int(dims[2])
+            #l = int(dims[3])
+            #p = int(dims[4])
             kernel_str = str(k) + "," + str(l) + "," + str(m) + "," + str(p) + "," + str(q)
+            kpad = "0" if k<10 else ""
+            lpad = "0" if l<10 else ""
+            mpad = "0" if m<10 else ""
+            ppad = "0" if p<10 else ""
+            qpad = "0" if q<10 else ""
+            kernel_int = int(str(k) + lpad + str(l) + mpad + str(m) + ppad + str(p) + qpad + str(q))
           if state == "gemmforge-time" and "Gemmforge Tensor Contraction took:" in line:
             state = "gemmforge-gflops"
             runtime = line.split("ms")[0].split("took: ")[-1]
@@ -119,10 +137,12 @@ for r in range(runs):
             gemmforge_efficiency_k2 = float(perc)
             print(gemmforge_efficiency_k2)
           if state == "gemmforge_efficiency-k3" and "of roof w. respect to Kernel3 intensity achieved with Gemmforge" in line:
+            #state = "final"
             state = "cutensor_efficiency-1"
             perc = line.split("%")[0]
             gemmforge_efficiency_k3 = float(perc)
             print(gemmforge_efficiency_k3)
+        
           if state == "cutensor_efficiency-1" and "of roof w. respect to operational intensity achieved with cuTensor" in line:
             state = "cutensor_efficiency-2"
             perc = line.split("%")[0]
@@ -133,12 +153,32 @@ for r in range(runs):
             perc = line.split("%")[0]
             cutensor_efficiency_2 = float(perc)
             print(cutensor_efficiency_2)
+
           if state == "final":
             state = "initial"
+            ls1 = k*p + k*q + q*p
+            ls1*=4
+            ls2 = k*p*m*2 + l*m + k*p*l
+            ls2*=4
+            ls3 = k*p*m*2 + m + k*p
+            ls3*=4
+            ops1 = k*q*p*2
+            ops2 = l*m*k*p*2 + k*p*m
+            ops3 = k*m*p*2
+            ops = ops1 + ops2 + ops3
+            ls = k*p*m*4 + m*1 + k*q*1 + q*p*1 + k*p*l*1 + l*m*1 + k*p*2 
+            ls *= 4
+            
+            intensity1 = ops1 / ls1 
+            intensity2 = ops2 / ls2
+            intensity3 = ops3 / ls3
+            intensity =  ops / ls
+            r1 = roof(intensity1)
+            r2 = roof(intensity2)
+            r3 = roof(intensity3)
+            
 
-
-
-            r = [kernel_str,
+            r = [kernel_str, kernel_int,
                            gemmforge_time, 
                            cutensor_time, 
                            gemmforge_efficiency_1,
@@ -190,6 +230,9 @@ for r in range(runs):
             r.append(l/(k*p))
             r.append(k/(p*m))
             r.append((k*p*m + m + k*p)/(k*m))
+            r.append(p/m)
+            r.append((k*p*m*2 + m + k*p)/k*m)
+            r.append(max(m, k*p)/(k*m))
             report.append(r)
             
             """
@@ -222,11 +265,12 @@ for r in range(runs):
             m = 0
             p = 0
             q = 0
+            tokens = []
             print(report)
 
 
     tmp1 = pd.DataFrame(data=deepcopy(report), columns=[
-        "Kernel",
+        "Kernel", "Kernel Int",
         "Gemmforge Time",
         "cuTensor Time",
         "Gemmforge Efficiency 1",
@@ -291,11 +335,20 @@ for r in range(runs):
         "K-1QLOPT",
         "LK-1P-1",
         "KP-1M-1",
-        "Tensor Load K3"
+        "Tensor Load K3",
+        "PM-1",
+        "Load Per Thread K3",
+        "Percentage of active Load Threads K3"
     ])
-    #tmp1 = tmp1.sort_values(by="Kernel").copy()
+    tmp1 = tmp1.sort_values(by="Kernel Int").copy()
     print(f"DATAFRAME {r}:")
-    print(tmp1)
+    print("\n".join(tmp1))
+
+    x = list()
+    for i in tmp1["Kernel Int"]:
+      x.append("(" + str(i) + ")")
+    print(",\n".join(x))
+    #raise Exception("UWU")
 
     pd_dataframes.append(tmp1.copy())
 
@@ -368,10 +421,12 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
       s = kernel_str.replace(" ", "")
       kernel_strs.append(s)
 
-    gf_points = pd_avg["Gemmforge GFLOP/s"]
+    #gf_points = pd_avg["Gemmforge GFLOP/s"]
 
     x_positions1 = np.arange(len(kernel_strs), dtype=float)
-
+    pd_avg.sort_values(by='Operational Intensity 2', inplace=True)
+    gf_points = pd_avg["Gemmforge GFLOP/s"]
+  
     plt.bar(x_positions1 - 0.2,
             gf_points, color=dense_blue, 
             label="Gemmfogre", width = bar_width) #,
@@ -403,7 +458,7 @@ def plot_roofline(peak_memory_bandwidth, peak_floating_point_perf,
                  capsize=1, capthick=1,
                  label='_nolegend_')
     plt.ylim(0, 5100)
-    plt.legend(loc='upper right', bbox_to_anchor=(1, 1), fontsize=12)
+    plt.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=12)
     plt.title(title, fontsize=14)
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('Tensor Dimensions', fontsize=12)
@@ -433,14 +488,14 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
         return min(peak_floating_point_perf,
                    (peak_memory_bandwidth * val))
 
-    kernel_strs = list()
-    for kernel_str in pd_avg["Kernel"]:
-      s = kernel_str.replace(" ", "")
-      kernel_strs.append(s)
+    #kernel_strs = list()
+    #for kernel_str in pd_avg["Kernel"]:
+    #  s = kernel_str.replace(" ", "")
+    #  kernel_strs.append(s)
 
-    x_positions1 = np.arange(len(kernel_strs), dtype=float)
+    x_positions1 = np.arange(len(pd_avg["Kernel"]), dtype=float)
     #pd_avg.sort_values(by='Gemmforge Efficiency 2', inplace=True)
-
+    pd_avg.sort_values(by='Kernel Int', inplace=True)
 
     plt.scatter(x_positions1,
             pd_avg["Gemmforge Efficiency K1"],  c="orangered", #linewidth=0.1, linestyle="--",
@@ -480,7 +535,7 @@ def plot_roofline2(peak_memory_bandwidth, peak_floating_point_perf,
     plt.grid(visible=True, which="both", axis="both", linestyle=':')
     plt.xlabel('\n\n\nTensor Dimensions', fontsize=12)
     plt.ylabel('Performance Relative to Roofline (%)', fontsize=12)
-    plt.xticks(x_positions1, kernel_strs,  rotation=90, ha='center', fontsize=7)
+    plt.xticks(x_positions1, pd_avg["Kernel"],  rotation=90, ha='center', fontsize=7)
     plt.tight_layout()
     plt.savefig(
         f"{stdout_dir}/plots/kernel-2-eff.pdf")
@@ -691,11 +746,14 @@ if save_plots:
                   "")
     plot_roofline2(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "")
+    #raise Exception("AAAAAAAAAA")
     plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "K-1Q", "Gemmforge Efficiency K1", "k1", "orangered", "o")
     plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "Q-1P", "Gemmforge Efficiency K2", "k2", "darkorchid", "x")
-    plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "K", "Gemmforge Efficiency K3", "k3", sparse_rose, "s")
+    plot_roofline3(peakMemoryBandwidthTheo, peakFLOPTheo, "", "Load Per Thread K3", "Gemmforge Efficiency K3", "k3", sparse_rose, "s")
     plot_roofline4(peakMemoryBandwidthTheo, peakFLOPTheo,
                   "")
+
+
 correlation_matrix = pd_avg.corr()
 
 plt.clf()
@@ -707,3 +765,16 @@ plt.title('Correlation Matrix Heatmap')
 plt.tight_layout()
 plt.savefig(
     f"{stdout_dir}/plots/kernel-2-corr.pdf")
+
+
+X = pd_avg[["Load Per Thread K3"]]
+y = pd_avg["Gemmforge Efficiency K3"]
+
+model = LinearRegression()
+model.fit(X, y)
+
+from sklearn.metrics import mean_squared_error
+y_pred = model.predict(X)
+r_squared = r2_score(y, y_pred)
+mse = mean_squared_error(y, y_pred)
+print(r_squared, mse)
