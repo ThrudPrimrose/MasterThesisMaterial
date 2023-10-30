@@ -111,6 +111,7 @@ dims = [
 ]
 """
 
+"""
 dims = [
 (10,17,23,14,13),
 (10,17,45,10,32),
@@ -154,6 +155,19 @@ dims = [
 (9,46,17,26,89),
 (9,68,15,12,56),
 (9,83,46,9,14)
+]
+"""
+
+dims = [
+  (3,13,5,11,7),
+  (8,14,46,13,15),
+  (8,31,9,35,27),
+  (9,46,17,26,89),
+  (9,83,46,9,14),
+  (13,8,25,14,49),
+  (17,49,24,9,14),
+  (10,17,45,10,32),
+  (21,13,10,22,61)
 ]
 open_bracket = "{"
 close_bracket = "}"
@@ -245,7 +259,7 @@ for dimId, (K,L,M,P,Q) in enumerate(dims):
 
   k0 = K*Q*P*2
   k1 = L*M*K*P*2 + K*P*M
-  k2 = K*M*P*2 + K*M*P
+  k2 = K*M*P*2
   fp_per_el = k0 + k1 + k2
   fp_unfused_per_el = fp_per_el
   fp_per_k1 = k0
@@ -489,7 +503,7 @@ int main(){{
   cudaDeviceSynchronize(); CHECK_ERR;
   cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * {sizeX} * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  std::cout << "Dimensions: " << {K} << ", " << {L} << ", " << {M} << ", " << {P} << ", " << {Q} << ", " << {L} << std::endl;
+  std::cout << "Dimensions: " << {K} << ", " << {L} << ", " << {M} << ", " << {P} << ", " << {Q} << std::endl;
 
   float elapsedTimeT1 = 0.0;
   float elapsedTimeT2 = 0.0;
