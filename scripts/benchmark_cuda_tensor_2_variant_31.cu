@@ -280,11 +280,12 @@ __launch_bounds__(384)
         float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
         const float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
         float reg0[13] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-        __shared__  __align__(8) float totalShrMem[150];
-        float * localShrMem0 = &totalShrMem[150 * threadIdx.y];
+        __shared__  __align__(8) float totalShrMem[150 + 4784];
+        float * localShrMem0 = &totalShrMem[(150 + 4784) * threadIdx.y];
 
         float* shrRegion0 = &localShrMem0[0];
         float* shrRegion1 = &localShrMem0[46];
+        float* shrRegion2 = &localShrMem0[150];
         // using ExtendedTensorLoader
         float* loadRegion = (threadIdx.x < 46)? shrRegion0 : shrRegion1;
         const float* globalregion = (threadIdx.x < 46)? glb_B : glb_X;
@@ -292,6 +293,14 @@ __launch_bounds__(384)
         {
           if (threadIdx.x < 150) {
             loadRegion[threadIdx.x + loadSubstract] = globalregion[threadIdx.x + loadSubstract];
+          }
+
+          for (int i = 0; i < 12; i++){
+            shrRegion2[threadIdx.x + i*384] = glb_A[threadIdx.x + i*384];
+          }
+
+          if (threadIdx.x < 176){
+            shrRegion2[threadIdx.x + 12*384] = glb_A[threadIdx.x + 12*384];
           }
         }
 
@@ -323,7 +332,7 @@ __launch_bounds__(384)
 
           #pragma unroll
           for (int i = 0; i < 13; ++i) {
-            glb_A[row_offset_0 * 1 + row_offset_1 * 104 + i * 8] = reg0[i] + 1.0 * glb_A[row_offset_0 * 1 + row_offset_1 * 104 + i * 8];
+            glb_A[row_offset_0 * 1 + row_offset_1 * 104 + i * 8] = reg0[i] + shrRegion2[row_offset_0 * 1 + row_offset_1 * 104 + i * 8];
           }
         }
       }
@@ -475,27 +484,6 @@ int main(){
   cudaEvent_t startT2, stopT2;
   cudaEvent_t startT3, stopT3;
   cudaEvent_t startT4, stopT4;
-  cudaEventCreate(&startT1); CHECK_ERR;
-  cudaEventCreate(&stopT1); CHECK_ERR;
-  cudaEventRecord(startT1); CHECK_ERR;
-  sloopOverGEMM_NT_NT_NT__d8_15_d8_13_d15_13__alpha_1_0_beta_0_0_p_p_p__63aca98(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
-  cudaEventRecord(stopT1); CHECK_ERR;
-  cudaEventSynchronize(stopT1); CHECK_ERR;
-  cudaEventElapsedTime(&elapsedTimeT1, startT1, stopT1); CHECK_ERR;
-  //cudaDeviceSynchronize(); CHECK_ERR;
-
-  //cudaMemcpy(Ri1, X_dev, sizeof(float) * 104 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-  
-  cudaEventCreate(&startT2); CHECK_ERR;
-  cudaEventCreate(&stopT2); CHECK_ERR;
-  cudaEventRecord(startT2); CHECK_ERR;
-  sloopOverGEMM_NT_NT_NT__d104_46_d14_46_d104_14__alpha_1_0_beta_1_0_p_p_p__5ce9ba2(A_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
-  cudaEventRecord(stopT2); CHECK_ERR;
-  cudaEventSynchronize(stopT2); CHECK_ERR;
-  cudaEventElapsedTime(&elapsedTimeT2, startT2, stopT2); CHECK_ERR;
-  //cudaDeviceSynchronize(); CHECK_ERR;
-
-  //cudaMemcpy(Ri2, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
 
   cudaEventCreate(&startT3); CHECK_ERR;
   cudaEventCreate(&stopT3); CHECK_ERR;
@@ -519,7 +507,9 @@ int main(){
   cudaEventSynchronize(stopT4); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT4, startT4, stopT4); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
-  
+  cudaMemcpy(R2, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * 4784 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+
 
 
   double fp_per_el = 156208;
@@ -556,376 +546,6 @@ int main(){
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * 4784 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * 104 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  if constexpr (!false){
-  cutensorHandle_t* handle;
-  HANDLE_ERROR(cutensorCreate(&handle));
-
-  cudaEvent_t startCT1, stopCT1;
-  cudaEvent_t startCT2, stopCT2;
-  cudaEvent_t startCT3, stopCT3;
-  cudaEventCreate(&startCT1); CHECK_ERR;
-  cudaEventCreate(&stopCT1); CHECK_ERR;
-  cudaEventCreate(&startCT2); CHECK_ERR;
-  cudaEventCreate(&stopCT2); CHECK_ERR;
-  cudaEventCreate(&startCT3); CHECK_ERR;
-  cudaEventCreate(&stopCT3); CHECK_ERR;
-  float elapsedTimeCT1 = 0.f;
-  float elapsedTimeCT2 = 0.f;
-  float elapsedTimeCT3 = 0.f;
-
-  // Kernel 1
-  std::cout << "cuTensor Kernel 1" << std::endl;
-  {
-    float alphaK1 = 1.0f;
-    float betaK1 = 0.0f;
-    float alphaK2 = 1.0f;
-    float betaK2 = 1.0;
-    float alphaK3 = 1.0f;
-    float betaK3 = 1.0;
-
-    std::vector<int> modeA{'k', 'p', 'm', 'b'};
-    std::vector<int> modeB{'m', 'b'};
-    std::vector<int> modeC{'k', 'q', 'b'};
-    std::vector<int> modeD{'q', 'p', 'b'};
-    std::vector<int> modeE{'k', 'p', 'l', 'b'};
-    std::vector<int> modeF{'l', 'm', 'b'};
-    std::vector<int> modeX{'k', 'p', 'b'};
-    int nmodeA = modeA.size();
-    int nmodeB = modeB.size();
-    int nmodeC = modeC.size();
-    int nmodeD = modeD.size();
-    int nmodeE = modeE.size();
-    int nmodeF = modeF.size();
-    int nmodeX = modeX.size();
-
-    std::unordered_map<int, int64_t> extent;
-    // Derived from the kernel
-    extent['k'] = 8;
-    extent['l'] = 14;
-    extent['m'] = 46;
-    extent['p'] = 13;
-    extent['q'] = 15;
-    extent['b'] = num_els;
-
-    std::vector<int64_t> extentA;
-    for (auto mode : modeA) {
-        extentA.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentB;
-    for (auto mode : modeB) {
-        extentB.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentC;
-    for (auto mode : modeC) {
-        extentC.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentD;
-    for (auto mode : modeD) {
-        extentD.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentE;
-    for (auto mode : modeE) {
-        extentE.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentF;
-    for (auto mode : modeF) {
-        extentF.push_back(extent[mode]);
-    }
-    std::vector<int64_t> extentX;
-    for (auto mode : modeX) {
-        extentX.push_back(extent[mode]);
-    }
-    
-    cudaDataType_t typeA = CUDA_R_32F;
-    cudaDataType_t typeB = CUDA_R_32F;
-    cudaDataType_t typeC = CUDA_R_32F;
-    cudaDataType_t typeD = CUDA_R_32F;
-    cudaDataType_t typeE = CUDA_R_32F;
-    cudaDataType_t typeF = CUDA_R_32F;
-    cudaDataType_t typeX = CUDA_R_32F;
-    cutensorComputeType_t typeCompute = CUTENSOR_COMPUTE_32F;
-
-    cutensorTensorDescriptor_t descA;
-    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
-                    &descA,
-                    nmodeA,
-                    extentA.data(),
-                    NULL,
-                    typeA, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descB;
-    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
-                    &descB,
-                    nmodeB,
-                    extentB.data(),
-                    NULL,
-                    typeB, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descC;
-    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
-                    &descC,
-                    nmodeC,
-                    extentC.data(),
-                    NULL,
-                    typeC, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descD;
-    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
-                    &descD,
-                    nmodeD,
-                    extentD.data(),
-                    NULL,
-                    typeD, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descE;
-    HANDLE_ERROR(cutensorInitTensorDescriptor(handle,
-                    &descE,
-                    nmodeE,
-                    extentE.data(),
-                    NULL,
-                    typeE, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descF;
-    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
-                    &descF,
-                    nmodeF,
-                    extentF.data(),
-                    NULL,
-                    typeF, CUTENSOR_OP_IDENTITY));
-
-    cutensorTensorDescriptor_t descX;
-    HANDLE_ERROR(cutensorInitTensorDescriptor( handle,
-                    &descX,
-                    nmodeX,
-                    extentX.data(),
-                    NULL,
-                    typeX, CUTENSOR_OP_IDENTITY));
-
-
-    uint32_t alignmentRequirementA;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    A_dev,
-                    &descA,
-                    &alignmentRequirementA));
-
-    uint32_t alignmentRequirementB;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    B_dev,
-                    &descB,
-                    &alignmentRequirementB));
-
-    uint32_t alignmentRequirementC;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    C_dev,
-                    &descC, 
-                    &alignmentRequirementC));
-
-    uint32_t alignmentRequirementD;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    D_dev,
-                    &descD,
-                    &alignmentRequirementD));
-
-    uint32_t alignmentRequirementE;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    E_dev,
-                    &descE,
-                    &alignmentRequirementE));
-
-    uint32_t alignmentRequirementF;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    F_dev,
-                    &descF, 
-                    &alignmentRequirementF));
-
-    uint32_t alignmentRequirementX;
-    HANDLE_ERROR(cutensorGetAlignmentRequirement(handle,
-                    X_dev,
-                    &descX, 
-                    &alignmentRequirementX));
-
-    cutensorContractionDescriptor_t desc1;
-    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
-                  &desc1,
-                  &descC, modeC.data(), alignmentRequirementC,
-                  &descD, modeD.data(), alignmentRequirementD,
-                  &descX, modeX.data(), alignmentRequirementX,
-                  &descX, modeX.data(), alignmentRequirementX,
-                  typeCompute));
-
-    cutensorContractionFind_t find1;
-    HANDLE_ERROR(cutensorInitContractionFind( 
-                 handle, &find1, 
-                 CUTENSOR_ALGO_DEFAULT));
-
-    uint64_t worksize1 = 0;
-    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
-                 &desc1,
-                 &find1,
-                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize1));
-
-    cutensorContractionDescriptor_t desc2;
-    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
-                  &desc2,
-                  &descF, modeF.data(), alignmentRequirementF,
-                  &descE, modeE.data(), alignmentRequirementE,
-                  &descA, modeA.data(), alignmentRequirementA,
-                  &descA, modeA.data(), alignmentRequirementA,
-                  typeCompute));
-
-    cutensorContractionFind_t find2;
-    HANDLE_ERROR(cutensorInitContractionFind( 
-                 handle, &find2, 
-                 CUTENSOR_ALGO_DEFAULT));
-
-    uint64_t worksize2 = 0;
-    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
-                 &desc2,
-                 &find2,
-                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize2));
-
-
-    cutensorContractionDescriptor_t desc3;
-    HANDLE_ERROR(cutensorInitContractionDescriptor(handle, 
-                  &desc3,
-                  &descB, modeB.data(), alignmentRequirementB,
-                  &descX, modeX.data(), alignmentRequirementX,
-                  &descA, modeA.data(), alignmentRequirementA,
-                  &descA, modeA.data(), alignmentRequirementA,
-                  typeCompute));
-
-    cutensorContractionFind_t find3;
-    HANDLE_ERROR(cutensorInitContractionFind( 
-                 handle, &find3, 
-                 CUTENSOR_ALGO_DEFAULT));
-
-    uint64_t worksize3 = 0;
-    HANDLE_ERROR(cutensorContractionGetWorkspaceSize(handle,
-                 &desc3,
-                 &find3,
-                 CUTENSOR_WORKSPACE_RECOMMENDED, &worksize3));
-
-    uint64_t maxWorkSize = std::max(std::max(worksize1, worksize2), worksize3);
-    void *work = nullptr;
-    if (maxWorkSize > 0)
-    {
-        if (cudaSuccess != cudaMalloc(&work, maxWorkSize))
-        {
-            work = nullptr;
-            maxWorkSize = 0;
-            worksize1 = 0;
-            worksize2 = 0;
-            worksize3 = 0;
-            cudaGetLastError(); // Clear last error to save CHECK_ERR;
-        } else {
-            worksize1 = maxWorkSize;
-            worksize2 = maxWorkSize;
-            worksize3 = maxWorkSize;
-        }
-    }
-
-
-    cutensorContractionPlan_t plan1;
-    HANDLE_ERROR(cutensorInitContractionPlan(handle,
-                 &plan1,
-                 &desc1,
-                 &find1,
-                 worksize1));
-
-    cutensorContractionPlan_t plan2;
-    HANDLE_ERROR(cutensorInitContractionPlan(handle,
-                 &plan2,
-                 &desc2,
-                 &find2,
-                 worksize2));
-
-    cutensorContractionPlan_t plan3;
-    HANDLE_ERROR(cutensorInitContractionPlan(handle,
-                 &plan3,
-                 &desc3,
-                 &find3,
-                 worksize3));
-
-    cudaDeviceSynchronize(); CHECK_ERR;
-
-    cudaEventRecord(startCT1); CHECK_ERR;
-    cutensorContraction(handle,
-                              &plan1,
-                              (void*) &alphaK1, C_dev, D_dev,
-                              (void*) &betaK1,  X_dev, X_dev, 
-                              work, worksize1, 0);
-    cudaEventRecord(stopCT1); CHECK_ERR;
-    cudaEventSynchronize(stopCT1); CHECK_ERR;
-    cudaEventElapsedTime(&elapsedTimeCT1, startCT1, stopCT1); CHECK_ERR;
-
-    //cudaDeviceSynchronize(); CHECK_ERR;
-    //cudaMemcpy(Ri1c, X_dev, sizeof(float) * 104 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-
-    cudaEventRecord(startCT2); CHECK_ERR;
-    cutensorContraction(handle,
-                              &plan2,
-                              (void*) &alphaK2, F_dev, E_dev,
-                              (void*) &betaK2,  A_dev, A_dev, 
-                              work, worksize2, 0);
-    cudaEventRecord(stopCT2); CHECK_ERR;
-    cudaEventSynchronize(stopCT2); CHECK_ERR;
-    cudaEventElapsedTime(&elapsedTimeCT2, startCT2, stopCT2); CHECK_ERR;
-
-    //cudaDeviceSynchronize(); CHECK_ERR;
-    //cudaMemcpy(Ri2c, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-
-    cudaEventRecord(startCT3); CHECK_ERR;
-    cutensorContraction(handle,
-                              &plan3,
-                              (void*) &alphaK3, B_dev, X_dev,
-                              (void*) &betaK3,  A_dev, A_dev, 
-                              work, worksize3, 0);
-    cudaEventRecord(stopCT3); CHECK_ERR;
-    cudaEventSynchronize(stopCT3); CHECK_ERR;
-    cudaEventElapsedTime(&elapsedTimeCT3, startCT3, stopCT3); CHECK_ERR;
-
-    cudaDeviceSynchronize(); CHECK_ERR;
-    
-    cudaMemcpy(R2, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
-
-    cudaFree(work);
-  }
-
-  float elapsedTimeCuTensor = elapsedTimeCT1 + elapsedTimeCT2 + elapsedTimeCT2;
-  if (peakFLOPGiven > 0.1 && peakBandwidthGiven){
-    double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
-    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_peak << " % of roof w. respect to operational intensity achieved with cuTensor" << std::endl;
-
-    double obtainable_unfused_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_unfused_per_el) / static_cast<double>(ls_unfused_per_el)));
-    std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTimeCuTensor) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
-  }
-
-  /*
-  bool i1results_wrong = false;
-  for (size_t i = 0; i < 104 * num_els; i++){
-    if (std::abs(Ri1[i] - Ri1c[i]) > 1.0f) {
-      std::cout << "Intermediate Results 1 do not match, problem first at offset " << i << " :_(" << std::endl;
-      i1results_wrong = true;
-      break;
-    }
-  }
-  if (!i1results_wrong){
-    std::cout << "Gemmforge and cuTensor contraction intermediate results 1 match! :)" << std::endl;
-  }
-  
-  bool i2results_wrong = false;
-  for (size_t i = 0; i < 4784 * num_els; i++){
-    if (std::abs(Ri2[i] - Ri2c[i]) > 1.0f) {
-      std::cout << "Intermediate Results 2 do not match, problem first at offset " << i << " :_(" << std::endl;
-      i2results_wrong = true;
-      break;
-    }
-  }
-  if (!i2results_wrong){
-    std::cout << "Gemmforge and cuTensor contraction intermediate results 2 match! :)" << std::endl;
-  }
-  */
-
   bool results_wrong = false;
   for (size_t i = 0; i < 4784 * num_els; i++){
     if (std::abs(R1[i] - R2[i]) > 5.0f) {
@@ -935,8 +555,7 @@ int main(){
     }
   }
   if (!results_wrong){
-    std::cout << "Gemmforge and cuTensor contraction results match! :)" << std::endl;
-  }
+    std::cout << "Gemmforge and Gemmforge Optimized contraction results match! :)" << std::endl;
   }
 
   cudaFree(A_dev_begins_dev);
