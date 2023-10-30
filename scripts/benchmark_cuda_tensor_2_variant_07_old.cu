@@ -146,22 +146,10 @@ __launch_bounds__(128)
         float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
         const float * const __restrict__ glb_E = &E[batchID][0 + E_extraOffset];
         float reg0[45] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-        __shared__  __align__(8) float totalShrMem[2465];
-        float * localShrMem0 = &totalShrMem[(2465) * threadIdx.y];
-        
-        float* shrRegion0 = &localShrMem0[0];
-        // using ExtendedPatchLoader
-        {
-          #pragma unroll
-          for (int i = 0; i < 13; ++i) {
-            shrRegion0[threadIdx.x + i * 128] = glb_E[threadIdx.x + i * 128];
-          }
-          if (threadIdx.x < 36) {
-            shrRegion0[threadIdx.x + 1664] = glb_E[threadIdx.x + 1664];
-          }
-        }
-        
-        float* shrRegion1 = &localShrMem0[1700];
+        __shared__  __align__(8) float totalShrMem[760];
+        float * localShrMem0 = &totalShrMem[(760) * threadIdx.y];
+
+        float* shrRegion1 = &localShrMem0[0];
         // using ExtendedPatchLoader
         {
           #pragma unroll
@@ -179,7 +167,7 @@ __launch_bounds__(128)
         
           #pragma unroll
           for (int k = 0; k < 17; ++k) {
-            value = shrRegion0[threadIdx.x + k * 100];
+            value = glb_E[threadIdx.x + k * 100];
         
             #pragma unroll
             for (int n = 0; n < 45; ++n) {
