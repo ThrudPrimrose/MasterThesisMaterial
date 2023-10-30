@@ -347,6 +347,81 @@ void sproduct2_NT_NT_NT__d46_d8_13_46_d8_13__alpha_1_0_p_p_p__7c7cd48(float ** A
   CHECK_ERR;
 }
 
+__global__ void 
+__launch_bounds__(384)
+ kernel_sproduct3_NT_NT_NT__d46_d8_13_46_d8_13__alpha_1_0_p_p_p__7c7cd48(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags) {
+  unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
+  if (batchID < numElements) {
+    bool isFlagsProvided = (flags != nullptr);
+    bool allowed = isFlagsProvided ? static_cast<bool>(flags[batchID]) : true;
+    if (allowed) {
+      {
+        const float * const __restrict__ glb_B = &B[batchID][0 + B_extraOffset];
+        float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
+        const float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
+        float reg0[13] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+        __shared__  __align__(8) float totalShrMem[150];
+        float * localShrMem0 = &totalShrMem[150 * threadIdx.y];
+
+        float* shrRegion0 = &localShrMem0[0];
+        float* shrRegion1 = &localShrMem0[46];
+        // using ExtendedTensorLoader
+        float* loadRegion = (threadIdx.x < 46)? shrRegion0 : shrRegion1;
+        const float* globalregion = (threadIdx.x < 46)? glb_B : glb_X;
+        int loadSubstract = (threadIdx.x < 46)? 0 : -46;
+        {
+          if (threadIdx.x < 150) {
+            loadRegion[threadIdx.x + loadSubstract] = globalregion[threadIdx.x + loadSubstract];
+          }
+        }
+        __syncthreads();
+        /*
+        This is the product kernel created from the following YaTeTo description:
+        Description(
+        	alpha: 1.0
+        	add: True
+        	result: IndexedTensorDescription(name=A, indices=kpm, memoryLayout=DenseMemoryLayout(shape=(8, 13, 46), bbox=BoundingBox(Range(0, 8), Range(0, 13), Range(0, 46)), stride=(1, 8, 104), align=<yateto.arch.Architecture object at 0x7fbd1919e910>), eqspp=dense(shape=(8, 13, 46), size=4784, ndim=3), is_compute_constant=False, is_temporary=False)
+        	leftTerm: IndexedTensorDescription(name=B, indices=m, memoryLayout=DenseMemoryLayout(shape=(46,), bbox=BoundingBox(Range(0, 46)), stride=(1,), align=<yateto.arch.Architecture object at 0x7fbd1919e910>), eqspp=dense(shape=(46,), size=46, ndim=1), is_compute_constant=False, is_temporary=False)
+        	rightTerm: IndexedTensorDescription(name=X, indices=kp, memoryLayout=DenseMemoryLayout(shape=(8, 13), bbox=BoundingBox(Range(0, 8), Range(0, 13)), stride=(1, 8), align=<yateto.arch.Architecture object at 0x7fbd1919e910>), eqspp=dense(shape=(8, 13), size=104, ndim=2), is_compute_constant=False, is_temporary=False)
+        	isACsc: False
+        	isBCsc: False
+        	loopRanges: {'m': Range(0, 46), 'p': Range(0, 13), 'k': Range(0, 8)}
+        )
+        */
+        if (threadIdx.x < 368) {
+          int rows_left = threadIdx.x;
+          const int row_offset_1 = rows_left / 8;
+          rows_left -= row_offset_1 * 8;
+          const int dim_offset_m = row_offset_1;
+          const int row_offset_0 = rows_left;
+          const int dim_offset_k = row_offset_0;
+          #pragma unroll
+          for (int p = 0; p < 13; ++p) {
+            reg0[p] = shrRegion0[dim_offset_m * 1] * shrRegion1[dim_offset_k * 1 + p * 8];
+          }
+        }
+        if (threadIdx.x < 368) {
+          int rows_left = threadIdx.x;
+          const int row_offset_1 = rows_left / 8;
+          rows_left -= row_offset_1 * 8;
+          const int row_offset_0 = rows_left;
+          #pragma unroll
+          for (int i = 0; i < 13; ++i) {
+            glb_A[row_offset_0 * 1 + row_offset_1 * 104 + i * 8] = reg0[i] + 1.0 * glb_A[row_offset_0 * 1 + row_offset_1 * 104 + i * 8];
+          }
+        }
+      }
+    }
+  }
+}
+void sproduct3_NT_NT_NT__d46_d8_13_46_d8_13__alpha_1_0_p_p_p__7c7cd48(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
+  dim3 block(384, 1, 1);
+  dim3 grid((numElements + 1 - 1) / 1, 1, 1);
+  cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
+  kernel_sproduct_NT_NT_NT__d46_d8_13_46_d8_13__alpha_1_0_p_p_p__7c7cd48<<<grid,block,0,stream>>>(A, A_extraOffset, B, B_extraOffset, X, X_extraOffset, numElements, flags);
+  CHECK_ERR;
+}
+
 int main(){
   constexpr size_t num_els = 122554;
   float* A = new float[4784 * num_els]{0.f};
@@ -492,12 +567,25 @@ int main(){
   cudaEventRecord(stopT3); CHECK_ERR;
   cudaEventSynchronize(stopT3); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT3, startT3, stopT3); CHECK_ERR;
-  double elapsedTime = elapsedTimeT1 + elapsedTimeT2 + elapsedTimeT3;
+  //double elapsedTime = elapsedTimeT1 + elapsedTimeT2 + elapsedTimeT3;
   cudaDeviceSynchronize(); CHECK_ERR;
   
-  std::cout << "Gemmforge Tensor Contraction took: " << elapsedTime << " ms" << std::endl; 
+  //std::cout << "Gemmforge Tensor Contraction took: " << elapsedTime << " ms" << std::endl; 
   cudaMemcpy(R1, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * 4784 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+
+
+  cudaEventCreate(&startT2); CHECK_ERR;
+  cudaEventCreate(&stopT2); CHECK_ERR;
+  cudaEventRecord(startT2); CHECK_ERR;
+  sproduct3_NT_NT_NT__d46_d8_13_46_d8_13__alpha_1_0_p_p_p__7c7cd48(A_dev_begins_dev, 0, B_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  cudaEventRecord(stopT2); CHECK_ERR;
+  cudaEventSynchronize(stopT2); CHECK_ERR;
+  cudaEventElapsedTime(&elapsedTimeT2, startT2, stopT2); CHECK_ERR;
+  cudaDeviceSynchronize(); CHECK_ERR;
+  cudaMemcpy(R1, A_dev, sizeof(float) * 4784 * num_els, cudaMemcpyDeviceToHost); CHECK_ERR;
+  cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * 4784 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
+
 
   cudaEventCreate(&startT4); CHECK_ERR;
   cudaEventCreate(&stopT4); CHECK_ERR;
@@ -520,27 +608,18 @@ int main(){
   ls_per_el *= num_els;
   fp_unfused_per_el *= num_els;
   ls_unfused_per_el *= num_els;
-  std::cout << "Gemmforge Theoretical Fused Kernel GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
-  std::cout << "Operational Theoretical Fused intensity: " << fp_per_el / ls_per_el << std::endl;
-  std::cout << "Gemmforge GFLOPs/s: " << fp_unfused_per_el * 1e-6 / elapsedTime << std::endl;
-  std::cout << "Operational intensity: " << fp_unfused_per_el / ls_unfused_per_el << std::endl;
+  //std::cout << "Gemmforge Theoretical Fused Kernel GFLOPs/s: " << fp_per_el * 1e-6 / elapsedTime << std::endl;
+  //std::cout << "Operational Theoretical Fused intensity: " << fp_per_el / ls_per_el << std::endl;
+  //std::cout << "Gemmforge GFLOPs/s: " << fp_unfused_per_el * 1e-6 / elapsedTime << std::endl;
+  //std::cout << "Operational intensity: " << fp_unfused_per_el / ls_unfused_per_el << std::endl;
   double peakFLOPGiven = 29767.7;
   double peakBandwidthGiven = 760.08;
 
   if (peakFLOPGiven > 0.1 && peakBandwidthGiven){
-    double obtainable_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_per_el) / static_cast<double>(ls_per_el)));
-    std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved with Gemmforge" << std::endl;
-    //std::cout << 100.0*(fp_per_el * 1e-6 / elapsedTime) / obtainable_peak << " % of roof w. respect to operational intensity achieved with cuTensor" << std::endl;
-    double obtainable_unfused_peak = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(fp_unfused_per_el) / static_cast<double>(ls_unfused_per_el)));
-    std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTime) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with Gemmforge" << std::endl;
-    //std::cout << 100.0*(fp_unfused_per_el * 1e-6 / elapsedTime) / obtainable_unfused_peak << " % of roof w. respect to unfused operational intensity achieved with cuTensor" << std::endl;
-    double obtainable_unfused_peak_k1 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(3120) / static_cast<double>(1676)));
-    std::cout << 100.0*(3120 * num_els  * 1e-6 / elapsedTimeT1) / obtainable_unfused_peak_k1 << " % of roof w. respect to Kernel1 intensity achieved with Gemmforge" << std::endl;
-    double obtainable_unfused_peak_k2 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(138736) / static_cast<double>(46672)));
-    std::cout << 100.0*(138736 * num_els  * 1e-6 / elapsedTimeT2) / obtainable_unfused_peak_k2 << " % of roof w. respect to Kernel2 intensity achieved with Gemmforge" << std::endl;
     double obtainable_unfused_peak_k3 = std::min(static_cast<double>(peakFLOPGiven), static_cast<double>(peakBandwidthGiven * static_cast<double>(14352) / static_cast<double>(38872)));
     std::cout << 100.0*(14352 * num_els * 1e-6 / elapsedTimeT3) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 intensity achieved with Gemmforge" << std::endl;
-    std::cout << 100.0*(14352 * num_els * 1e-6 / elapsedTimeT4) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 (Optimization Idea) intensity achieved with Gemmforge" << std::endl;
+    std::cout << 100.0*(14352 * num_els * 1e-6 / elapsedTimeT2) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 (Optimization Idea 1) intensity achieved with Gemmforge" << std::endl;
+    std::cout << 100.0*(14352 * num_els * 1e-6 / elapsedTimeT4) / obtainable_unfused_peak_k3 << " % of roof w. respect to Kernel3 (Optimization Idea 2) intensity achieved with Gemmforge" << std::endl;
   }
 
   cudaMemcpy((void *)A_dev, (void *)A, sizeof(float) * 4784 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
