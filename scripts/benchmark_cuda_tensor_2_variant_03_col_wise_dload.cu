@@ -125,7 +125,7 @@ __launch_bounds__(32)
         if (threadIdx.x < 9) {
           #pragma unroll
           for (int n = 0; n < 26; ++n) {
-            shrC[threadIdx.x + 9*n] = reg0[n];
+            glb_X[threadIdx.x + 9*n] = shrC[n];
           }
         }
         
