@@ -124,11 +124,8 @@ __launch_bounds__(32)
         __syncwarp();
         if (threadIdx.x < 9) {
           #pragma unroll
-          for (int i = 0; i < 7; ++i) {
-            glb_X[threadIdx.x + i*32] = shrC[threadIdx.x + i*32];
-          }
-          if (threadIdx.x < 10) {
-            glb_X[threadIdx.x + 7*32] = shrC[threadIdx.x + 7*32];
+          for (int n = 0; n < 26; ++n) {
+            shrC[threadIdx.x + 9*n] = reg0[n];
           }
         }
         
