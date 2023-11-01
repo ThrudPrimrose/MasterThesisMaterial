@@ -76,6 +76,7 @@ __launch_bounds__(32)
         float reg0[9] = {0.0f};
         __shared__  __align__(8) float totalShrMem[3115];
         float * localShrMem0 = &totalShrMem[3115 * threadIdx.y];
+        __shared__ __align__(8) float shrC[26*9];
         
         float* shrRegion0 = &localShrMem0[0];
         // using ExtendedPatchLoader
@@ -117,8 +118,17 @@ __launch_bounds__(32)
         if (threadIdx.x < 26) {
           #pragma unroll
           for (int m = 0; m < 9; ++m) {
-            glb_X[threadIdx.x * 9 + m] = reg0[m];
+            shrC[threadIdx.x * 9 + m] = reg0[m];
           }
+        }
+        __syncwarp();
+
+        #pragma unroll
+        for (int i = 0; i < 7; ++i) {
+          glb_X[threadIdx.x + i*32] = shrC[threadIdx.x + i*32];
+        }
+        if (threadIdx.x < 10) {
+          glb_X[threadIdx.x + 7*32] = shrC[threadIdx.x + 7*32];
         }
         
       }
