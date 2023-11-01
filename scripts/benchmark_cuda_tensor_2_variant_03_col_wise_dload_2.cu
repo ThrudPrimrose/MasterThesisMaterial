@@ -128,17 +128,52 @@ __launch_bounds__(32)
         }
         __syncwarp();
         if (threadIdx.x < 26) {
-          float value;
+          float4 values;
         
           #pragma unroll
-          for (int k = 0; k < 89; ++k) {
-            value = shrRegion1[threadIdx.x * 96 + k];
+          for (int k = 0; k < 88; k+=4) {
+            values.x = shrRegion1[threadIdx.x * 96 + k + 0];
+            values.y = shrRegion1[threadIdx.x * 96 + k + 1];
+            values.z = shrRegion1[threadIdx.x * 96 + k + 2];
+            values.w = shrRegion1[threadIdx.x * 96 + k + 3];
         
             #pragma unroll
-            for (int m = 0; m < 9; ++m) {
-              reg0[m] += value * shrRegion0[m + 32 * k];
+            for (int m = 0; m < 8; m+=4) {
+              reg0[m+0] += values.x * shrRegion0[m+0 + 32 * (k+0)];
+              reg0[m+1] += values.x * shrRegion0[m+1 + 32 * (k+0)];
+              reg0[m+2] += values.x * shrRegion0[m+2 + 32 * (k+0)];
+              reg0[m+3] += values.x * shrRegion0[m+3 + 32 * (k+0)];
+
+              reg0[m+0] += values.y * shrRegion0[m+0 + 32 * (k+1)];
+              reg0[m+1] += values.y * shrRegion0[m+1 + 32 * (k+1)];
+              reg0[m+2] += values.y * shrRegion0[m+2 + 32 * (k+1)];
+              reg0[m+3] += values.y * shrRegion0[m+3 + 32 * (k+1)];
+
+              reg0[m+0] += values.z * shrRegion0[m+0 + 32 * (k+2)];
+              reg0[m+1] += values.z * shrRegion0[m+1 + 32 * (k+2)];
+              reg0[m+2] += values.z * shrRegion0[m+2 + 32 * (k+2)];
+              reg0[m+3] += values.z * shrRegion0[m+3 + 32 * (k+2)];
+
+              reg0[m+0] += values.w * shrRegion0[m+0 + 32 * (k+3)];
+              reg0[m+1] += values.w * shrRegion0[m+1 + 32 * (k+3)];
+              reg0[m+2] += values.w * shrRegion0[m+2 + 32 * (k+3)];
+              reg0[m+3] += values.w * shrRegion0[m+3 + 32 * (k+3)];
             }
+            reg0[8] += values.x * shrRegion0[8 + 32 * (k+0)];
+            reg0[8] += values.y * shrRegion0[8 + 32 * (k+1)];
+            reg0[8] += values.z * shrRegion0[8 + 32 * (k+2)];
+            reg0[8] += values.w * shrRegion0[8 + 32 * (k+3)];
           }
+
+          values.x = shrRegion1[threadIdx.x * 96 + 88 + 0];
+          #pragma unroll
+          for (int m = 0; m < 8; m+=4) {
+            reg0[m+0] += values.x * shrRegion0[m+0 + 32 * (88+0)];
+            reg0[m+1] += values.x * shrRegion0[m+1 + 32 * (88+0)];
+            reg0[m+2] += values.x * shrRegion0[m+2 + 32 * (88+0)];
+            reg0[m+3] += values.x * shrRegion0[m+3 + 32 * (88+0)];
+          }
+          reg0[8] += values.x * shrRegion0[8 + 32 * (88+0)];
         }
         if (threadIdx.x < 26) {
           #pragma unroll
