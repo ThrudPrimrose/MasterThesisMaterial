@@ -58,7 +58,7 @@ void checkErr(const std::string &File, int Line) {
 
 __global__ void 
 __launch_bounds__(32)
- kernel_sloopOverGEMM_NT_NT_NT__d21_22_d61_22_d21_61__alpha_1_0_beta_0_0_p_p_p__22608e1(const float * const * C, int C_extraOffset, const float * const * D, int D_extraOffset, float ** X, int X_extraOffset, unsigned numElements, unsigned* flags) {
+ kernel_sloopOverGEMM_NT_NT_NT__d21_61_d21_22_d61_22__alpha_1_0_beta_0_0_p_p_p__7610af5(const float * const * C, int C_extraOffset, const float * const * D, int D_extraOffset, float ** X, int X_extraOffset, unsigned numElements, unsigned* flags) {
   unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
   if (batchID < numElements) {
     bool isFlagsProvided = (flags != nullptr);
@@ -66,15 +66,15 @@ __launch_bounds__(32)
     if (allowed) {
       /*
       This is the LoG created from the following YaTeTo description:
-      ('gemm', {'descr': Description(  result=TensorDescription(  name=X,	  memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(21, 22), size=462, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=C,	  memoryLayout=DenseMemoryLayout(shape=(21, 61), bbox=BoundingBox(Range(0, 21), Range(0, 61)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(21, 61), size=1281, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=D,	  memoryLayout=DenseMemoryLayout(shape=(61, 22), bbox=BoundingBox(Range(0, 61), Range(0, 22)), stride=(1, 61), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(61, 22), size=1342, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=0.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 21), Range(0, 22), Range(0, 61))), 'matrix_a': DenseMatrix{name = C, num. rows = 21, num. columns = 61, leading dimension = 21, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 21, 61]}, 'matrix_b': DenseMatrix{name = D, num. rows = 61, num. columns = 22, leading dimension = 61, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 61, 22]}, 'matrix_c': DenseMatrix{name = X, num. rows = 21, num. columns = 22, leading dimension = 21, direction = DataFlowDirection.SINK, bbox = [0, 0, 21, 22]}, 'args': ['C, extraOffset_C', 'D, extraOffset_D', 'X, extraOffset_X', 'numElements', 'flags', 'streamPtr']})
+      ('gemm', {'descr': Description(  result=TensorDescription(  name=X,	  memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(21, 22), size=462, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=C,	  memoryLayout=DenseMemoryLayout(shape=(21, 61), bbox=BoundingBox(Range(0, 21), Range(0, 61)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(21, 61), size=1281, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=D,	  memoryLayout=DenseMemoryLayout(shape=(61, 22), bbox=BoundingBox(Range(0, 61), Range(0, 22)), stride=(1, 61), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(61, 22), size=1342, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=0.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 21), Range(0, 22), Range(0, 61))), 'matrix_a': DenseMatrix{name = C, num. rows = 21, num. columns = 61, leading dimension = 21, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 21, 61]}, 'matrix_b': DenseMatrix{name = D, num. rows = 61, num. columns = 22, leading dimension = 61, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 61, 22]}, 'matrix_c': DenseMatrix{name = X, num. rows = 21, num. columns = 22, leading dimension = 21, direction = DataFlowDirection.SINK, bbox = [0, 0, 21, 22]}, 'args': ['C, extraOffset_C', 'D, extraOffset_D', 'X, extraOffset_X', 'numElements', 'flags', 'streamPtr']})
       */
       {
-    //('gemm', {'descr': Description(  result=TensorDescription(  name=X,	  memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(21, 22), size=462, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=C,	  memoryLayout=DenseMemoryLayout(shape=(21, 61), bbox=BoundingBox(Range(0, 21), Range(0, 61)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(21, 61), size=1281, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=D,	  memoryLayout=DenseMemoryLayout(shape=(61, 22), bbox=BoundingBox(Range(0, 61), Range(0, 22)), stride=(1, 61), align=<yateto.arch.Architecture object at 0x7f3bda318890>),	  eqspp=dense(shape=(61, 22), size=1342, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=0.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 21), Range(0, 22), Range(0, 61))), 'matrix_a': DenseMatrix{name = C, num. rows = 21, num. columns = 61, leading dimension = 21, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 21, 61]}, 'matrix_b': DenseMatrix{name = D, num. rows = 61, num. columns = 22, leading dimension = 61, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 61, 22]}, 'matrix_c': DenseMatrix{name = X, num. rows = 21, num. columns = 22, leading dimension = 21, direction = DataFlowDirection.SINK, bbox = [0, 0, 21, 22]}, 'args': ['C, extraOffset_C', 'D, extraOffset_D', 'X, extraOffset_X', 'numElements', 'flags', 'streamPtr']})
+    //('gemm', {'descr': Description(  result=TensorDescription(  name=X,	  memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(21, 22), size=462, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=C,	  memoryLayout=DenseMemoryLayout(shape=(21, 61), bbox=BoundingBox(Range(0, 21), Range(0, 61)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(21, 61), size=1281, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=D,	  memoryLayout=DenseMemoryLayout(shape=(61, 22), bbox=BoundingBox(Range(0, 61), Range(0, 22)), stride=(1, 61), align=<yateto.arch.Architecture object at 0x7f0cf15817d0>),	  eqspp=dense(shape=(61, 22), size=1342, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=0.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 21), Range(0, 22), Range(0, 61))), 'matrix_a': DenseMatrix{name = C, num. rows = 21, num. columns = 61, leading dimension = 21, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 21, 61]}, 'matrix_b': DenseMatrix{name = D, num. rows = 61, num. columns = 22, leading dimension = 61, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 61, 22]}, 'matrix_c': DenseMatrix{name = X, num. rows = 21, num. columns = 22, leading dimension = 21, direction = DataFlowDirection.SINK, bbox = [0, 0, 21, 22]}, 'args': ['C, extraOffset_C', 'D, extraOffset_D', 'X, extraOffset_X', 'numElements', 'flags', 'streamPtr']})
+        const float * const __restrict__ glb_C = &C[batchID][0 + C_extraOffset];
         float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
         const float * const __restrict__ glb_D = &D[batchID][0 + D_extraOffset];
-        const float * const __restrict__ glb_C = &C[batchID][0 + C_extraOffset];
         float reg0[22] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-        __shared__  __align__(8) float totalShrMem[2623];
+        __shared__  __align__(16) float totalShrMem[2623];
         float * localShrMem0 = &totalShrMem[2623 * threadIdx.y];
         
         float* shrRegion0 = &localShrMem0[0];
@@ -125,18 +125,18 @@ __launch_bounds__(32)
     }
   }
 }
-void sloopOverGEMM_NT_NT_NT__d21_22_d61_22_d21_61__alpha_1_0_beta_0_0_p_p_p__22608e1(const float * const * C, int C_extraOffset, const float * const * D, int D_extraOffset, float ** X, int X_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
+void sloopOverGEMM_NT_NT_NT__d21_61_d21_22_d61_22__alpha_1_0_beta_0_0_p_p_p__7610af5(const float * const * C, int C_extraOffset, const float * const * D, int D_extraOffset, float ** X, int X_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
   dim3 block(32, 1, 1);
   dim3 grid((numElements + 1 - 1) / 1, 1, 1);
   cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
-  kernel_sloopOverGEMM_NT_NT_NT__d21_22_d61_22_d21_61__alpha_1_0_beta_0_0_p_p_p__22608e1<<<grid,block,0,stream>>>(C, C_extraOffset, D, D_extraOffset, X, X_extraOffset, numElements, flags);
+  kernel_sloopOverGEMM_NT_NT_NT__d21_61_d21_22_d61_22__alpha_1_0_beta_0_0_p_p_p__7610af5<<<grid,block,0,stream>>>(C, C_extraOffset, D, D_extraOffset, X, X_extraOffset, numElements, flags);
   CHECK_ERR;
 }
 
 
 __global__ void 
 __launch_bounds__(480)
- kernel_sloopOverGEMM_NT_NT_NT__d462_13_d13_10_d462_10__alpha_1_0_beta_1_0_p_p_p__3b6e41a(float ** A, int A_extraOffset, const float * const * E, int E_extraOffset, const float * const * F, int F_extraOffset, unsigned numElements, unsigned* flags) {
+ kernel_sloopOverGEMM_NT_NT_NT__d462_13_d462_10_d13_10__alpha_1_0_beta_1_0_p_p_p__419e9f1(float ** A, int A_extraOffset, const float * const * E, int E_extraOffset, const float * const * F, int F_extraOffset, unsigned numElements, unsigned* flags) {
   unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
   if (batchID < numElements) {
     bool isFlagsProvided = (flags != nullptr);
@@ -144,19 +144,30 @@ __launch_bounds__(480)
     if (allowed) {
       /*
       This is the LoG created from the following YaTeTo description:
-      ('gemm', {'descr': Description(  result=TensorDescription(  name=A,	  memoryLayout=DenseMemoryLayout(shape=(462, 10), bbox=BoundingBox(Range(0, 462), Range(0, 10)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(462, 10), size=4620, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=E,	  memoryLayout=DenseMemoryLayout(shape=(462, 13), bbox=BoundingBox(Range(0, 462), Range(0, 13)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(462, 13), size=6006, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=F,	  memoryLayout=DenseMemoryLayout(shape=(13, 10), bbox=BoundingBox(Range(0, 13), Range(0, 10)), stride=(1, 13), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(13, 10), size=130, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=1.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 462), Range(0, 10), Range(0, 13))), 'matrix_a': DenseMatrix{name = E, num. rows = 462, num. columns = 13, leading dimension = 462, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 462, 13]}, 'matrix_b': DenseMatrix{name = F, num. rows = 13, num. columns = 10, leading dimension = 13, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 13, 10]}, 'matrix_c': DenseMatrix{name = A, num. rows = 462, num. columns = 10, leading dimension = 462, direction = DataFlowDirection.SINK, bbox = [0, 0, 462, 10]}, 'args': ['E, extraOffset_E', 'F, extraOffset_F', 'A, extraOffset_A', 'numElements', 'flags', 'streamPtr']})
+      ('gemm', {'descr': Description(  result=TensorDescription(  name=A,	  memoryLayout=DenseMemoryLayout(shape=(462, 10), bbox=BoundingBox(Range(0, 462), Range(0, 10)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(462, 10), size=4620, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=E,	  memoryLayout=DenseMemoryLayout(shape=(462, 13), bbox=BoundingBox(Range(0, 462), Range(0, 13)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(462, 13), size=6006, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=F,	  memoryLayout=DenseMemoryLayout(shape=(13, 10), bbox=BoundingBox(Range(0, 13), Range(0, 10)), stride=(1, 13), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(13, 10), size=130, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=1.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 462), Range(0, 10), Range(0, 13))), 'matrix_a': DenseMatrix{name = E, num. rows = 462, num. columns = 13, leading dimension = 462, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 462, 13]}, 'matrix_b': DenseMatrix{name = F, num. rows = 13, num. columns = 10, leading dimension = 13, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 13, 10]}, 'matrix_c': DenseMatrix{name = A, num. rows = 462, num. columns = 10, leading dimension = 462, direction = DataFlowDirection.SINK, bbox = [0, 0, 462, 10]}, 'args': ['E, extraOffset_E', 'F, extraOffset_F', 'A, extraOffset_A', 'numElements', 'flags', 'streamPtr']})
       */
       {
-    //('gemm', {'descr': Description(  result=TensorDescription(  name=A,	  memoryLayout=DenseMemoryLayout(shape=(462, 10), bbox=BoundingBox(Range(0, 462), Range(0, 10)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(462, 10), size=4620, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=E,	  memoryLayout=DenseMemoryLayout(shape=(462, 13), bbox=BoundingBox(Range(0, 462), Range(0, 13)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(462, 13), size=6006, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=F,	  memoryLayout=DenseMemoryLayout(shape=(13, 10), bbox=BoundingBox(Range(0, 13), Range(0, 10)), stride=(1, 13), align=<yateto.arch.Architecture object at 0x7f3bda2c3d90>),	  eqspp=dense(shape=(13, 10), size=130, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=1.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 462), Range(0, 10), Range(0, 13))), 'matrix_a': DenseMatrix{name = E, num. rows = 462, num. columns = 13, leading dimension = 462, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 462, 13]}, 'matrix_b': DenseMatrix{name = F, num. rows = 13, num. columns = 10, leading dimension = 13, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 13, 10]}, 'matrix_c': DenseMatrix{name = A, num. rows = 462, num. columns = 10, leading dimension = 462, direction = DataFlowDirection.SINK, bbox = [0, 0, 462, 10]}, 'args': ['E, extraOffset_E', 'F, extraOffset_F', 'A, extraOffset_A', 'numElements', 'flags', 'streamPtr']})
+    //('gemm', {'descr': Description(  result=TensorDescription(  name=A,	  memoryLayout=DenseMemoryLayout(shape=(462, 10), bbox=BoundingBox(Range(0, 462), Range(0, 10)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(462, 10), size=4620, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  leftTerm=TensorDescription(  name=E,	  memoryLayout=DenseMemoryLayout(shape=(462, 13), bbox=BoundingBox(Range(0, 462), Range(0, 13)), stride=(1, 462), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(462, 13), size=6006, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  rightTerm=TensorDescription(  name=F,	  memoryLayout=DenseMemoryLayout(shape=(13, 10), bbox=BoundingBox(Range(0, 13), Range(0, 10)), stride=(1, 13), align=<yateto.arch.Architecture object at 0x7f0cfd758d90>),	  eqspp=dense(shape=(13, 10), size=130, ndim=2),	  is_compute_constant=False,	  is_temporary=False),	  transA=False,	  transB=False,	  alpha=1.0,	  beta=1.0,	  prefetchName=None,	  isACsc=False,	  isBCsc=False,	  alignedA=False,	  alignedC=False,	  mnk=(Range(0, 462), Range(0, 10), Range(0, 13))), 'matrix_a': DenseMatrix{name = E, num. rows = 462, num. columns = 13, leading dimension = 462, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 462, 13]}, 'matrix_b': DenseMatrix{name = F, num. rows = 13, num. columns = 10, leading dimension = 13, direction = DataFlowDirection.SOURCE, bbox = [0, 0, 13, 10]}, 'matrix_c': DenseMatrix{name = A, num. rows = 462, num. columns = 10, leading dimension = 462, direction = DataFlowDirection.SINK, bbox = [0, 0, 462, 10]}, 'args': ['E, extraOffset_E', 'F, extraOffset_F', 'A, extraOffset_A', 'numElements', 'flags', 'streamPtr']})
         const float * const __restrict__ glb_E = &E[batchID][0 + E_extraOffset];
-        const float * const __restrict__ glb_F = &F[batchID][0 + F_extraOffset];
         float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
+        const float * const __restrict__ glb_F = &F[batchID][0 + F_extraOffset];
         float reg0[10] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-        __shared__  __align__(8) float totalShrMem[130];
-        float * localShrMem0 = &totalShrMem[130 * threadIdx.y];
+        __shared__  __align__(8) float totalShrMem[6136];
+        float * localShrMem0 = &totalShrMem[6136 * threadIdx.y];
         
-
-        float* shrRegion1 = &localShrMem0[0];
+        float* shrRegion0 = &localShrMem0[0];
+        // using ExtendedPatchLoader
+        {
+          #pragma unroll
+          for (int i = 0; i < 12; ++i) {
+            shrRegion0[threadIdx.x + i * 480] = glb_E[threadIdx.x + i * 480];
+          }
+          if (threadIdx.x < 246) {
+            shrRegion0[threadIdx.x + 5760] = glb_E[threadIdx.x + 5760];
+          }
+        }
+        
+        float* shrRegion1 = &localShrMem0[6006];
         // using ExtendedPatchLoader
         {
           if (threadIdx.x < 130) {
@@ -169,7 +180,7 @@ __launch_bounds__(480)
         
           #pragma unroll
           for (int k = 0; k < 13; ++k) {
-            value = glb_E[threadIdx.x + k * 462];
+            value = shrRegion0[threadIdx.x + k * 462];
         
             #pragma unroll
             for (int n = 0; n < 10; ++n) {
@@ -188,27 +199,27 @@ __launch_bounds__(480)
     }
   }
 }
-void sloopOverGEMM_NT_NT_NT__d462_13_d13_10_d462_10__alpha_1_0_beta_1_0_p_p_p__3b6e41a(float ** A, int A_extraOffset, const float * const * E, int E_extraOffset, const float * const * F, int F_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
+void sloopOverGEMM_NT_NT_NT__d462_13_d462_10_d13_10__alpha_1_0_beta_1_0_p_p_p__419e9f1(float ** A, int A_extraOffset, const float * const * E, int E_extraOffset, const float * const * F, int F_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
   dim3 block(480, 1, 1);
   dim3 grid((numElements + 1 - 1) / 1, 1, 1);
   cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
-  kernel_sloopOverGEMM_NT_NT_NT__d462_13_d13_10_d462_10__alpha_1_0_beta_1_0_p_p_p__3b6e41a<<<grid,block,0,stream>>>(A, A_extraOffset, E, E_extraOffset, F, F_extraOffset, numElements, flags);
+  kernel_sloopOverGEMM_NT_NT_NT__d462_13_d462_10_d13_10__alpha_1_0_beta_1_0_p_p_p__419e9f1<<<grid,block,0,stream>>>(A, A_extraOffset, E, E_extraOffset, F, F_extraOffset, numElements, flags);
   CHECK_ERR;
 }
 
 
 __global__ void 
 __launch_bounds__(224)
- kernel_sproduct_NT_NT_NT__d21_22_d21_22_10_d10__alpha_1_0_p_p_p__e223567(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags) {
+ kernel_sproduct_NT_NT_NT__d10_d21_22_10_d21_22__alpha_1_0_p_p_p__9329d0c(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags) {
   unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
   if (batchID < numElements) {
     bool isFlagsProvided = (flags != nullptr);
     bool allowed = isFlagsProvided ? static_cast<bool>(flags[batchID]) : true;
     if (allowed) {
       {
-        const float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
-        float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
         const float * const __restrict__ glb_B = &B[batchID][0 + B_extraOffset];
+        float * const __restrict__ glb_A = &A[batchID][0 + A_extraOffset];
+        const float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
         float reg0[22] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
         __shared__  __align__(8) float totalShrMem[472];
         float * localShrMem0 = &totalShrMem[472 * threadIdx.y];
@@ -236,9 +247,9 @@ __launch_bounds__(224)
         Description(
         	alpha: 1.0
         	add: True
-        	result: IndexedTensorDescription(name=A, indices=kpm, memoryLayout=DenseMemoryLayout(shape=(21, 22, 10), bbox=BoundingBox(Range(0, 21), Range(0, 22), Range(0, 10)), stride=(1, 21, 462), align=<yateto.arch.Architecture object at 0x7f3bda3101d0>), eqspp=dense(shape=(21, 22, 10), size=4620, ndim=3), is_compute_constant=False, is_temporary=False)
-        	leftTerm: IndexedTensorDescription(name=B, indices=m, memoryLayout=DenseMemoryLayout(shape=(10,), bbox=BoundingBox(Range(0, 10)), stride=(1,), align=<yateto.arch.Architecture object at 0x7f3bda3101d0>), eqspp=dense(shape=(10,), size=10, ndim=1), is_compute_constant=False, is_temporary=False)
-        	rightTerm: IndexedTensorDescription(name=X, indices=kp, memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f3bda3101d0>), eqspp=dense(shape=(21, 22), size=462, ndim=2), is_compute_constant=False, is_temporary=False)
+        	result: IndexedTensorDescription(name=A, indices=kpm, memoryLayout=DenseMemoryLayout(shape=(21, 22, 10), bbox=BoundingBox(Range(0, 21), Range(0, 22), Range(0, 10)), stride=(1, 21, 462), align=<yateto.arch.Architecture object at 0x7f0cf15675d0>), eqspp=dense(shape=(21, 22, 10), size=4620, ndim=3), is_compute_constant=False, is_temporary=False)
+        	leftTerm: IndexedTensorDescription(name=B, indices=m, memoryLayout=DenseMemoryLayout(shape=(10,), bbox=BoundingBox(Range(0, 10)), stride=(1,), align=<yateto.arch.Architecture object at 0x7f0cf15675d0>), eqspp=dense(shape=(10,), size=10, ndim=1), is_compute_constant=False, is_temporary=False)
+        	rightTerm: IndexedTensorDescription(name=X, indices=kp, memoryLayout=DenseMemoryLayout(shape=(21, 22), bbox=BoundingBox(Range(0, 21), Range(0, 22)), stride=(1, 21), align=<yateto.arch.Architecture object at 0x7f0cf15675d0>), eqspp=dense(shape=(21, 22), size=462, ndim=2), is_compute_constant=False, is_temporary=False)
         	isACsc: False
         	isBCsc: False
         	loopRanges: {'m': Range(0, 10), 'k': Range(0, 21), 'p': Range(0, 22)}
@@ -270,18 +281,18 @@ __launch_bounds__(224)
     }
   }
 }
-void sproduct_NT_NT_NT__d21_22_d21_22_10_d10__alpha_1_0_p_p_p__e223567(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
+void sproduct_NT_NT_NT__d10_d21_22_10_d21_22__alpha_1_0_p_p_p__9329d0c(float ** A, int A_extraOffset, const float * const * B, int B_extraOffset, const float * const * X, int X_extraOffset, unsigned numElements, unsigned* flags, void* streamPtr) {
   dim3 block(224, 1, 1);
   dim3 grid((numElements + 1 - 1) / 1, 1, 1);
   cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
-  kernel_sproduct_NT_NT_NT__d21_22_d21_22_10_d10__alpha_1_0_p_p_p__e223567<<<grid,block,0,stream>>>(A, A_extraOffset, B, B_extraOffset, X, X_extraOffset, numElements, flags);
+  kernel_sproduct_NT_NT_NT__d10_d21_22_10_d21_22__alpha_1_0_p_p_p__9329d0c<<<grid,block,0,stream>>>(A, A_extraOffset, B, B_extraOffset, X, X_extraOffset, numElements, flags);
   CHECK_ERR;
 }
 
 
 
 int main(){
-  constexpr size_t num_els = 65009;
+  constexpr size_t num_els = 65053;
   float* A = new float[4620 * num_els]{0.f};
   float* B = new float[10 * num_els]{0.f};
   float* C = new float[1281 * num_els]{0.f};
@@ -403,7 +414,7 @@ int main(){
   cudaMemcpy((void *)F_dev_begins_dev, (void *)F_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
   cudaMemcpy((void *)X_dev_begins_dev, (void *)X_dev_begins, sizeof(float*) * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
-  sloopOverGEMM_NT_NT_NT__d21_22_d61_22_d21_61__alpha_1_0_beta_0_0_p_p_p__22608e1(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  sloopOverGEMM_NT_NT_NT__d21_61_d21_22_d61_22__alpha_1_0_beta_0_0_p_p_p__7610af5(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaDeviceSynchronize(); CHECK_ERR;
   cudaMemcpy((void *)X_dev, (void *)X, sizeof(float) * 462 * num_els, cudaMemcpyHostToDevice); CHECK_ERR;
 
@@ -418,7 +429,7 @@ int main(){
   cudaEventCreate(&startT1); CHECK_ERR;
   cudaEventCreate(&stopT1); CHECK_ERR;
   cudaEventRecord(startT1); CHECK_ERR;
-  sloopOverGEMM_NT_NT_NT__d21_22_d61_22_d21_61__alpha_1_0_beta_0_0_p_p_p__22608e1(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  sloopOverGEMM_NT_NT_NT__d21_61_d21_22_d61_22__alpha_1_0_beta_0_0_p_p_p__7610af5(C_dev_begins_dev, 0, D_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaEventRecord(stopT1); CHECK_ERR;
   cudaEventSynchronize(stopT1); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT1, startT1, stopT1); CHECK_ERR;
@@ -429,7 +440,7 @@ int main(){
   cudaEventCreate(&startT2); CHECK_ERR;
   cudaEventCreate(&stopT2); CHECK_ERR;
   cudaEventRecord(startT2); CHECK_ERR;
-  sloopOverGEMM_NT_NT_NT__d462_13_d13_10_d462_10__alpha_1_0_beta_1_0_p_p_p__3b6e41a(A_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  sloopOverGEMM_NT_NT_NT__d462_13_d462_10_d13_10__alpha_1_0_beta_1_0_p_p_p__419e9f1(A_dev_begins_dev, 0, E_dev_begins_dev, 0, F_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaEventRecord(stopT2); CHECK_ERR;
   cudaEventSynchronize(stopT2); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT2, startT2, stopT2); CHECK_ERR;
@@ -440,7 +451,7 @@ int main(){
   cudaEventCreate(&startT3); CHECK_ERR;
   cudaEventCreate(&stopT3); CHECK_ERR;
   cudaEventRecord(startT3); CHECK_ERR;
-  sproduct_NT_NT_NT__d21_22_d21_22_10_d10__alpha_1_0_p_p_p__e223567(A_dev_begins_dev, 0, B_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
+  sproduct_NT_NT_NT__d10_d21_22_10_d21_22__alpha_1_0_p_p_p__9329d0c(A_dev_begins_dev, 0, B_dev_begins_dev, 0, X_dev_begins_dev, 0, num_els, nullptr, nullptr); CHECK_ERR;
   cudaEventRecord(stopT3); CHECK_ERR;
   cudaEventSynchronize(stopT3); CHECK_ERR;
   cudaEventElapsedTime(&elapsedTimeT3, startT3, stopT3); CHECK_ERR;
