@@ -74,44 +74,69 @@ __launch_bounds__(32)
         const float * const __restrict__ glb_C = &C[batchID][0 + C_extraOffset];
         float * const __restrict__ glb_X = &X[batchID][0 + X_extraOffset];
         float reg0[9] = {0.0f};
-        __shared__  __align__(8) float totalShrMem[3115];
-        float * localShrMem0 = &totalShrMem[3115 * threadIdx.y];
-        __shared__ __align__(8) float shrC[26*9];
+        __shared__  __align__(32) float totalShrMem1[32*89];
+        __shared__  __align__(32) float totalShrMem2[96*26];
+        //float * localShrMem0 = &totalShrMem[3115 * threadIdx.y];
+        __shared__ __align__(32) float shrC[9*26];
         
-        float* shrRegion0 = &localShrMem0[0];
+        float* shrRegion1 = totalShrMem2;
+        float* shrRegion0 = totalShrMem1;
+
         // using ExtendedPatchLoader
+        // D : 89 x 26
+        // C : 9 x 26
         {
           #pragma unroll
-          for (int i = 0; i < 25; ++i) {
-            shrRegion0[threadIdx.x + i * 32] = glb_C[threadIdx.x + i * 32];
+          for (int i = 0; i < 26; ++i) {
+            shrRegion1[threadIdx.x + 0  + i*96] = glb_D[threadIdx.x + 0  + i*89];
+            shrRegion1[threadIdx.x + 32 + i*96] = glb_D[threadIdx.x + 32 + i*89];
+            if (threadIdx.x < 25) {
+              shrRegion1[threadIdx.x + 64 + i*96] = glb_D[threadIdx.x + 64 + i*89] ;
+            }
           }
-          if (threadIdx.x < 1) {
-            shrRegion0[threadIdx.x + 800] = glb_C[threadIdx.x + 800];
-          }
+
         }
         
-        float* shrRegion1 = &localShrMem0[801];
+        
         // using ExtendedPatchLoader
+        /*
         {
-          #pragma unroll
-          for (int i = 0; i < 72; ++i) {
-            shrRegion1[threadIdx.x + i * 32] = glb_D[threadIdx.x + i * 32];
+          if (threadIdx.x < 9) {
+            #pragma unroll
+            for (int i = 0; i < 89; ++i) {
+              shrRegion0[threadIdx.x + i * 32] = glb_C[threadIdx.x + i * 9];
+            }
           }
-          if (threadIdx.x < 10) {
-            shrRegion1[threadIdx.x + 2304] = glb_D[threadIdx.x + 2304];
-          }
+        }
+        */
+        {
+            int a = threadIdx.x / 9;
+            int b = threadIdx.x % 9;
+            #pragma unroll 87
+            for (int i = 0; i < 87; i+=3) {
+              if (threadIdx.x < 27) {
+                shrRegion0[b + (i+a) * 32] = glb_C[b + (i+a) * 9];
+                shrRegion0[b + (i+a) * 32] = glb_C[b + (i+a) * 9];
+                shrRegion0[b + (i+a) * 32] = glb_C[b + (i+a) * 9];
+              }
+            }
+          
+            if (threadIdx.x < 18){
+              shrRegion0[b + (87+a) * 32] = glb_C[b + (87+a) * 9];
+              shrRegion0[b + (87+a) * 32] = glb_C[b + (87+a) * 9];
+            }
         }
         __syncwarp();
         if (threadIdx.x < 26) {
           float value;
         
-          #pragma unroll 45
+          #pragma unroll
           for (int k = 0; k < 89; ++k) {
-            value = shrRegion1[threadIdx.x * 89 + k];
+            value = shrRegion1[threadIdx.x * 96 + k];
         
             #pragma unroll
             for (int m = 0; m < 9; ++m) {
-              reg0[m] += value * shrRegion0[m + 9 * k];
+              reg0[m] += value * shrRegion0[m + 32 * k];
             }
           }
         }
