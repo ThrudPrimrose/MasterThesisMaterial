@@ -67,7 +67,7 @@ for dimId in range(6):
 
       available_mem = get_available_mem_on_gpu()
       can_fit_els = available_mem // per_el_size
-      lower = int(0.70 * can_fit_els)
+      lower = int(0.90 * can_fit_els)
       return lower
 
   fp_per_el_0 = 0

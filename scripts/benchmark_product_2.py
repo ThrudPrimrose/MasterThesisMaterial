@@ -67,7 +67,7 @@ for v, (I, J, K) in enumerate(ijk_s):
 
     available_mem = get_available_mem_on_gpu()
     can_fit_els = available_mem // per_el_size
-    lower = int(0.60 * can_fit_els)
+    lower = int(0.80 * can_fit_els)
     return lower
 
   FLOAT_SIZE = 4
