@@ -1,0 +1,171 @@
+\documentclass[tikz,border=0.1cm,dvipsnames]{standalone}
+\usepackage{tikz, tikz-3dplot}
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{xcolor}
+
+\begin{document}
+
+\newcommand{\Depth}{1}
+\newcommand{\Height}{1}
+\newcommand{\Width}{1}
+\newcommand{\xx}{0.75}
+\newcommand{\yy}{1}
+\newcommand{\zz}{1}
+\newcommand{\xxx}{3.6}
+\newcommand{\yyy}{0.8}
+\newcommand{\zzz}{1}
+\newcommand{\xa}{5}
+\newcommand{\ya}{-0.2}
+\newcommand{\za}{1}
+\newcommand{\xb}{6.4}
+\newcommand{\yb}{-0.2}
+\newcommand{\zb}{1}
+\newcommand{\xc}{7.8}
+\newcommand{\yc}{-0.2}
+\newcommand{\zc}{1}
+\newcommand{\xd}{9.2}
+\newcommand{\yd}{-0.3}
+\newcommand{\ye}{1.1}
+\newcommand{\zd}{1}
+
+\begin{tikzpicture}
+% Small box inside
+\coordinate (O) at (0,0,0);
+\coordinate (A) at (0,\Width,0);
+\coordinate (B) at (0,\Width,\Height);
+\coordinate (C) at (0,0,\Height);
+\coordinate (D) at (\Depth,0,0);
+\coordinate (E) at (\Depth,\Width,0);
+\coordinate (F) at (\Depth,\Width,\Height);
+\coordinate (G) at (\Depth,0,\Height);
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+%\draw [step=0.25, very thin, color=gray] (0, 0) grid (\Width, \Height)
+
+
+\coordinate (Oi) at (0,0,\Height-0.4);
+\coordinate (Ai) at (0,0.2,\Height-0.4);
+\coordinate (Bi) at (0,0.2,\Height-0.2);
+\coordinate (Ci) at (0,0,\Height-0.2);
+\coordinate (Di) at (\Depth,0,\Height-0.4);
+\coordinate (Ei) at (\Depth,0.2,\Height-0.4);
+\coordinate (Fi) at (\Depth,0.2,\Height-0.2);
+\coordinate (Gi) at (\Depth,0,\Height-0.2);
+\draw[draw=green!80!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[draw=green!80!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[draw=green!80!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[draw=green!40!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[draw=green!40!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[draw=green!40!black, fill opacity=0.8,fill=green!10, draw opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+\begin{scope}[canvas is xy plane at z=\Depth-0.2]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (0, 0) grid (\Width,0.2);
+\end{scope}
+
+\begin{scope}[canvas is xz plane at y=0.2]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (0, \Depth-0.2) grid (\Width,\Depth-0.4);
+\end{scope}
+
+\draw[draw=LimeGreen!60!black, fill  opacity=0.3,fill=LimeGreen!5, draw opacity=0.8] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=LimeGreen!60!black, fill  opacity=0.2,fill=LimeGreen!5, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+
+\draw[thin, draw=Gray, ->=, >=stealth'] (-0.05, -0.2, \Depth-0.2) -- (0.85, -0.2, \Depth-0.2);
+
+\coordinate (O) at (1.6,1.6,0);
+\coordinate (A) at (1.6,1.6+\Width,0);
+\coordinate (B) at (1.6,1.6+\Width,\Height);
+\coordinate (C) at (1.6,1.6,\Height);
+\coordinate (D) at (1.6+\Depth,1.6,0);
+\coordinate (E) at (1.6+\Depth,1.6+\Width,0);
+\coordinate (F) at (1.6+\Depth,1.6+\Width,\Height);
+\coordinate (G) at (1.6+\Depth,1.6,\Height);
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+\coordinate (Oi) at (1.6,1.6,\Height-0.4);
+\coordinate (Ai) at (1.6,1.6+\Width,\Height-0.4);
+\coordinate (Bi) at (1.6,1.6+\Width,\Height-0.2);
+\coordinate (Ci) at (1.6,1.6,\Height-0.2);
+\coordinate (Di) at (1.6+0.2,1.6,\Height-0.4);
+\coordinate (Ei) at (1.6+0.2,1.6+\Width,\Height-0.4);
+\coordinate (Fi) at (1.6+0.2,1.6+\Width,\Height-0.2);
+\coordinate (Gi) at (1.6+0.2,1.6,\Height-0.2);
+\draw[draw=Blue!80!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[draw=Blue!80!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[draw=Blue!80!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[draw=Blue!40!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[draw=Blue!40!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[draw=Blue!40!black, fill opacity=0.8,fill=Blue!10, draw opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+\begin{scope}[canvas is xy plane at z=\Depth-0.2]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (1.6, 1.6) grid (1.8,1.6+\Height);
+\end{scope}
+
+\begin{scope}[canvas is yz plane at x=1.8]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (1.6, \Depth-0.2) grid (1.6+\Height,\Depth-0.4);
+\end{scope}
+
+
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[draw=Cerulean!60!black,fill=Cerulean!5,fill opacity=0.3, draw opacity=0.8] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+\draw[thin, draw=Gray, ->=, >=stealth'] (1.4, 2.4, \Depth-0.2) -- (1.4, 1.6, \Depth-0.2);
+
+\coordinate (O) at (1.6,0,0);
+\coordinate (A) at (1.6,\Width,0);
+\coordinate (B) at (1.6,\Width,\Height);
+\coordinate (C) at (1.6,0,\Height);
+\coordinate (D) at (1.6+\Depth,0,0);
+\coordinate (E) at (1.6+\Depth,\Width,0);
+\coordinate (F) at (1.6+\Depth,\Width,\Height);
+\coordinate (G) at (1.6+\Depth,0,\Height);
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+
+\coordinate (Oi) at (1.6,0,\Height-0.4);
+\coordinate (Ai) at (1.6,0.2,\Height-0.4);
+\coordinate (Bi) at (1.6,0.2,\Height-0.2);
+\coordinate (Ci) at (1.6,0,\Height-0.2);
+\coordinate (Di) at (1.6+\Depth,0,\Height-0.4);
+\coordinate (Ei) at (1.6+\Depth,0.2,\Height-0.4);
+\coordinate (Fi) at (1.6+\Depth,0.2,\Height-0.2);
+\coordinate (Gi) at (1.6+\Depth,0,\Height-0.2);
+\draw[draw=Red!80!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[draw=Red!80!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[draw=Red!80!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[draw=Red!40!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[draw=Red!40!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[draw=Red!40!black, fill opacity=0.8,fill=Red!10, draw opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+
+\begin{scope}[canvas is xy plane at z=\Depth-0.2]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (1.6, 0) grid (1.6+\Width,0.2);
+\end{scope}
+
+\begin{scope}[canvas is xz plane at y=0.2]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (1.6, \Depth-0.2) grid (1.6+\Width,\Depth-0.4);
+\end{scope}
+
+\draw[draw=BrickRed!60!black,fill=BrickRed!5,draw opacity=0.8, fill opacity=0.3] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[draw=BrickRed!60!black,fill=BrickRed!5, draw opacity=0.8, fill opacity=0.3] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+
+\draw[thin, draw=Gray, ->=, >=stealth'] (1.6, -0.2, \Depth-0.2) -- (1.6+0.9, -0.2, \Depth-0.2);
+
+%\draw (1,-1.4,1) node {\color{black}$\mathcal{C}\in\mathbb{R}^{m\times n\times f}$};S
+
+\end{tikzpicture}
+\end{document}
