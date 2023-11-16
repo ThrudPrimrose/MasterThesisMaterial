@@ -16,3 +16,5 @@ The plan is to combine both branches and open up a merge request.
 ## Results and Other Details
 
 Can be read in my master thesis.
+
+I have also occasionally used the scripts available in this repository as a starting point ([latex-figures](https://github.com/xinychen/awesome-latex-drawing)).
