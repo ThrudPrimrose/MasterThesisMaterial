@@ -1,0 +1,251 @@
+\documentclass[tikz,border=0.1cm,dvipsnames,convert={outext=.svg}]{standalone}
+\usepackage{tikz, tikz-3dplot}
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{xcolor}
+\usepackage{comment}
+\begin{document}
+
+\newcommand{\Depth}{2}
+\newcommand{\Height}{2}
+\newcommand{\Width}{2}
+\newcommand{\xx}{1}
+\newcommand{\yy}{1}
+\newcommand{\zz}{1}
+\newcommand{\xxx}{3.6}
+\newcommand{\yyy}{0.8}
+\newcommand{\zzz}{1}
+\newcommand{\xa}{5}
+\newcommand{\ya}{-0.2}
+\newcommand{\za}{1}
+\newcommand{\xb}{6.4}
+\newcommand{\yb}{-0.2}
+\newcommand{\zb}{1}
+\newcommand{\xc}{7.8}
+\newcommand{\yc}{-0.2}
+\newcommand{\zc}{1}
+\newcommand{\xd}{9.2}
+\newcommand{\yd}{-0.3}
+\newcommand{\ye}{1.1}
+\newcommand{\zd}{1}
+
+\begin{tikzpicture}
+\coordinate (O) at (0,0,0);
+\coordinate (A) at (0,\Width,0);
+\coordinate (B) at (0,\Width,\Height);
+\coordinate (C) at (0,0,\Height);
+\coordinate (D) at (\Depth,0,0);
+\coordinate (E) at (\Depth,\Width,0);
+\coordinate (F) at (\Depth,\Width,\Height);
+\coordinate (G) at (\Depth,0,\Height);
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+
+\coordinate (Oi) at (0.2,1.4,1.4);
+\coordinate (Ai) at (0.2,1.6,1.4);
+\coordinate (Bi) at (0.2,1.6,1.6);
+\coordinate (Ci) at (0.2,1.4,1.6);
+\coordinate (Di) at (0.4,1.4,1.4);
+\coordinate (Ei) at (0.4,1.6,1.4);
+\coordinate (Fi) at (0.4,1.6,1.6);
+\coordinate (Gi) at (0.4,1.4,1.6);
+\draw[green!80!black,fill=green!10] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[green!40!black,fill=green!10,opacity=0.6] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+%\draw [draw=gray!75,thick] (0.41,1.39,1.61) node [right] {{\color{green!50!black}\scriptsize${ijk}$}};
+
+
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[BrickRed!60!black,fill=BrickRed!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+%\draw (1,-1.2,1) node {\color{black}$\mathcal{Y}\in\mathbb{R}^{m* n* f}$};
+
+\coordinate (O) at (3.5+0,0,0);
+\coordinate (A) at (3.5+0,\Width,0);
+\coordinate (B) at (3.5+0,\Width,\Height);
+\coordinate (C) at (3.5+0,0,\Height);
+\coordinate (D) at (3.5+\Depth,0,0);
+\coordinate (E) at (3.5+\Depth,\Width,0);
+\coordinate (F) at (3.5+\Depth,\Width,\Height);
+\coordinate (G) at (3.5+\Depth,0,\Height);
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+\draw[thin, draw=Gray, ->=, >=stealth'] (3.5+0.15, -0.15, 2) -- (3.5-0.15+2, -0.15, 2);
+
+\coordinate (Oi) at (3.5,1.4,1.2);
+\coordinate (Ai) at (3.5,1.6,1.2);
+\coordinate (Bi) at (3.5,1.6,1.4);
+\coordinate (Ci) at (3.5,1.4,1.4);
+\coordinate (Di) at (3.5+2,1.4,1.2);
+\coordinate (Ei) at (3.5+2,1.6,1.2);
+\coordinate (Fi) at (3.5+2,1.6,1.4);
+\coordinate (Gi) at (3.5+2,1.4,1.4);
+\draw[green!80!black,fill=green!10] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[green!40!black,fill=green!10,opacity=0.6] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+\begin{scope}[canvas is xy plane at z=1.4]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5,shift={(-0.1,0)}] (3.6, 1.4) grid (3.6+2,1.6);
+\end{scope}
+
+\begin{scope}[canvas is xz plane at y=1.6]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5,shift={(-0.1,0)}] (3.6, 1.2) grid (3.6+2,1.4);
+\end{scope}
+
+
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[Cerulean!60!black,fill=Cerulean!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+
+
+
+\coordinate (O) at (7+0,0,0);
+\coordinate (A) at (7+0,\Width,0);
+\coordinate (B) at (7+0,\Width,\Height);
+\coordinate (C) at (7+0,0,\Height);
+\coordinate (D) at (7+\Depth,0,0);
+\coordinate (E) at (7+\Depth,\Width,0);
+\coordinate (F) at (7+\Depth,\Width,\Height);
+\coordinate (G) at (7+\Depth,0,\Height);
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+
+\coordinate (Oi) at (7+0.2,0,1.2);
+\coordinate (Ai) at (7+0.2,2,1.2);
+\coordinate (Bi) at (7+0.2,2,1.4);
+\coordinate (Ci) at (7+0.2,0,1.4);
+\coordinate (Di) at (7+0.4,0,1.2);
+\coordinate (Ei) at (7+0.4,2,1.2);
+\coordinate (Fi) at (7+0.4,2,1.4);
+\coordinate (Gi) at (7+0.4,0,1.4);
+\draw[green!80!black,fill=green!10] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[green!40!black,fill=green!10,opacity=0.6] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+
+\begin{scope}[canvas is xy plane at z=1.4]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (7+0.2, 0.2) grid (7+0.4,2);
+\end{scope}
+
+\begin{scope}[canvas is yz plane at x=7+0.4+0.0001]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (0, 1.2) grid (2,1.4);
+\end{scope}
+
+
+
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[LimeGreen!60!black,fill=LimeGreen!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[thin, draw=Gray, ->=, >=stealth'] (7-0.15, 2-0.1, 2) -- (7-0.15, 0.1, 2);
+
+%uncomment for full expression
+
+\coordinate (O) at (7+3.5,0,0);
+\coordinate (A) at (7+3.5,\Width,0);
+\coordinate (B) at (7+3.5,\Width,\Height);
+\coordinate (C) at (7+3.5,0,\Height);
+\coordinate (D) at (7+3.5+\Depth,0,0);
+\coordinate (E) at (7+3.5+\Depth,\Width,0);
+\coordinate (F) at (7+3.5+\Depth,\Width,\Height);
+\coordinate (G) at (7+3.5+\Depth,0,\Height);
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+
+\coordinate (Oi) at (7+3.5+0.2,2-0.6,1.2);
+\coordinate (Ai) at (7+3.5+0.2,2-0.4,1.2);
+\coordinate (Bi) at (7+3.5+0.2,2-0.4,1.4);
+\coordinate (Ci) at (7+3.5+0.2,2-0.6,1.4);
+\coordinate (Di) at (7+3.5+0.4,2-0.6,1.2);
+\coordinate (Ei) at (7+3.5+0.4,2-0.4,1.2);
+\coordinate (Fi) at (7+3.5+0.4,2-0.4,1.4);
+\coordinate (Gi) at (7+3.5+0.4,2-0.6,1.4);
+\draw[green!80!black,fill=green!10] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[green!40!black,fill=green!10,opacity=0.6] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[Thistle!60!black,fill=Thistle!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+
+
+\coordinate (O) at (14,0,0);
+\coordinate (A) at (14,\Width,0);
+\coordinate (B) at (14,\Width,\Height);
+\coordinate (C) at (14,0,\Height);
+\coordinate (D) at (14+\Depth,0,0);
+\coordinate (E) at (14+\Depth,\Width,0);
+\coordinate (F) at (14+\Depth,\Width,\Height);
+\coordinate (G) at (14+\Depth,0,\Height);
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (O) -- (C) -- (G) -- (D) -- cycle;% Bottom Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (E) -- (D) -- cycle;% Back Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (O) -- (A) -- (B) -- (C) -- cycle;% Left Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (A) -- (B) -- (F) -- (E) -- cycle;% Top Face
+
+
+\coordinate (Oi) at (14+0.2,1.4,0);
+\coordinate (Ai) at (14+0.2,1.6,0);
+\coordinate (Bi) at (14+0.2,1.6,2);
+\coordinate (Ci) at (14+0.2,1.4,2);
+\coordinate (Di) at (14+0.4,1.4,0);
+\coordinate (Ei) at (14+0.4,1.6,0);
+\coordinate (Fi) at (14+0.4,1.6,2);
+\coordinate (Gi) at (14+0.4,1.4,2);
+\draw[green!80!black,fill=green!10] (Oi) -- (Ci) -- (Gi) -- (Di) -- cycle;% Bottom Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Ei) -- (Di) -- cycle;% Back Face
+\draw[green!80!black,fill=green!10] (Oi) -- (Ai) -- (Bi) -- (Ci) -- cycle;% Left Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Di) -- (Ei) -- (Fi) -- (Gi) -- cycle;% Right Face
+\draw[green!40!black,fill=green!10,opacity=0.6] (Ci) -- (Bi) -- (Fi) -- (Gi) -- cycle;% Front Face
+\draw[green!40!black,fill=green!10,opacity=0.8] (Ai) -- (Bi) -- (Fi) -- (Ei) -- cycle;% Top Face
+
+\begin{scope}[canvas is xz plane at y=1.6]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (14+0.2, 0) grid (14+0.4,2);
+\end{scope}
+
+\begin{scope}[canvas is yz plane at x=14+0.4]
+    \draw [step=0.2, very thin, color=gray!40!black, opacity=0.5] (1.4, 0) grid (1.6,2);
+\end{scope}
+
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (D) -- (E) -- (F) -- (G) -- cycle;% Right Face
+\draw[BurntOrange!60!black,fill=BurntOrange!5,fill opacity=0.2, draw opacity=1.0] (C) -- (B) -- (F) -- (G) -- cycle;% Front Face
+\draw[thin, draw=Gray, ->=, >=stealth'] (14+2+0.15, -0.1, 1.9) -- (14+2+0.15, -0.1, 0.1);
+
+\draw (7+2+0.3,0.5,0) node[rotate = 0] {{\color{black}\large{$*$}}};
+\draw (7+3.5+2+0.3,0.5,0) node[rotate = 0] {{\color{black}\large{$*$}}};
+
+
+\draw (2.3,0.5,0) node[rotate = 0] {{\color{black}\large{$=$}}};
+\draw (3.5+2+0.3,0.5,0) node[rotate = 0] {{\color{black}\large{$*$}}};
+
+
+\end{tikzpicture}
+\end{document}
