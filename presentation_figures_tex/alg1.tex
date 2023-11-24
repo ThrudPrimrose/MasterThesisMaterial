@@ -1,0 +1,32 @@
+\documentclass{standalone}
+\usepackage{helvet} % Add the helvet package for Helvetica font
+\renewcommand{\familydefault}{\sfdefault} % Set the default font to sans-serif (Helvetica)
+
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{caption}
+\captionsetup[algorithm]{labelformat=empty} % Set labelformat to empty for the algorithm environment
+
+
+\begin{document}
+
+\begin{minipage}[]{0.8\linewidth}
+    %\begin{algorithm}[H]
+      \captionof{algorithm}{\texttt{Row-wise Matrix Multiplication}}
+    \begin{lstlisting}[language=C, basicstyle=\ttfamily]
+for (i : 0..M){
+  sum[0..N] = {0..0}
+  for (k : 0..K){
+    from (j : 0..N){
+      sum[j] += A[i][k] * B[k][j]
+    }
+  }
+  for (j : 0..N){
+    C[i][j] = alpha * sum[j] + beta * C[i][j]
+  }
+}
+        \end{lstlisting}\label{alg:rowWiseMatMul}
+    %\end{algorithm}
+\end{minipage}
+
+\end{document}
