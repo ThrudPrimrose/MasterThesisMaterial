@@ -138,7 +138,7 @@ __global__ void
 }
 
 __global__ void
-    __launch_bounds__(64)
+    __launch_bounds__(32)
         kernel_A_B_full_DenseXDense2(const float *A, int A_extraOffset, const float *B, int B_extraOffset, float *C, int C_extraOffset, unsigned numElements, unsigned *flags)
 {
     unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
@@ -152,10 +152,10 @@ __global__ void
             const float *const __restrict__ glb_B = &B[batchID * 81 + 0 + B_extraOffset];
             float *const __restrict__ glb_C = &C[batchID * 504 + 0 + C_extraOffset];
             float reg0[56] = {0.0f};
-            __shared__ __align__(128) float totalShrMem1[32 * 9];
+            __shared__ __align__(128) float totalShrMem1[11 * 9];
             __shared__ __align__(128) float totalShrMem2[64 * 9];
             //__shared__ __align__(128) float totalShrMem3[64 * 9];
-            float *localShrMem0 = &totalShrMem1[32 * 9 * threadIdx.y];
+            float *localShrMem0 = &totalShrMem1[11 * 9 * threadIdx.y];
             float *localShrMem1 = &totalShrMem2[64 * 9 * threadIdx.y];
             //float *localShrMem2 = &totalShrMem3[56 * 9 * threadIdx.y];
             float *shrRegion2 = &localShrMem1[0];
@@ -167,16 +167,18 @@ __global__ void
 #pragma unroll 9
                 for (int i = 0; i < 9; i++)
                 {
-                    shrRegion0[threadIdx.x + 31 * i] = glb_B[threadIdx.x + 9 * i];
+                    shrRegion0[threadIdx.x + 11 * i] = glb_B[threadIdx.x + 9 * i];
                 }
             }
             // Load Matrix A
             float *shrRegion1 = &localShrMem1[0];
+#pragma unroll 9
             for (int i = 0; i < 9; i++)
             {
-                if (threadIdx.x < 56)
+                shrRegion1[threadIdx.x + 64*i] = glb_A[threadIdx.x + 56*i];
+                if (threadIdx.x < 56 - 32)
                 {
-                    shrRegion1[threadIdx.x + 64 * i] = glb_A[threadIdx.x + 56 * i];
+                    shrRegion1[threadIdx.x + 32 + 64*i] = glb_A[threadIdx.x + 32 + 56*i];
                 }
             }
 
@@ -187,7 +189,7 @@ __global__ void
 #pragma unroll 9
                 for (int k = 0; k < 9; ++k)
                 {
-                    value = shrRegion0[threadIdx.x * 31 + k];
+                    value = shrRegion0[threadIdx.x * 11 + k];
 
 #pragma unroll 56
                     for (int m = 0; m < 56; m++)
@@ -205,12 +207,12 @@ __global__ void
                 }
             }
             __syncthreads();
-            if (threadIdx.x < 56)
-            {
 #pragma unroll 9
-                for (int i = 0; i < 9; i++)
-                {
-                    glb_C[threadIdx.x + 56 * i] = shrRegion2[threadIdx.x + 64 * i];
+            for (int i = 0; i < 9; i++)
+            {
+                glb_C[threadIdx.x + 56 * i] = shrRegion2[threadIdx.x + 64 * i];
+                if (threadIdx.x < 56 - 32){
+                    glb_C[threadIdx.x + 32 + 56 * i] = shrRegion2[threadIdx.x + 32 + 64 * i];
                 }
             }
         }
@@ -230,7 +232,7 @@ void A_B_DenseXDense(const float *A, int A_extraOffset, const float *B, int B_ex
 // Dense x Sparse Kernel Launcher
 void A_B_full_DenseXDense2(const float *A, int A_extraOffset, const float *B, int B_extraOffset, float *C, int C_extraOffset, unsigned numElements, unsigned *flags, void *streamPtr)
 {
-    dim3 block(64, 1, 1);
+    dim3 block(32, 1, 1);
     dim3 grid((numElements + 1 - 1) / 1, 1, 1);
     cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
     kernel_A_B_full_DenseXDense2<<<grid, block, 0, stream>>>(A, A_extraOffset, B, B_extraOffset, C, C_extraOffset, numElements, flags);
