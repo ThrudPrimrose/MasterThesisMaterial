@@ -96,7 +96,7 @@ __global__ void
             const float *const __restrict__ glb_B = &B[batchID * 81 + 0 + B_extraOffset];
             float *const __restrict__ glb_C = &C[batchID * 504 + 0 + C_extraOffset];
             float reg0[9] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-            __shared__ __align__(8) float totalShrMem[81];
+            __shared__ __align__(128) float totalShrMem[81];
             float *localShrMem0 = &totalShrMem[81 * threadIdx.y];
 
             float *shrRegion0 = &localShrMem0[0];
@@ -219,6 +219,89 @@ __global__ void
     }
 }
 
+__global__ void
+    __launch_bounds__(32)
+        kernel_A_B_full_DenseXDense3(const float *A, int A_extraOffset, const float *B, int B_extraOffset, float *C, int C_extraOffset, unsigned numElements, unsigned *flags)
+{
+    unsigned batchID = (threadIdx.y + blockDim.y * blockIdx.x);
+    if (batchID < numElements)
+    {
+        bool isFlagsProvided = (flags != nullptr);
+        bool allowed = isFlagsProvided ? static_cast<bool>(flags[batchID]) : true;
+        if (allowed)
+        {
+            const float *const __restrict__ glb_A = &A[batchID * 504 + 0 + A_extraOffset];
+            const float *const __restrict__ glb_B = &B[batchID * 81 + 0 + B_extraOffset];
+            float *const __restrict__ glb_C = &C[batchID * 504 + 0 + C_extraOffset];
+            float reg0[56] = {0.0f};
+            __shared__ __align__(128) float totalShrMem1[9 * 9];
+            __shared__ __align__(128) float totalShrMem2[56* 9];
+            //__shared__ __align__(128) float totalShrMem3[64 * 9];
+            float *localShrMem0 = &totalShrMem1[9 * 9 * threadIdx.y];
+            float *localShrMem1 = &totalShrMem2[56 * 9 * threadIdx.y];
+            //float *localShrMem2 = &totalShrMem3[56 * 9 * threadIdx.y];
+            float *shrRegion2 = &localShrMem1[0];
+
+            // Load Matrix B
+            float *shrRegion0 = &localShrMem0[0];
+            if (threadIdx.x < 9)
+            {
+#pragma unroll 9
+                for (int i = 0; i < 9; i++)
+                {
+                    shrRegion0[threadIdx.x + 9 * i] = glb_B[threadIdx.x + 9 * i];
+                }
+            }
+            // Load Matrix A
+            float *shrRegion1 = &localShrMem1[0];
+#pragma unroll 9
+            for (int i = 0; i < 9; i++)
+            {
+                shrRegion1[threadIdx.x + 56*i] = glb_A[threadIdx.x + 56*i];
+                if (threadIdx.x < 56 - 32)
+                {
+                    shrRegion1[threadIdx.x + 32 + 56*i] = glb_A[threadIdx.x + 32 + 56*i];
+                }
+            }
+
+            __syncthreads();
+            if (threadIdx.x < 9)
+            {
+                float value;
+#pragma unroll 9
+                for (int k = 0; k < 9; ++k)
+                {
+                    value = shrRegion0[threadIdx.x * 9 + k];
+
+#pragma unroll 56
+                    for (int m = 0; m < 56; m++)
+                    {
+                        reg0[m] += value * shrRegion1[k * 56 + m];
+                    }
+                }
+            }
+            if (threadIdx.x < 9)
+            {
+#pragma unroll 56
+                for (int m = 0; m < 56; ++m)
+                {
+                    shrRegion2[threadIdx.x * 56 + m] = 1.5f * reg0[m];
+                }
+            }
+            __syncthreads();
+#pragma unroll 9
+            for (int i = 0; i < 9; i++)
+            {
+                glb_C[threadIdx.x + 56 * i] = shrRegion2[threadIdx.x + 56 * i];
+                if (threadIdx.x < 56 - 32){
+                    glb_C[threadIdx.x + 32 + 56 * i] = shrRegion2[threadIdx.x + 32 + 56 * i];
+                }
+            }
+        }
+    }
+}
+
+
 // Dense x Dense Kernel Launcher
 void A_B_DenseXDense(const float *A, int A_extraOffset, const float *B, int B_extraOffset, float *C, int C_extraOffset, unsigned numElements, unsigned *flags, void *streamPtr)
 {
@@ -238,6 +321,16 @@ void A_B_full_DenseXDense2(const float *A, int A_extraOffset, const float *B, in
     kernel_A_B_full_DenseXDense2<<<grid, block, 0, stream>>>(A, A_extraOffset, B, B_extraOffset, C, C_extraOffset, numElements, flags);
     CHECK_ERR;
 }
+
+void A_B_full_DenseXDense3(const float *A, int A_extraOffset, const float *B, int B_extraOffset, float *C, int C_extraOffset, unsigned numElements, unsigned *flags, void *streamPtr)
+{
+    dim3 block(32, 1, 1);
+    dim3 grid((numElements + 1 - 1) / 1, 1, 1);
+    cudaStream_t stream = (streamPtr != nullptr) ? static_cast<cudaStream_t>(streamPtr) : 0;
+    kernel_A_B_full_DenseXDense3<<<grid, block, 0, stream>>>(A, A_extraOffset, B, B_extraOffset, C, C_extraOffset, numElements, flags);
+    CHECK_ERR;
+}
+
 
 __global__ void printKernel(const float *devicePtr, int n)
 {
@@ -507,7 +600,7 @@ int main()
     cudaMemcpy(C2_dev, C, sizeof(float) * 56 * 9 * num_els, cudaMemcpyHostToDevice);
     CHECK_ERR;
 
-    std::cout << "Calling Dense x Sparse kernel" << std::endl;
+    std::cout << "Calling Dense x Dense kernel 2" << std::endl;
     float elapsedTime2 = 0.0;
     cudaEvent_t startDS, stopDS;
     cudaEventCreate(&startDS);
@@ -526,7 +619,7 @@ int main()
     CHECK_ERR;
     cudaEventElapsedTime(&elapsedTime2, startDS, stopDS);
     CHECK_ERR;
-    std::cout << "Dense x Sparse kernel took " << elapsedTime2 << " ms" << std::endl;
+    std::cout << "Dense x Dense kernel 2 took " << elapsedTime2 << " ms" << std::endl;
     cudaEventDestroy(startDS);
     CHECK_ERR;
     cudaEventDestroy(stopDS);
@@ -538,15 +631,41 @@ int main()
     {
         if (std::abs(R1[i] - R2[i]) >= 0.1)
         {
-            std::string s = " Dense x  Dense and  Dense x  Sparse Matrix Mismatch in Multiplication at " + std::to_string(i) + "!";
+            std::string s = " Dense x  Dense and  Dense x Dense 2 Matrix Mismatch in Multiplication at " + std::to_string(i) + "!";
             // throw std::runtime_error(s);
             std::cout << " " << std::to_string(R1[i]) + " and " + std::to_string(R2[i]) << std::endl;
-            std::cout << "Dense x Dense Gemmforge and Dense x Sparse Gemmforge results don't match!" << std::endl;
+            std::cout << "Dense x Dense Gemmforge and Dense x Dense 2 Gemmforge results don't match!" << std::endl;
             std::cout << s << std::endl;
             break;
         }
     }
     cudaMemcpy((void *)C2_dev, (void *)C, sizeof(float) * 56 * 9 * num_els, cudaMemcpyHostToDevice);
+    CHECK_ERR;
+
+    float elapsedTime3 = 0.0;
+    cudaEvent_t startDS2, stopDS2;
+    cudaEventCreate(&startDS2);
+    CHECK_ERR;
+    cudaEventCreate(&stopDS2);
+    CHECK_ERR;
+    cudaEventRecord(startDS2);
+    CHECK_ERR;
+    A_B_full_DenseXDense3(A_dev, 0, B_sparse_dev, 0, C2_dev, 0, num_els, nullptr, nullptr);
+    CHECK_ERR;
+    cudaEventRecord(stopDS2);
+    CHECK_ERR;
+    cudaEventSynchronize(stopDS2);
+    CHECK_ERR;
+    cudaDeviceSynchronize();
+    CHECK_ERR;
+    cudaEventElapsedTime(&elapsedTime3, startDS2, stopDS2);
+    CHECK_ERR;
+    std::cout << "Dense x Dense kernel 3 took " << elapsedTime3 << " ms" << std::endl;
+    cudaEventDestroy(startDS2);
+    CHECK_ERR;
+    cudaEventDestroy(stopDS2);
+    CHECK_ERR;
+    cudaMemcpy(R2, C2_dev, sizeof(float) * 56 * 9 * num_els, cudaMemcpyDeviceToHost);
     CHECK_ERR;
 
     std::cout << "Freeing device memory" << std::endl;
